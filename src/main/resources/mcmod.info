@@ -1,0 +1,10 @@
+[
+{
+  "modid": "consolehud",
+  "name": "Console HUD",
+  "description": "Bringing over HUD features from Console Edition.",
+  "version": "${version}",
+  "url": "",
+  "authorList": ["Fuzs"],
+}
+]
