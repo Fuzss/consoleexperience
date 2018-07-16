@@ -3,8 +3,9 @@
   "modid": "consolehud",
   "name": "Console HUD",
   "description": "Bringing over HUD features from Console Edition.",
-  "version": "${version}",
-  "url": "",
-  "authorList": ["Fuzs"],
+  "version": "1.0.1",
+  "mcversion": "1.12.2",
+  "url": "https://minecraft.curseforge.com/projects/console-hud",
+  "authorList": ["Fuzs"]
 }
 ]
