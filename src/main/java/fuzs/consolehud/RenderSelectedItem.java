@@ -1,17 +1,11 @@
-package com.example.examplemod;
+package fuzs.consolehud;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -26,9 +20,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class RenderSelectedItem extends GuiIngame {
+    private boolean isEnabled;
 
     public RenderSelectedItem(Minecraft mcIn) {
         super(mcIn);
+        isEnabled = mc.gameSettings.heldItemTooltips;
     }
 
     @SubscribeEvent
@@ -36,7 +32,7 @@ public class RenderSelectedItem extends GuiIngame {
         if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END)
             return;
 
-        if (this.mc.player != null)
+        if (this.mc.player != null && isEnabled)
         {
             ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
 
@@ -61,7 +57,7 @@ public class RenderSelectedItem extends GuiIngame {
     }
 
     @SubscribeEvent
-    public void preRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
+    public void preRenderGameOverlay(RenderGameOverlayEvent.Text event) {
         if (mc.gameSettings.heldItemTooltips) {
             mc.gameSettings.heldItemTooltips = false;
         }
@@ -95,8 +91,7 @@ public class RenderSelectedItem extends GuiIngame {
 
             if (k > 0)
             {
-                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                List<String> textLines = getItemToolTip(this.highlightingItemStack);
+                List<String> textLines = getToolTipColour(this.highlightingItemStack);
                 int listsize = textLines.size();
 
                 if (listsize > 5) {
@@ -107,7 +102,7 @@ public class RenderSelectedItem extends GuiIngame {
 
                 for (int k1 = 0; k1 < listsize; ++k1)
                 {
-                    drawCenteredString(textLines.get(k1), (float)i, (float)j, k << 24);
+                    drawCenteredString(textLines.get(k1), (float) i, (float) j, k << 24);
 
                     if (k1 == 0)
                     {
@@ -116,12 +111,13 @@ public class RenderSelectedItem extends GuiIngame {
 
                     j += 10;
                 }
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                this.mc.getTextureManager().bindTexture(ICONS);
             }
         }
     }
 
+    /**
+     * Removes empty lines from a list of strings
+     */
     private List<String> removeEmptyLines(List<String> list) {
         for (int k1 = 0; k1 < list.size(); ++k1)
         {
@@ -132,16 +128,20 @@ public class RenderSelectedItem extends GuiIngame {
         return list;
     }
 
-    private List<String> getItemToolTip(ItemStack stack) {
+    /**
+     * Colours first line in a list of strings according to its rarity, other lines that don't have a colour assigned
+     * will be coloured grey
+     */
+    private List<String> getToolTipColour(ItemStack stack) {
         List<String> list = removeEmptyLines(getTooltip(this.mc.player, stack));
 
         for (int i = 0; i < list.size(); ++i)
         {
             if (i == 0) {
-                list.set(i, stack.getRarity().rarityColor + (String)list.get(i));
+                list.set(i, stack.getRarity().rarityColor + list.get(i));
             } else if (i == 4 && list.size() > 5) {
                 list.set(i, TextFormatting.GRAY + "...");
-            } else {
+            } else if (!(list.get(i).charAt(0) == 167)) {
                 list.set(i, TextFormatting.GRAY + list.get(i));
             }
         }
@@ -172,11 +172,6 @@ public class RenderSelectedItem extends GuiIngame {
         }
 
         s = s + TextFormatting.RESET;
-
-        if (!stack.hasDisplayName() && stack.getItem() == Items.FILLED_MAP)
-        {
-            s = s + " #" + stack.getItemDamage();
-        }
 
         list.add(s);
 
