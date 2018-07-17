@@ -3,6 +3,7 @@ package fuzs.consolehud;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,11 +21,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class RenderSelectedItem extends GuiIngame {
-    private boolean isEnabled;
 
     public RenderSelectedItem(Minecraft mcIn) {
         super(mcIn);
-        isEnabled = mc.gameSettings.heldItemTooltips;
     }
 
     @SubscribeEvent
@@ -32,7 +31,7 @@ public class RenderSelectedItem extends GuiIngame {
         if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END)
             return;
 
-        if (this.mc.player != null && isEnabled)
+        if (this.mc.player != null)
         {
             ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
 
@@ -57,7 +56,7 @@ public class RenderSelectedItem extends GuiIngame {
     }
 
     @SubscribeEvent
-    public void preRenderGameOverlay(RenderGameOverlayEvent.Text event) {
+    public void renderGameOverlayText(RenderGameOverlayEvent.Text event) {
         if (mc.gameSettings.heldItemTooltips) {
             mc.gameSettings.heldItemTooltips = false;
         }
@@ -91,6 +90,8 @@ public class RenderSelectedItem extends GuiIngame {
 
             if (k > 0)
             {
+                GlStateManager.pushMatrix();
+                GlStateManager.enableBlend();
                 List<String> textLines = getToolTipColour(this.highlightingItemStack);
                 int listsize = textLines.size();
 
@@ -111,6 +112,9 @@ public class RenderSelectedItem extends GuiIngame {
 
                     j += 10;
                 }
+                GlStateManager.disableBlend();
+                GlStateManager.popMatrix();
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
     }

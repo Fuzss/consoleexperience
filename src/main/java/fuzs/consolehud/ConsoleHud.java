@@ -20,8 +20,10 @@ public class ConsoleHud
     public void init(FMLInitializationEvent event)
     {
         RenderSelectedItem rsi = new RenderSelectedItem(mc);
+        PaperDoll pd = new PaperDoll(mc);
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(rsi);
+        MinecraftForge.EVENT_BUS.register(pd);
     }
 }
