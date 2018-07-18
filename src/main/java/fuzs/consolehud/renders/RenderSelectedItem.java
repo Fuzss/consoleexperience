@@ -1,6 +1,7 @@
-package fuzs.consolehud;
+package fuzs.consolehud.renders;
 
 import com.google.common.collect.Lists;
+import fuzs.consolehud.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
@@ -28,7 +29,7 @@ public class RenderSelectedItem extends GuiIngame {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END)
+        if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END || !ConfigHandler.heldItemTooltips)
             return;
 
         if (this.mc.player != null)
@@ -59,8 +60,11 @@ public class RenderSelectedItem extends GuiIngame {
     public void renderGameOverlayText(RenderGameOverlayEvent.Text event) {
         if (mc.gameSettings.heldItemTooltips) {
             mc.gameSettings.heldItemTooltips = false;
+        } else if (!ConfigHandler.heldItemTooltips) {
+            mc.gameSettings.heldItemTooltips = true;
         }
-        if (this.mc.playerController.isSpectator()) {
+
+        if (this.mc.playerController.isSpectator() || !ConfigHandler.heldItemTooltips) {
             return;
         }
 
