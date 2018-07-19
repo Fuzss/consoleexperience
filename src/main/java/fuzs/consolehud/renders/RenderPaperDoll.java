@@ -2,7 +2,6 @@ package fuzs.consolehud.renders;
 
 import fuzs.consolehud.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;

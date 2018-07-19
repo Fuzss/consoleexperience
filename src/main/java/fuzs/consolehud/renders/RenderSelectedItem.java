@@ -9,14 +9,13 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -27,8 +26,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class RenderSelectedItem extends GuiIngame {
-
-    private int maxLines = 5;
 
     public RenderSelectedItem(Minecraft mcIn) {
         super(mcIn);
@@ -106,14 +103,13 @@ public class RenderSelectedItem extends GuiIngame {
                 List<String> textLines = getToolTipColour(this.highlightingItemStack);
                 int listsize = textLines.size();
 
+                if (listsize > ConfigHandler.heldItemTooltipsRows) {
+                    listsize = ConfigHandler.heldItemTooltipsRows;
+                }
                 // better to read overlayMessageTime > 0 from GuiIngame and set maxSize = 2 instead of blocking the status message
                 if (listsize > 2) {
                     this.mc.player.sendStatusMessage(new TextComponentString(""), true);
                 }
-                if (listsize > maxLines) {
-                    listsize = maxLines;
-                }
-
                 j -= listsize > 1 ? (listsize - 1) * 10 + 2 : (listsize - 1) * 10;
 
                 for (int k1 = 0; k1 < listsize; ++k1)
@@ -158,14 +154,29 @@ public class RenderSelectedItem extends GuiIngame {
         {
             if (i == 0) {
                 list.set(i, stack.getRarity().rarityColor + list.get(i));
-            } else if (i == maxLines - 1 && list.size() > maxLines) {
-                list.set(i, TextFormatting.ITALIC + new TextComponentTranslation("container.shulkerBox.more", list.size() - maxLines + 1).getFormattedText());
-            } else if (!(list.get(i).charAt(0) == 167)) {
-                list.set(i, TextFormatting.GRAY + list.get(i));
+            } else if (i == ConfigHandler.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsRows && ConfigHandler.heldItemTooltipsDots) {
+                list.set(i, TextFormatting.GRAY + "..." + TextFormatting.RESET);
+            } else if (stack.getItem() instanceof ItemShulkerBox && list.size() == 7 && i == ConfigHandler.heldItemTooltipsRows - 1) {
+                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsRows + getShulkerBoxExcess(list.get(6))).getFormattedText()) + TextFormatting.RESET);
+            } else if (i == ConfigHandler.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsRows) {
+                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsRows + 1).getFormattedText()) + TextFormatting.RESET);
+            } else {
+                list.set(i, TextFormatting.GRAY + list.get(i) + TextFormatting.RESET);
             }
         }
 
         return list;
+    }
+
+    /**
+     * Returns the contents of the textbox as float
+     */
+    private int getShulkerBoxExcess(String line) {
+        line = line.replaceAll("[^0-9]","");
+        if (line.isEmpty()) {
+            line = "0";
+        }
+        return Integer.valueOf(line);
     }
 
     /**
@@ -190,12 +201,12 @@ public class RenderSelectedItem extends GuiIngame {
             s = TextFormatting.ITALIC + s;
         }
 
-        s = s + TextFormatting.RESET;
-
         if (!stack.hasDisplayName() && stack.getItem() == Items.FILLED_MAP)
         {
             s = s + " #" + stack.getItemDamage();
         }
+
+        s = s + TextFormatting.RESET;
 
         list.add(s);
 
@@ -224,7 +235,7 @@ public class RenderSelectedItem extends GuiIngame {
 
                 if (nbttagcompound1.hasKey("color", 3))
                 {
-                    list.add(TextFormatting.ITALIC + I18n.translateToLocal("item.dyed"));
+                    list.add(TextFormatting.ITALIC + new TextComponentTranslation("item.dyed").getFormattedText());
                 }
 
                 if (nbttagcompound1.getTagId("Lore") == 9)
