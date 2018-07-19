@@ -2,6 +2,7 @@ package fuzs.consolehud.renders;
 
 import fuzs.consolehud.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -29,20 +30,18 @@ public class RenderPaperDoll {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END || !ConfigHandler.paperDoll)
             return;
-
         if (this.mc.player != null) {
-            if (ConfigHandler.fireOnDoll) {
-                if ((mc.player.isSneaking() && remainingRidingTicks == 0) || mc.player.isSprinting() || mc.player.isBurning() || mc.player.isElytraFlying() || mc.player.capabilities.isFlying) {
-                    remainingTicks = 20;
-                } else if (remainingTicks > 0) {
-                    remainingTicks--;
-                }
-            } else {
-                if ((mc.player.isSneaking() && remainingRidingTicks == 0) || mc.player.isSprinting() || mc.player.isElytraFlying() || mc.player.capabilities.isFlying) {
-                    remainingTicks = 20;
-                } else if (remainingTicks > 0) {
-                    remainingTicks--;
-                }
+            boolean sprinting = mc.player.isSprinting() && ConfigHandler.paperDollSprinting;
+            boolean crouching = mc.player.isSneaking() && remainingRidingTicks == 0 && ConfigHandler.paperDollCrouching;
+            boolean flying = mc.player.capabilities.isFlying && ConfigHandler.paperDollFlying;
+            boolean elytra = mc.player.isElytraFlying() && ConfigHandler.paperDollElytraFlying;
+            boolean burning = mc.player.isBurning() && ConfigHandler.paperDollBurning;
+            boolean mounting = mc.player.isRiding() && ConfigHandler.paperDollMounting;
+
+            if (ConfigHandler.paperDollAlways || crouching || sprinting || burning || elytra || flying || mounting) {
+                remainingTicks = 20;
+            } else if (remainingTicks > 0) {
+                remainingTicks--;
             }
 
             if (mc.player.isRiding()) {
@@ -55,22 +54,25 @@ public class RenderPaperDoll {
 
     @SubscribeEvent
     public void renderBlockOverlay(RenderBlockOverlayEvent event) {
-        if (event.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE && ConfigHandler.fireOnDoll && ConfigHandler.paperDoll) {
+        if (event.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE && ConfigHandler.paperDollBurning && ConfigHandler.paperDoll) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public void renderGameOverlayText(RenderGameOverlayEvent.Text event) { // this is not the right event, but there are problems with pre and post
+    public void renderGameOverlayText(RenderGameOverlayEvent.Pre event) {
+        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
+            return;
+        }
         if (this.mc.player != null && ConfigHandler.paperDoll) {
-            positionOnScreen = ConfigHandler.dollPosition > 1 ? 22.5F : -22.5F;
-            if (!mc.player.isInvisible() && !mc.playerController.isSpectator() && !mc.player.isRiding() && remainingTicks > 0) {
+            positionOnScreen = ConfigHandler.paperDollPosition > 1 ? 22.5F : -22.5F;
+            if (!mc.player.isInvisible() && !mc.playerController.isSpectator() && (!mc.player.isRiding() || ConfigHandler.paperDollMounting || ConfigHandler.paperDollAlways) && remainingTicks > 0) {
                 if (!wasActive) {
                     rotationYawPrev = positionOnScreen;
                     renderYawOffsetPrev = mc.player.renderYawOffset;
                     wasActive = true;
                 }
-                drawEntityOnScreen(ConfigHandler.dollPosition > 1 ? event.getResolution().getScaledWidth() - 30 : 30, ConfigHandler.dollPosition % 2 == 0 ? 50 : event.getResolution().getScaledHeight() - 30, 20, mc.player);
+                drawEntityOnScreen(ConfigHandler.paperDollPosition > 1 ? event.getResolution().getScaledWidth() - 30 : 30, ConfigHandler.paperDollPosition % 2 == 0 ? 50 : event.getResolution().getScaledHeight() - 30, 20, mc.player);
             } else if (wasActive) {
                 wasActive = false;
             }
@@ -82,6 +84,7 @@ public class RenderPaperDoll {
      */
     private void drawEntityOnScreen(int posX, int posY, int scale, EntityLivingBase ent)
     {
+        GlStateManager.enableDepth();
         GlStateManager.enableColorMaterial();
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)posX, (float)posY, 50.0F);
@@ -117,12 +120,15 @@ public class RenderPaperDoll {
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         GlStateManager.disableTexture2D();
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.disableDepth();
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     }
 
     /**
      * Rotate entity according to its yaw, slowly spin back to default when yaw stays constant for a while
      */
-    private void rotateEntity(float renderYawOffsetDiff) {
+    private void rotateEntity(float renderYawOffsetDiff) { // might be better to use partialTicks
         if (rotationYawPrev < -positionOnScreen) {
             rotationYawPrev -= renderYawOffsetDiff;
         } else {

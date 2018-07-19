@@ -8,10 +8,15 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -22,6 +27,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class RenderSelectedItem extends GuiIngame {
+
+    private int maxLines = 5;
 
     public RenderSelectedItem(Minecraft mcIn) {
         super(mcIn);
@@ -99,8 +106,12 @@ public class RenderSelectedItem extends GuiIngame {
                 List<String> textLines = getToolTipColour(this.highlightingItemStack);
                 int listsize = textLines.size();
 
-                if (listsize > 5) {
-                    listsize = 5;
+                // better to read overlayMessageTime > 0 from GuiIngame and set maxSize = 2 instead of blocking the status message
+                if (listsize > 2) {
+                    this.mc.player.sendStatusMessage(new TextComponentString(""), true);
+                }
+                if (listsize > maxLines) {
+                    listsize = maxLines;
                 }
 
                 j -= listsize > 1 ? (listsize - 1) * 10 + 2 : (listsize - 1) * 10;
@@ -147,8 +158,8 @@ public class RenderSelectedItem extends GuiIngame {
         {
             if (i == 0) {
                 list.set(i, stack.getRarity().rarityColor + list.get(i));
-            } else if (i == 4 && list.size() > 5) {
-                list.set(i, TextFormatting.GRAY + "...");
+            } else if (i == maxLines - 1 && list.size() > maxLines) {
+                list.set(i, TextFormatting.ITALIC + new TextComponentTranslation("container.shulkerBox.more", list.size() - maxLines + 1).getFormattedText());
             } else if (!(list.get(i).charAt(0) == 167)) {
                 list.set(i, TextFormatting.GRAY + list.get(i));
             }
@@ -181,6 +192,11 @@ public class RenderSelectedItem extends GuiIngame {
 
         s = s + TextFormatting.RESET;
 
+        if (!stack.hasDisplayName() && stack.getItem() == Items.FILLED_MAP)
+        {
+            s = s + " #" + stack.getItemDamage();
+        }
+
         list.add(s);
 
         stack.getItem().addInformation(stack, playerIn == null ? null : playerIn.world, list, ITooltipFlag.TooltipFlags.NORMAL);
@@ -201,6 +217,32 @@ public class RenderSelectedItem extends GuiIngame {
                     list.add(enchantment.getTranslatedName(l));
                 }
             }
+
+            if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("display", 10))
+            {
+                NBTTagCompound nbttagcompound1 = stack.getTagCompound().getCompoundTag("display");
+
+                if (nbttagcompound1.hasKey("color", 3))
+                {
+                    list.add(TextFormatting.ITALIC + I18n.translateToLocal("item.dyed"));
+                }
+
+                if (nbttagcompound1.getTagId("Lore") == 9)
+                {
+                    NBTTagList nbttaglist3 = nbttagcompound1.getTagList("Lore", 8);
+
+                    if (!nbttaglist3.hasNoTags())
+                    {
+                        for (int l1 = 0; l1 < nbttaglist3.tagCount(); ++l1)
+                        {
+                            list.add(TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + nbttaglist3.getStringTagAt(l1));
+                        }
+                    }
+                }
+            }
+        }
+        if (ConfigHandler.heldItemTooltipsModded) {
+            net.minecraftforge.event.ForgeEventFactory.onItemTooltip(stack, playerIn, list, ITooltipFlag.TooltipFlags.NORMAL);
         }
         return list;
     }
