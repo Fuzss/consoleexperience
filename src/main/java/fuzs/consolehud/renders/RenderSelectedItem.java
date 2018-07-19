@@ -106,7 +106,6 @@ public class RenderSelectedItem extends GuiIngame {
                 if (listsize > ConfigHandler.heldItemTooltipsRows) {
                     listsize = ConfigHandler.heldItemTooltipsRows;
                 }
-                // better to read overlayMessageTime > 0 from GuiIngame and set maxSize = 2 instead of blocking the status message
                 if (listsize > 2) {
                     this.mc.player.sendStatusMessage(new TextComponentString(""), true);
                 }

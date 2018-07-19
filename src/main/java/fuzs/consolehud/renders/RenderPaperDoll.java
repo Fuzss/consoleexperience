@@ -71,7 +71,7 @@ public class RenderPaperDoll {
                     renderYawOffsetPrev = mc.player.renderYawOffset;
                     wasActive = true;
                 }
-                drawEntityOnScreen(ConfigHandler.paperDollPosition > 1 ? event.getResolution().getScaledWidth() - 30 : 30, ConfigHandler.paperDollPosition % 2 == 0 ? 50 : event.getResolution().getScaledHeight() - 30, 20, mc.player);
+                drawEntityOnScreen(ConfigHandler.paperDollPosition > 1 ? event.getResolution().getScaledWidth() - 30 : 30, ConfigHandler.paperDollPosition % 2 == 0 ? 50 : event.getResolution().getScaledHeight() - 30, 20, mc.player, event.getPartialTicks());
             } else if (wasActive) {
                 wasActive = false;
             }
@@ -81,7 +81,7 @@ public class RenderPaperDoll {
     /**
      * Draws an entity on the screen looking toward the cursor.
      */
-    private void drawEntityOnScreen(int posX, int posY, int scale, EntityLivingBase ent)
+    private void drawEntityOnScreen(int posX, int posY, int scale, EntityLivingBase ent, float partialTicks)
     {
         GlStateManager.enableDepth();
         GlStateManager.enableColorMaterial();
@@ -98,7 +98,7 @@ public class RenderPaperDoll {
         RenderHelper.enableStandardItemLighting();
         GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-((float)Math.atan((double)(40 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
-        rotateEntity(ent.renderYawOffset - renderYawOffsetPrev);
+        rotateEntity(ent.renderYawOffset - renderYawOffsetPrev, partialTicks);
         renderYawOffsetPrev = ent.renderYawOffset;
         ent.renderYawOffset = rotationYawPrev;
         ent.rotationYawHead = rotationYawPrev;
@@ -127,7 +127,7 @@ public class RenderPaperDoll {
     /**
      * Rotate entity according to its yaw, slowly spin back to default when yaw stays constant for a while
      */
-    private void rotateEntity(float renderYawOffsetDiff) { // might be better to use partialTicks
+    private void rotateEntity(float renderYawOffsetDiff, float partialTicks) {
         if (rotationYawPrev < -positionOnScreen) {
             rotationYawPrev -= renderYawOffsetDiff;
         } else {
@@ -138,10 +138,10 @@ public class RenderPaperDoll {
         } else if (rotationYawPrev < positionOnScreen - 45F) {
             rotationYawPrev = positionOnScreen - 45F;
         }
-        if (rotationYawPrev > positionOnScreen) {
-            rotationYawPrev -= 1F;
-        } else if (rotationYawPrev < positionOnScreen) {
-            rotationYawPrev += 1F;
+        if (rotationYawPrev > positionOnScreen + 0.5F) {
+            rotationYawPrev -= partialTicks * 2F;
+        } else if (rotationYawPrev < positionOnScreen - 0.5F) {
+            rotationYawPrev += partialTicks * 2F;
         }
         rotationYawPrev = Math.round(rotationYawPrev * 50F) / 50F;
     }
