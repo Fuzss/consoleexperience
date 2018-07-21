@@ -5,11 +5,9 @@ import fuzs.consolehud.config.ConfigHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -36,15 +34,15 @@ public class RenderSelectedItem extends GuiIngame {
         if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END || !ConfigHandler.heldItemTooltips)
             return;
 
-        if (this.mc.player != null)
+        if (this.mc.thePlayer != null)
         {
-            ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
+            ItemStack itemstack = this.mc.thePlayer.inventory.getCurrentItem();
 
-            if (itemstack.isEmpty())
+            if (itemstack == null)
             {
                 this.remainingHighlightTicks = 0;
             }
-            else if (!this.highlightingItemStack.isEmpty() && itemstack.getItem() == this.highlightingItemStack.getItem() && ItemStack.areItemStackTagsEqual(itemstack, this.highlightingItemStack) && (itemstack.isItemStackDamageable() || itemstack.getMetadata() == this.highlightingItemStack.getMetadata()))
+            else if (this.highlightingItemStack != null && itemstack.getItem() == this.highlightingItemStack.getItem() && ItemStack.areItemStackTagsEqual(itemstack, this.highlightingItemStack) && (itemstack.isItemStackDamageable() || itemstack.getMetadata() == this.highlightingItemStack.getMetadata()))
             {
                 if (this.remainingHighlightTicks > 0)
                 {
@@ -72,7 +70,7 @@ public class RenderSelectedItem extends GuiIngame {
             return;
         }
 
-        if (this.remainingHighlightTicks > 0 && !this.highlightingItemStack.isEmpty())
+        if (this.remainingHighlightTicks > 0 && this.highlightingItemStack != null)
         {
             String s = this.highlightingItemStack.getDisplayName();
 
@@ -107,7 +105,7 @@ public class RenderSelectedItem extends GuiIngame {
                     listsize = ConfigHandler.heldItemTooltipsRows;
                 }
                 if (listsize > 2) {
-                    this.mc.player.sendStatusMessage(new TextComponentString(""), true);
+                    this.setRecordPlaying(new TextComponentString(""), false);
                 }
                 j -= listsize > 1 ? (listsize - 1) * 10 + 2 : (listsize - 1) * 10;
 
@@ -147,18 +145,14 @@ public class RenderSelectedItem extends GuiIngame {
      * will be coloured grey
      */
     private List<String> getToolTipColour(ItemStack stack) {
-        List<String> list = removeEmptyLines(getTooltip(this.mc.player, stack));
+        List<String> list = removeEmptyLines(getTooltip(this.mc.thePlayer, stack));
 
         for (int i = 0; i < list.size(); ++i)
         {
             if (i == 0) {
                 list.set(i, stack.getRarity().rarityColor + list.get(i));
-            } else if (i == ConfigHandler.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsRows && ConfigHandler.heldItemTooltipsDots) {
-                list.set(i, TextFormatting.GRAY + "..." + TextFormatting.RESET);
-            } else if (stack.getItem() instanceof ItemShulkerBox && list.size() == 7 && i == ConfigHandler.heldItemTooltipsRows - 1) {
-                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsRows + getShulkerBoxExcess(list.get(6))).getFormattedText()) + TextFormatting.RESET);
             } else if (i == ConfigHandler.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsRows) {
-                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsRows + 1).getFormattedText()) + TextFormatting.RESET);
+                list.set(i, TextFormatting.GRAY + "..." + TextFormatting.RESET);
             } else {
                 list.set(i, TextFormatting.GRAY + list.get(i) + TextFormatting.RESET);
             }
@@ -209,7 +203,7 @@ public class RenderSelectedItem extends GuiIngame {
 
         list.add(s);
 
-        stack.getItem().addInformation(stack, playerIn == null ? null : playerIn.world, list, ITooltipFlag.TooltipFlags.NORMAL);
+        stack.getItem().addInformation(stack, playerIn, list, false);
 
         if (stack.hasTagCompound())
         {
@@ -252,7 +246,7 @@ public class RenderSelectedItem extends GuiIngame {
             }
         }
         if (ConfigHandler.heldItemTooltipsModded) {
-            net.minecraftforge.event.ForgeEventFactory.onItemTooltip(stack, playerIn, list, ITooltipFlag.TooltipFlags.NORMAL);
+            net.minecraftforge.event.ForgeEventFactory.onItemTooltip(stack, playerIn, list, false);
         }
         return list;
     }

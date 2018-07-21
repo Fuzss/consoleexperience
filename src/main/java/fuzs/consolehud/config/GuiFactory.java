@@ -14,11 +14,13 @@ public class GuiFactory implements IModGuiFactory {
         return null;
     }
 
-    public boolean hasConfigGui() {
-        return true;
+    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
+    {
+        return null;
     }
 
-    public GuiScreen createConfigGui(GuiScreen parentScreen) {
-        return new ConfigGui(parentScreen);
+    public Class<? extends GuiScreen> mainConfigGuiClass()
+    {
+        return ConfigGui.class;
     }
 }
