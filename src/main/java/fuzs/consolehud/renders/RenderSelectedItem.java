@@ -82,7 +82,8 @@ public class RenderSelectedItem extends GuiIngame {
             }
 
             int i = event.getResolution().getScaledWidth() / 2;
-            int j = event.getResolution().getScaledHeight() - 59;
+            int j = event.getResolution().getScaledHeight();
+            j -= ConfigHandler.heldItemTooltipsBottomMargin % j;
 
             if (!this.mc.playerController.shouldDrawHUD())
             {

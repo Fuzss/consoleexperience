@@ -71,7 +71,15 @@ public class RenderPaperDoll {
                     renderYawOffsetPrev = mc.player.renderYawOffset;
                     wasActive = true;
                 }
-                drawEntityOnScreen(ConfigHandler.paperDollPosition > 1 ? event.getResolution().getScaledWidth() - 30 : 30, ConfigHandler.paperDollPosition % 2 == 0 ? 50 : event.getResolution().getScaledHeight() - 30, 20, mc.player, event.getPartialTicks());
+                int scale = ConfigHandler.paperDollScale * 5;
+                int positionScale = (int) (scale * 1.5F);
+                int scaledWidth = event.getResolution().getScaledWidth();
+                int scaledHeight = event.getResolution().getScaledHeight();
+                int xMargin = ConfigHandler.paperDollXMargin / event.getResolution().getScaleFactor();
+                int yMargin = ConfigHandler.paperDollYMargin / event.getResolution().getScaleFactor();
+                int x = ConfigHandler.paperDollPosition > 1 ? scaledWidth - positionScale - xMargin : positionScale + xMargin;
+                int y = ConfigHandler.paperDollPosition % 2 == 0 ? (int) (scale * 2.5F) + yMargin : scaledHeight - positionScale - yMargin;
+                drawEntityOnScreen((x % scaledWidth + scaledWidth) % scaledWidth, (y % scaledHeight + scaledWidth) % scaledWidth, scale, mc.player, event.getPartialTicks());
             } else if (wasActive) {
                 wasActive = false;
             }
@@ -85,9 +93,10 @@ public class RenderPaperDoll {
     {
         GlStateManager.enableDepth();
         GlStateManager.enableColorMaterial();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float)posX, (float)posY, 50.0F);
-        GlStateManager.scale((float)(-scale), (float)scale, (float)scale);
+        GlStateManager.translate((float) posX, (float) posY, 50.0F);
+        GlStateManager.scale((float) (-scale), (float) scale, (float) scale);
         GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
         float f = ent.renderYawOffset;
         float f1 = ent.rotationYaw;
