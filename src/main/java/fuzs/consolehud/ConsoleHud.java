@@ -17,7 +17,7 @@ public class ConsoleHud
 {
     public static final String MODID = "consolehud";
     public static final String NAME = "Console HUD";
-    public static final String VERSION = "1.1.2";
+    public static final String VERSION = "1.1.3";
     public static final String AVERSIONS = "[1.12,1.12.2]";
     public static final String GUI = "fuzs.consolehud.config.GuiFactory";
     public static final boolean CLIENT = true;

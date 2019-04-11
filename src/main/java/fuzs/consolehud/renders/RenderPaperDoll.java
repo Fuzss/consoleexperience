@@ -35,7 +35,7 @@ public class RenderPaperDoll {
             boolean flying = mc.player.capabilities.isFlying && ConfigHandler.paperDollFlying;
             boolean elytra = mc.player.isElytraFlying() && ConfigHandler.paperDollElytraFlying;
             boolean burning = mc.player.isBurning() && ConfigHandler.paperDollBurning;
-            boolean mounting = mc.player.isRiding() && ConfigHandler.paperDollMounting;
+            boolean mounting = mc.player.isRiding() && ConfigHandler.paperDollRiding;
 
             if (ConfigHandler.paperDollAlways || crouching || sprinting || burning || elytra || flying || mounting) {
                 remainingTicks = 20;
@@ -65,7 +65,7 @@ public class RenderPaperDoll {
         }
         if (this.mc.player != null && ConfigHandler.paperDoll) {
             positionOnScreen = ConfigHandler.paperDollPosition > 1 ? 22.5F : -22.5F;
-            if (!mc.player.isInvisible() && !mc.playerController.isSpectator() && (!mc.player.isRiding() || ConfigHandler.paperDollMounting || ConfigHandler.paperDollAlways) && remainingTicks > 0) {
+            if (!mc.player.isInvisible() && !mc.playerController.isSpectator() && (!mc.player.isRiding() || ConfigHandler.paperDollRiding || ConfigHandler.paperDollAlways) && remainingTicks > 0) {
                 if (!wasActive) {
                     rotationYawPrev = positionOnScreen;
                     renderYawOffsetPrev = mc.player.renderYawOffset;
@@ -75,8 +75,8 @@ public class RenderPaperDoll {
                 int positionScale = (int) (scale * 1.5F);
                 int scaledWidth = event.getResolution().getScaledWidth();
                 int scaledHeight = event.getResolution().getScaledHeight();
-                int xMargin = ConfigHandler.paperDollXMargin / event.getResolution().getScaleFactor();
-                int yMargin = ConfigHandler.paperDollYMargin / event.getResolution().getScaleFactor();
+                int xMargin = ConfigHandler.paperDollXOffset / event.getResolution().getScaleFactor();
+                int yMargin = ConfigHandler.paperDollYOffset / event.getResolution().getScaleFactor();
                 int x = ConfigHandler.paperDollPosition > 1 ? scaledWidth - positionScale - xMargin : positionScale + xMargin;
                 int y = ConfigHandler.paperDollPosition % 2 == 0 ? (int) (scale * 2.5F) + yMargin : scaledHeight - positionScale - yMargin;
                 drawEntityOnScreen((x % scaledWidth + scaledWidth) % scaledWidth, (y % scaledHeight + scaledWidth) % scaledWidth, scale, mc.player, event.getPartialTicks());
