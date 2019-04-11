@@ -62,15 +62,12 @@ public class RenderSelectedItem extends GuiIngame {
 
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text event) {
-        if (mc.gameSettings.heldItemTooltips) {
-            mc.gameSettings.heldItemTooltips = false;
-        } else if (!ConfigHandler.heldItemTooltips) {
-            mc.gameSettings.heldItemTooltips = true;
-        }
-
         if (this.mc.playerController.isSpectator() || !ConfigHandler.heldItemTooltips) {
+            mc.gameSettings.heldItemTooltips = true;
             return;
         }
+
+        mc.gameSettings.heldItemTooltips = false;
 
         if (this.remainingHighlightTicks > 0 && !this.highlightingItemStack.isEmpty())
         {
