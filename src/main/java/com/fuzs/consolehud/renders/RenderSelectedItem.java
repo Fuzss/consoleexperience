@@ -1,7 +1,7 @@
 package com.fuzs.consolehud.renders;
 
-import com.google.common.collect.Lists;
 import com.fuzs.consolehud.ConfigHandler;
+import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
@@ -77,7 +77,7 @@ public class RenderSelectedItem extends GuiIngame {
         }
 
         ResourceLocation resource = Item.REGISTRY.getNameForObject(this.highlightingItemStack.getItem());
-        List<String> blacklist = Lists.newArrayList(ConfigHandler.heldItemTooltipsBlacklist);
+        List<String> blacklist = Lists.newArrayList(ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsBlacklist);
         boolean flag = resource != null && (blacklist.contains(resource.toString()) || blacklist.contains(resource.getResourceDomain()));
 
         if (flag) {
@@ -96,9 +96,9 @@ public class RenderSelectedItem extends GuiIngame {
             }
 
             int i = event.getResolution().getScaledWidth() / 2;
-            i += ConfigHandler.heldItemTooltipsXOffset % i;
+            i += ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsXOffset % i;
             int j = event.getResolution().getScaledHeight();
-            j -= ConfigHandler.heldItemTooltipsYOffset % j;
+            j -= ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsYOffset % j;
 
             if (!this.mc.playerController.shouldDrawHUD())
             {
@@ -119,8 +119,8 @@ public class RenderSelectedItem extends GuiIngame {
                 List<String> textLines = getToolTipColour(this.highlightingItemStack);
                 int listsize = textLines.size();
 
-                if (listsize > ConfigHandler.heldItemTooltipsRows) {
-                    listsize = ConfigHandler.heldItemTooltipsRows;
+                if (listsize > ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows) {
+                    listsize = ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows;
                 }
                 if (listsize > 2) {
                     this.mc.player.sendStatusMessage(new TextComponentString(""), true);
@@ -173,12 +173,12 @@ public class RenderSelectedItem extends GuiIngame {
         {
             if (i == 0) {
                 list.set(i, stack.getRarity().rarityColor + list.get(i));
-            } else if (i == ConfigHandler.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsRows && ConfigHandler.heldItemTooltipsDots) {
+            } else if (i == ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows && ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsDots) {
                 list.set(i, TextFormatting.GRAY + "..." + TextFormatting.RESET);
-            } else if (stack.getItem() instanceof ItemShulkerBox && list.size() == 7 && i == ConfigHandler.heldItemTooltipsRows - 1) {
-                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsRows + getShulkerBoxExcess(list.get(6))).getFormattedText()) + TextFormatting.RESET);
-            } else if (i == ConfigHandler.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsRows) {
-                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsRows + 1).getFormattedText()) + TextFormatting.RESET);
+            } else if (stack.getItem() instanceof ItemShulkerBox && list.size() == 7 && i == ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows - 1) {
+                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows + getShulkerBoxExcess(list.get(6))).getFormattedText()) + TextFormatting.RESET);
+            } else if (i == ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows - 1 && list.size() > ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows) {
+                list.set(i, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextFormatting.getTextWithoutFormattingCodes(new TextComponentTranslation("container.shulkerBox.more", list.size() - ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsRows + 1).getFormattedText()) + TextFormatting.RESET);
             } else {
                 list.set(i, TextFormatting.GRAY + list.get(i) + TextFormatting.RESET);
             }
@@ -271,7 +271,7 @@ public class RenderSelectedItem extends GuiIngame {
                 }
             }
         }
-        if (ConfigHandler.heldItemTooltipsModded) {
+        if (ConfigHandler.heldItemTooltipsConfig.heldItemTooltipsModded) {
             net.minecraftforge.event.ForgeEventFactory.onItemTooltip(stack, playerIn, list, ITooltipFlag.TooltipFlags.NORMAL);
         }
         return list;
