@@ -1,6 +1,6 @@
-package fuzs.consolehud.renders;
+package com.fuzs.consolehud.renders;
 
-import fuzs.consolehud.config.ConfigHandler;
+import com.fuzs.consolehud.ConfigHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;

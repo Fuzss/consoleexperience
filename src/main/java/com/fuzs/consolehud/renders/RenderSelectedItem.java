@@ -1,7 +1,7 @@
-package fuzs.consolehud.renders;
+package com.fuzs.consolehud.renders;
 
 import com.google.common.collect.Lists;
-import fuzs.consolehud.config.ConfigHandler;
+import com.fuzs.consolehud.ConfigHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
@@ -9,10 +9,12 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -33,7 +35,8 @@ public class RenderSelectedItem extends GuiIngame {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END || !ConfigHandler.heldItemTooltips)
+
+        if (!ConfigHandler.heldItemTooltips || this.mc.isGamePaused() || event.phase != TickEvent.Phase.END)
             return;
 
         if (this.mc.player != null)
@@ -58,19 +61,33 @@ public class RenderSelectedItem extends GuiIngame {
 
             this.highlightingItemStack = itemstack;
         }
+
     }
 
     @SubscribeEvent
-    public void renderGameOverlayText(RenderGameOverlayEvent.Text event) {
+    public void renderGameOverlayText(RenderGameOverlayEvent.Pre event) {
+
+        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
+            return;
+        }
+
         if (this.mc.playerController.isSpectator() || !ConfigHandler.heldItemTooltips) {
             mc.gameSettings.heldItemTooltips = true;
             return;
         }
 
-        mc.gameSettings.heldItemTooltips = false;
+        ResourceLocation resource = Item.REGISTRY.getNameForObject(this.highlightingItemStack.getItem());
+        List<String> blacklist = Lists.newArrayList(ConfigHandler.heldItemTooltipsBlacklist);
+        boolean flag = resource != null && (blacklist.contains(resource.toString()) || blacklist.contains(resource.getResourceDomain()));
+
+        if (flag) {
+            mc.gameSettings.heldItemTooltips = true;
+            return;
+        }
 
         if (this.remainingHighlightTicks > 0 && !this.highlightingItemStack.isEmpty())
         {
+
             String s = this.highlightingItemStack.getDisplayName();
 
             if (this.highlightingItemStack.hasDisplayName())
@@ -125,7 +142,11 @@ public class RenderSelectedItem extends GuiIngame {
                 GlStateManager.popMatrix();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             }
+
         }
+
+        mc.gameSettings.heldItemTooltips = false;
+
     }
 
     /**
