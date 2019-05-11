@@ -11,7 +11,14 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = ConsoleHud.MODID, name = ConsoleHud.NAME, version = ConsoleHud.VERSION, acceptedMinecraftVersions = ConsoleHud.RANGE, clientSideOnly = ConsoleHud.CLIENT, certificateFingerprint = ConsoleHud.FINGERPRINT)
+@Mod(
+        modid = ConsoleHud.MODID,
+        name = ConsoleHud.NAME,
+        version = ConsoleHud.VERSION,
+        acceptedMinecraftVersions = ConsoleHud.RANGE,
+        clientSideOnly = ConsoleHud.CLIENT,
+        certificateFingerprint = ConsoleHud.FINGERPRINT
+)
 public class ConsoleHud
 {
     public static final String MODID = "consolehud";
