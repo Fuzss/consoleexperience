@@ -30,14 +30,14 @@ public class RenderPaperDoll {
         if (this.mc.isGamePaused() || event.phase != TickEvent.Phase.END || !ConfigHandler.paperDoll)
             return;
         if (this.mc.player != null) {
-            boolean sprinting = mc.player.isSprinting() && ConfigHandler.paperDollConfig.paperDollSprinting;
-            boolean crouching = mc.player.isSneaking() && remainingRidingTicks == 0 && ConfigHandler.paperDollConfig.paperDollCrouching;
-            boolean flying = mc.player.capabilities.isFlying && ConfigHandler.paperDollConfig.paperDollFlying;
-            boolean elytra = mc.player.isElytraFlying() && ConfigHandler.paperDollConfig.paperDollElytraFlying;
-            boolean burning = mc.player.isBurning() && ConfigHandler.paperDollConfig.paperDollBurning;
-            boolean mounting = mc.player.isRiding() && ConfigHandler.paperDollConfig.paperDollRiding;
+            boolean sprinting = mc.player.isSprinting() && ConfigHandler.paperDollConfig.sprinting;
+            boolean crouching = mc.player.isSneaking() && remainingRidingTicks == 0 && ConfigHandler.paperDollConfig.crouching;
+            boolean flying = mc.player.capabilities.isFlying && ConfigHandler.paperDollConfig.flying;
+            boolean elytra = mc.player.isElytraFlying() && ConfigHandler.paperDollConfig.elytraFlying;
+            boolean burning = mc.player.isBurning() && ConfigHandler.paperDollConfig.burning;
+            boolean mounting = mc.player.isRiding() && ConfigHandler.paperDollConfig.riding;
 
-            if (ConfigHandler.paperDollConfig.paperDollAlways || crouching || sprinting || burning || elytra || flying || mounting) {
+            if (ConfigHandler.paperDollConfig.always || crouching || sprinting || burning || elytra || flying || mounting) {
                 remainingTicks = 20;
             } else if (remainingTicks > 0) {
                 remainingTicks--;
@@ -53,7 +53,7 @@ public class RenderPaperDoll {
 
     @SubscribeEvent
     public void renderBlockOverlay(RenderBlockOverlayEvent event) {
-        if (event.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE && ConfigHandler.paperDollConfig.paperDollBurning && ConfigHandler.paperDoll) {
+        if (event.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE && ConfigHandler.paperDollConfig.burning && ConfigHandler.paperDoll) {
             event.setCanceled(true);
         }
     }
@@ -64,21 +64,21 @@ public class RenderPaperDoll {
             return;
         }
         if (this.mc.player != null && ConfigHandler.paperDoll) {
-            positionOnScreen = ConfigHandler.paperDollConfig.paperDollPosition > 1 ? 22.5F : -22.5F;
-            if (!mc.player.isInvisible() && !mc.playerController.isSpectator() && (!mc.player.isRiding() || ConfigHandler.paperDollConfig.paperDollRiding || ConfigHandler.paperDollConfig.paperDollAlways) && remainingTicks > 0) {
+            positionOnScreen = ConfigHandler.paperDollConfig.position > 1 ? 22.5F : -22.5F;
+            if (!mc.player.isInvisible() && !mc.playerController.isSpectator() && (!mc.player.isRiding() || ConfigHandler.paperDollConfig.riding || ConfigHandler.paperDollConfig.always) && remainingTicks > 0) {
                 if (!wasActive) {
                     rotationYawPrev = positionOnScreen;
                     renderYawOffsetPrev = mc.player.renderYawOffset;
                     wasActive = true;
                 }
-                int scale = ConfigHandler.paperDollConfig.paperDollScale * 5;
+                int scale = ConfigHandler.paperDollConfig.scale * 5;
                 int positionScale = (int) (scale * 1.5F);
                 int scaledWidth = event.getResolution().getScaledWidth();
                 int scaledHeight = event.getResolution().getScaledHeight();
-                int xMargin = ConfigHandler.paperDollConfig.paperDollXOffset / event.getResolution().getScaleFactor();
-                int yMargin = ConfigHandler.paperDollConfig.paperDollYOffset / event.getResolution().getScaleFactor();
-                int x = ConfigHandler.paperDollConfig.paperDollPosition > 1 ? scaledWidth - positionScale - xMargin : positionScale + xMargin;
-                int y = ConfigHandler.paperDollConfig.paperDollPosition % 2 == 0 ? (int) (scale * 2.5F) + yMargin : scaledHeight - positionScale - yMargin;
+                int xMargin = ConfigHandler.paperDollConfig.xOffset / event.getResolution().getScaleFactor();
+                int yMargin = ConfigHandler.paperDollConfig.yOffset / event.getResolution().getScaleFactor();
+                int x = ConfigHandler.paperDollConfig.position > 1 ? scaledWidth - positionScale - xMargin : positionScale + xMargin;
+                int y = ConfigHandler.paperDollConfig.position % 2 == 0 ? (int) (scale * 2.5F) + yMargin : scaledHeight - positionScale - yMargin;
                 drawEntityOnScreen((x % scaledWidth + scaledWidth) % scaledWidth, (y % scaledHeight + scaledWidth) % scaledWidth, scale, mc.player, event.getPartialTicks());
             } else if (wasActive) {
                 wasActive = false;
