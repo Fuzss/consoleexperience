@@ -1,8 +1,6 @@
 package com.fuzs.consolehud;
 
-import com.fuzs.consolehud.renders.RenderHoveringHotbar;
-import com.fuzs.consolehud.renders.RenderPaperDoll;
-import com.fuzs.consolehud.renders.RenderSelectedItem;
+import com.fuzs.consolehud.renders.*;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -39,6 +37,7 @@ public class ConsoleHud
         MinecraftForge.EVENT_BUS.register(new RenderSelectedItem(mc));
         MinecraftForge.EVENT_BUS.register(new RenderPaperDoll(mc));
         MinecraftForge.EVENT_BUS.register(new RenderHoveringHotbar(mc));
+        MinecraftForge.EVENT_BUS.register(new RenderSaveIcon(mc));
     }
 
     @EventHandler

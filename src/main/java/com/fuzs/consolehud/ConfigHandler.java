@@ -1,5 +1,6 @@
 package com.fuzs.consolehud;
 
+import com.fuzs.consolehud.util.SavePreset;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
@@ -31,6 +32,10 @@ public class ConfigHandler {
 	@Config.Name("Hovering Hotbar")
 	@Config.Comment("Enables the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.")
 	public static boolean hoveringHotbar = true;
+
+	@Config.Name("Save Icon")
+	@Config.Comment("Enables the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.")
+	public static SavePreset saveIcon = SavePreset.TOP_RIGHT;
 
 	public static class SelectedItemConfig {
 
@@ -65,7 +70,7 @@ public class ConfigHandler {
 
 	public static class PaperDollConfig {
 
-		@Config.Name("Position Preset")
+		@Config.Name("Screen Corner")
 		@Config.Comment("Defines a screen corner to display the paper doll in. [0: top left, 1: bottom left, 2: top right, 3: bottom right, default: 0]")
 		@Config.RangeInt(min = 0, max = 3)
 		public int position = 0;
