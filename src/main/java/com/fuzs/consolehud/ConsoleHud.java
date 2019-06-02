@@ -1,12 +1,15 @@
 package com.fuzs.consolehud;
 
-import com.fuzs.consolehud.renders.*;
+import com.fuzs.consolehud.handler.SaveIconHandler;
+import com.fuzs.consolehud.handler.SelectedItemHandler;
+import com.fuzs.consolehud.handler.HoveringHotbarHandler;
+import com.fuzs.consolehud.renders.RenderPaperDoll;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,25 +22,28 @@ import org.apache.logging.log4j.Logger;
         dependencies = ConsoleHud.DEPENDENCIES,
         certificateFingerprint = ConsoleHud.FINGERPRINT
 )
+@SuppressWarnings("unused")
 public class ConsoleHud
 {
     public static final String MODID = "consolehud";
     public static final String NAME = "Console HUD";
     public static final String VERSION = "@VERSION@";
-    public static final String RANGE = "[1.12, 1.12.2]";
+    public static final String RANGE = "[1.12.2]";
     public static final boolean CLIENT = true;
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2816,)";
     public static final String FINGERPRINT = "@FINGERPRINT@";
 
-    private static final Logger LOGGER = LogManager.getLogger(ConsoleHud.NAME);
+    public static final Logger LOGGER = LogManager.getLogger(ConsoleHud.NAME);
     private final Minecraft mc = Minecraft.getMinecraft();
 
     @EventHandler
-    public void init(FMLInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(new RenderSelectedItem(mc));
+    public void postInit(FMLPostInitializationEvent event) {
+
+        MinecraftForge.EVENT_BUS.register(new SelectedItemHandler());
         MinecraftForge.EVENT_BUS.register(new RenderPaperDoll(mc));
-        MinecraftForge.EVENT_BUS.register(new RenderHoveringHotbar(mc));
-        MinecraftForge.EVENT_BUS.register(new RenderSaveIcon(mc));
+        MinecraftForge.EVENT_BUS.register(new HoveringHotbarHandler());
+        MinecraftForge.EVENT_BUS.register(new SaveIconHandler());
+
     }
 
     @EventHandler
