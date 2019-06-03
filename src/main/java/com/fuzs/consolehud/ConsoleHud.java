@@ -40,7 +40,7 @@ public class ConsoleHud
     public void postInit(FMLPostInitializationEvent event) {
 
         MinecraftForge.EVENT_BUS.register(new SelectedItemHandler());
-        MinecraftForge.EVENT_BUS.register(new RenderPaperDoll(mc));
+        MinecraftForge.EVENT_BUS.register(new RenderPaperDoll());
         MinecraftForge.EVENT_BUS.register(new HoveringHotbarHandler());
         MinecraftForge.EVENT_BUS.register(new SaveIconHandler());
 

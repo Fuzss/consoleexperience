@@ -1,7 +1,7 @@
 package com.fuzs.consolehud.handler;
 
-import com.fuzs.consolehud.helper.ShulkerBoxHelper;
 import com.fuzs.consolehud.helper.TooltipHelper;
+import com.fuzs.consolehud.helper.TooltipShulkerBoxHelper;
 import com.fuzs.consolehud.util.IPrivateAccessor;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
@@ -11,7 +11,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -24,6 +26,7 @@ import java.util.List;
 public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
     private final TooltipHelper tooltipHelper = new TooltipHelper();
+    private List<String> tooltipCache = Lists.newArrayList();
 
     public SelectedItemHandler() {
         super(Minecraft.getMinecraft());
@@ -59,6 +62,7 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
             // used to disable vanilla held item tooltips completely without modifying the game option,
             // as otherwise the game option might still be deactivated after the mod is removed
+            // using -2 instead of -1 in case some lag interferes, will run twice most of the time then
             if (this.remainingHighlightTicks > ConfigHandler.heldItemTooltipsConfig.displayTime - 2) {
                 this.setHighlightTicks(this.mc.ingameGUI, 0);
             }
@@ -72,21 +76,28 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
-        if (!this.mc.gameSettings.heldItemTooltips || this.mc.playerController.isSpectator()) {
+        if (!this.mc.gameSettings.heldItemTooltips || this.mc.playerController.isSpectator() || (ConfigHandler.heldItemTooltips && ConfigHandler.heldItemTooltipsConfig.rows < 1)) {
             return;
         }
 
         if (this.remainingHighlightTicks > 0 && !this.highlightingItemStack.isEmpty()) {
 
-            int posX = evt.getResolution().getScaledWidth() / 2 + ConfigHandler.heldItemTooltipsConfig.xOffset;
-            int posY = evt.getResolution().getScaledHeight() - ConfigHandler.heldItemTooltipsConfig.yOffset;
+            int posX = evt.getResolution().getScaledWidth() / 2;
+            int posY = evt.getResolution().getScaledHeight();
+
+            if (ConfigHandler.heldItemTooltips) {
+                posX += ConfigHandler.heldItemTooltipsConfig.xOffset;
+                posY -= ConfigHandler.heldItemTooltipsConfig.yOffset;
+            } else {
+                posY -= 59;
+            }
 
             if (!this.mc.playerController.shouldDrawHUD()) {
                 posY += 14;
             }
 
             if (ConfigHandler.hoveringHotbar) {
-                posX -= ConfigHandler.hoveringHotbarConfig.xOffset;
+                posX += ConfigHandler.hoveringHotbarConfig.xOffset;
                 posY -= ConfigHandler.hoveringHotbarConfig.yOffset;
             }
 
@@ -102,9 +113,12 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
                 List<String> blacklist = Lists.newArrayList(ConfigHandler.heldItemTooltipsConfig.blacklist);
                 boolean blacklisted = resource != null && (blacklist.contains(resource.toString()) || blacklist.contains(resource.getResourceDomain()));
 
-                List<String> tooltip = this.tooltipHelper.createTooltip(this.highlightingItemStack, !ConfigHandler.heldItemTooltips || blacklisted);
+                // using -2 instead of -1 in case some lag interferes, will run twice most of the time then, but still better than 40 times
+                if (!ConfigHandler.heldItemTooltipsConfig.cacheTooltip || this.remainingHighlightTicks > ConfigHandler.heldItemTooltipsConfig.displayTime - 2) {
+                    this.tooltipCache = this.tooltipHelper.createTooltip(this.highlightingItemStack, !ConfigHandler.heldItemTooltips || blacklisted || ConfigHandler.heldItemTooltipsConfig.rows == 1);
+                }
 
-                int size = tooltip.size();
+                int size = this.tooltipCache.size();
 
                 // clears the action bar so it won't overlap with the tooltip
                 if (size > (ConfigHandler.hoveringHotbar ? 0 : 1)) {
@@ -115,7 +129,7 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
                 for (int i = 0; i < size; i++) {
 
-                    this.drawCenteredString(tooltip.get(i), (float) posX, (float) posY, alpha << 24);
+                    this.drawCenteredString(this.tooltipCache.get(i), (float) posX, (float) posY, alpha << 24);
                     posY += i == 0 ? 12 : 10;
 
                 }
@@ -155,8 +169,8 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
                 if (i != -1 && tooltip.removeAll(contents)) {
 
                     List<String> list = Lists.newArrayList();
-                    ShulkerBoxHelper.getLootTableTooltip(list, evt.getItemStack());
-                    ShulkerBoxHelper.getContentsTooltip(list, evt.getItemStack(), 6);
+                    TooltipShulkerBoxHelper.getLootTableTooltip(list, evt.getItemStack());
+                    TooltipShulkerBoxHelper.getContentsTooltip(list, evt.getItemStack(), new Style().setColor(TextFormatting.GRAY), 6);
                     tooltip.addAll(i, list);
 
                 }

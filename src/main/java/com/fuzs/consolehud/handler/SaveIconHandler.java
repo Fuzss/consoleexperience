@@ -1,7 +1,6 @@
 package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.ConsoleHud;
-import com.fuzs.consolehud.handler.ConfigHandler;
 import com.fuzs.consolehud.util.EnumPositionPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;

@@ -12,7 +12,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class HoveringHotbarHandler {
 
-    private Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getMinecraft();
     // list of gui elements to be moved
     private List<RenderGameOverlayEvent.ElementType> elements = Arrays.asList(
             RenderGameOverlayEvent.ElementType.ARMOR,

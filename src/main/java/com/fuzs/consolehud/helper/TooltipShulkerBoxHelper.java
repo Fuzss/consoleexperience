@@ -6,12 +6,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
 
 import java.util.List;
 
-public class ShulkerBoxHelper {
+public class TooltipShulkerBoxHelper {
 
     public static void getLootTableTooltip(List<String> list, ItemStack stack) {
 
@@ -29,7 +29,7 @@ public class ShulkerBoxHelper {
 
     }
 
-    public static void getContentsTooltip(List<String> list, ItemStack stack, int rows) {
+    public static void getContentsTooltip(List<String> list, ItemStack stack, Style style, int rows) {
 
         List<ItemStack> contents = contentsToList(stack);
 
@@ -41,17 +41,17 @@ public class ShulkerBoxHelper {
 
             for (ItemStack itemstack : contents.subList(0, rows - 1)) {
 
-                list.add(String.format("%s x%d", itemstack.getItem().getItemStackDisplayName(itemstack), itemstack.getCount()));
+                list.add(new TextComponentString(String.format("%s x%d", itemstack.getItem().getItemStackDisplayName(itemstack), itemstack.getCount())).setStyle(style).getFormattedText());
 
             }
 
-            list.add(new TextComponentTranslation("container.shulkerBox.more", contents.size() - rows + 1).setStyle(new Style().setItalic(true).setColor(TextFormatting.GRAY)).getFormattedText());
+            list.add(new TextComponentTranslation("container.shulkerBox.more", contents.size() - rows + 1).setStyle(style.setItalic(true)).getFormattedText());
 
         } else {
 
             for (ItemStack itemstack : contents) {
 
-                list.add(String.format("%s x%d", itemstack.getItem().getItemStackDisplayName(itemstack), itemstack.getCount()));
+                list.add(new TextComponentString(String.format("%s x%d", itemstack.getItem().getItemStackDisplayName(itemstack), itemstack.getCount())).setStyle(style).getFormattedText());
 
             }
 
@@ -86,10 +86,10 @@ public class ShulkerBoxHelper {
 
         for (ItemStack itemstack : list) {
 
-            if (contents.stream().anyMatch(it -> it.getItem() == itemstack.getItem())) {
+            if (contents.stream().anyMatch(it -> ItemStack.areItemsEqual(it, itemstack))) {
 
                 contents.forEach((it) -> {
-                    if (it.getItem() == itemstack.getItem()) {
+                    if (ItemStack.areItemsEqual(it, itemstack)) {
                         it.setCount(it.getCount() + itemstack.getCount());
                     }
                 });

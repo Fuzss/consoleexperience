@@ -2,6 +2,7 @@ package com.fuzs.consolehud.helper;
 
 import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.handler.ConfigHandler;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
@@ -19,7 +20,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import java.util.IllegalFormatConversionException;
 import java.util.List;
 import java.util.MissingFormatArgumentException;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -29,12 +29,12 @@ public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
 
-    protected void getName(List<String> list, Style style, boolean simple, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getName(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
 
         String s = new TextComponentString(this.itemstack.getDisplayName()).setStyle((new Style()).setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getItem().getForgeRarity(this.itemstack).getColor())).getFormattedText();
         String s2 = "";
 
-        if (!simple && tooltipflag.isAdvanced()) {
+        if (tooltipflag.isAdvanced()) {
             String s1 = "";
 
             if (!s.isEmpty())
@@ -53,7 +53,7 @@ public class TooltipElementsHelper {
             {
                 s2 = s2 + String.format("#%04d%s", i, s1);
             }
-        } else if (!simple && !this.itemstack.hasDisplayName() && this.itemstack.getItem() == Items.FILLED_MAP) {
+        } else if (!this.itemstack.hasDisplayName() && this.itemstack.getItem() == Items.FILLED_MAP) {
             s2 = s2 + " #" + this.itemstack.getItemDamage();
         }
 
@@ -66,12 +66,15 @@ public class TooltipElementsHelper {
         List<String> information = Lists.newArrayList();
 
         if (this.itemstack.getItem() instanceof ItemShulkerBox) {
-            ShulkerBoxHelper.getContentsTooltip(information, this.itemstack, ConfigHandler.heldItemTooltipsConfig.rows - 1);
+            TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.heldItemTooltipsConfig.rows - 1);
         } else {
             this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
+            information = information.stream().map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
+            // remove empty lines from a list of strings
+            information.removeIf(Strings::isNullOrEmpty);
         }
 
-        list.addAll(information.stream().map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList()));
+        list.addAll(information);
 
     }
 
@@ -185,25 +188,25 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getDurability(List<String> list, Style style) {
+    protected void getDurability(List<String> list, Style style, boolean force) {
 
-        if (this.itemstack.isItemDamaged()) {
+        if ((!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showDurability || ConfigHandler.heldItemTooltipsConfig.appearanceConfig.forceDurability) && !force || !this.itemstack.isItemDamaged()) {
+            return;
+        }
 
-            if (!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat.isEmpty()) {
+        if (!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat.isEmpty()) {
 
-                try {
-                    list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat, this.itemstack.getMaxDamage() -
-                            this.itemstack.getItemDamage(), this.itemstack.getMaxDamage())).setStyle(style).getFormattedText());
-                } catch (MissingFormatArgumentException | IllegalFormatConversionException e) {
-                    ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Durability Format to fix this.");
-                }
-
-            } else  {
-
-                list.add(new TextComponentTranslation("item.durability", this.itemstack.getMaxDamage() -
-                        this.itemstack.getItemDamage(), this.itemstack.getMaxDamage()).setStyle(style).getFormattedText());
-
+            try {
+                list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat, this.itemstack.getMaxDamage() -
+                        this.itemstack.getItemDamage(), this.itemstack.getMaxDamage())).setStyle(style).getFormattedText());
+            } catch (MissingFormatArgumentException | IllegalFormatConversionException e) {
+                ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Durability Format to fix this.");
             }
+
+        } else  {
+
+            list.add(new TextComponentTranslation("item.durability", this.itemstack.getMaxDamage() -
+                    this.itemstack.getItemDamage(), this.itemstack.getMaxDamage()).setStyle(style).getFormattedText());
 
         }
 
@@ -228,7 +231,9 @@ public class TooltipElementsHelper {
 
     protected void getForgeInformation(List<String> list, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        net.minecraftforge.event.ForgeEventFactory.onItemTooltip(this.itemstack, null, list, tooltipflag);
+        if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.moddedTooltips) {
+            net.minecraftforge.event.ForgeEventFactory.onItemTooltip(this.itemstack, null, list, tooltipflag);
+        }
 
     }
 

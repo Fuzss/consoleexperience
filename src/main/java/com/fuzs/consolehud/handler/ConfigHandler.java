@@ -2,6 +2,7 @@ package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.util.EnumPositionPreset;
+import com.fuzs.consolehud.util.EnumTextColor;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
@@ -52,7 +53,7 @@ public class ConfigHandler {
 
 		@Config.Name("Rows")
 		@Config.Comment("Maximum amount of rows to be displayed for held item tooltips.")
-		@Config.RangeInt(min = 2, max = 7)
+		@Config.RangeInt(min = 0, max = 9)
 		@Config.SlidingOption
 		public int rows = 5;
 
@@ -71,6 +72,14 @@ public class ConfigHandler {
 		@Config.RangeInt(min = 0)
 		public int yOffset = 59;
 
+		@Config.Name("Cache Tooltip")
+		@Config.Comment("Cache the tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed.")
+		public boolean cacheTooltip = true;
+
+		@Config.Name("Text Color")
+		@Config.Comment("Default text color. Only used when the text doesn't already have a color assigned internally.")
+		public EnumTextColor textColor = EnumTextColor.SILVER;
+
 		public static class AppearanceConfig {
 
 			@Config.Name("Show Modded Tooltips")
@@ -78,12 +87,16 @@ public class ConfigHandler {
 			public boolean moddedTooltips = false;
 
 			@Config.Name("Show Durability")
-			@Config.Comment("Displays the item's durability as part of its held item tooltip (only when enough space is available).")
-			public boolean durabilityShow = true;
+			@Config.Comment("Displays the item's durability as part of its held item tooltip.")
+			public boolean showDurability = true;
+
+			@Config.Name("Force Durability")
+			@Config.Comment("Force the durability to always be on the tooltip. \"Show Durability\" has to be enabled for this to have any effect.")
+			public boolean forceDurability = true;
 
 			@Config.Name("Show Last Line")
-			@Config.Comment("Show how many more lines there are that don't fit the tooltip.")
-			public boolean lastLineShow = true;
+			@Config.Comment("Show how many more lines there are that currently don't fit the tooltip.")
+			public boolean showLastLine = true;
 
 			@Config.Name("Sum Shulker Box Contents")
 			@Config.Comment("Sum up stacks of equal items in a shulker box. Only affects the inventory tooltip, held item tooltips always use this.")

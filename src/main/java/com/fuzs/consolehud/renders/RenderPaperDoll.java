@@ -1,8 +1,8 @@
 package com.fuzs.consolehud.renders;
 
 import com.fuzs.consolehud.handler.ConfigHandler;
+import com.fuzs.consolehud.helper.PaperDollHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -16,17 +16,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 @SuppressWarnings("unused")
 public class RenderPaperDoll {
 
-    private final Minecraft mc;
+    private final Minecraft mc = Minecraft.getMinecraft();
     private int remainingTicks = 0;
     private int remainingRidingTicks = 0;
     private float rotationYawPrev;
     private float renderYawOffsetPrev;
     private float positionOnScreen;
     private boolean wasActive;
-
-    public RenderPaperDoll(Minecraft mcIn) {
-        this.mc = mcIn;
-    }
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent evt) {
@@ -37,7 +33,7 @@ public class RenderPaperDoll {
 
         if (this.mc.player != null) {
 
-            if (ConfigHandler.paperDoll && (ConfigHandler.paperDollConfig.displayActionsConfig.always || this.showDoll(this.mc.player))) {
+            if (ConfigHandler.paperDoll && (ConfigHandler.paperDollConfig.displayActionsConfig.always || PaperDollHelper.showDoll(this.mc.player, this.remainingRidingTicks))) {
                 this.remainingTicks = ConfigHandler.paperDollConfig.displayTime;
             } else if (this.remainingTicks > 0) {
                 this.remainingTicks--;
@@ -51,26 +47,6 @@ public class RenderPaperDoll {
 
         }
 
-    }
-
-    private boolean showDoll(EntityPlayerSP player) {
-
-        boolean sprinting = ConfigHandler.paperDollConfig.displayActionsConfig.sprinting && player.isSprinting();
-        boolean crouching = ConfigHandler.paperDollConfig.displayActionsConfig.crouching && player.isSneaking() && remainingRidingTicks == 0;
-        boolean flying = ConfigHandler.paperDollConfig.displayActionsConfig.flying && player.capabilities.isFlying;
-        boolean elytra = ConfigHandler.paperDollConfig.displayActionsConfig.elytraFlying && player.isElytraFlying();
-        boolean burning = ConfigHandler.paperDollConfig.displayActionsConfig.burning && player.isBurning();
-        boolean mounting = ConfigHandler.paperDollConfig.displayActionsConfig.riding && player.isRiding();
-
-        return crouching || sprinting || burning || elytra || flying || mounting;
-
-    }
-
-    @SubscribeEvent
-    public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
-        if (ConfigHandler.paperDoll && ConfigHandler.paperDollConfig.displayActionsConfig.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
-            evt.setCanceled(true);
-        }
     }
 
     @SubscribeEvent
@@ -114,6 +90,13 @@ public class RenderPaperDoll {
 
         }
 
+    }
+
+    @SubscribeEvent
+    public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
+        if (ConfigHandler.paperDoll && ConfigHandler.paperDollConfig.displayActionsConfig.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
+            evt.setCanceled(true);
+        }
     }
 
     /**

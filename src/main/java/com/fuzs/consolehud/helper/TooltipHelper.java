@@ -20,52 +20,66 @@ public class TooltipHelper extends TooltipElementsHelper {
         this.itemstack = stack;
         List<String> tooltip = Lists.newArrayList();
 
+        this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), ITooltipFlag.TooltipFlags.NORMAL);
+
         if (simple) {
-
-            this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), true, ITooltipFlag.TooltipFlags.NORMAL);
-
-        } else {
-
-            this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), false, ITooltipFlag.TooltipFlags.NORMAL);
-            this.getInformation(tooltip, new Style().setColor(TextFormatting.GRAY), ITooltipFlag.TooltipFlags.NORMAL);
-
-            if (stack.getItem() instanceof ItemShulkerBox && tooltip.size() == ConfigHandler.heldItemTooltipsConfig.rows) {
-                return tooltip;
-            }
-
-            this.getEnchantments(tooltip, new Style().setColor(TextFormatting.GRAY));
-            this.getColorTag(tooltip, new Style().setColor(TextFormatting.GRAY), ITooltipFlag.TooltipFlags.NORMAL);
-            this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
-            //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
-            //this.getAdventureStats(tooltip, new Style().setColor(TextFormatting.GRAY));
-
-            if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityShow) {
-                this.getDurability(tooltip, new Style().setColor(TextFormatting.GRAY));
-            }
-
-            //this.getNameID(tooltip, new Style().setColor(TextFormatting.GRAY));
-            //this.getNBTAmount(tooltip, new Style().setColor(TextFormatting.GRAY));
-
-            if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.moddedTooltips) {
-                this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
-            }
-
-            if (tooltip.size() > ConfigHandler.heldItemTooltipsConfig.rows) {
-                this.fitList(tooltip);
-            }
-
+            return tooltip;
         }
+
+        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+
+        if (stack.getItem() instanceof ItemShulkerBox && tooltip.size() == ConfigHandler.heldItemTooltipsConfig.rows) {
+            return tooltip;
+        }
+
+        this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
+        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
+        //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
+        //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
+        this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), false);
+        //this.getNameID(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
+        //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
+        this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
+
+        this.applyLastLine(tooltip);
 
         return tooltip;
 
     }
 
-    private void fitList(List<String> list) {
+    private void applyLastLine(List<String> tooltip) {
 
-        int i = list.size() - ConfigHandler.heldItemTooltipsConfig.rows + 1;
-        list.subList(ConfigHandler.heldItemTooltipsConfig.rows + (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineShow ? -1 : 0), list.size()).clear();
-        if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineShow) {
-            this.getLastLine(list, new Style().setItalic(true).setColor(TextFormatting.GRAY), i);
+        boolean flag = ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showDurability && ConfigHandler.heldItemTooltipsConfig.appearanceConfig.forceDurability && this.itemstack.isItemDamaged();
+        int i = 0, j = 0; // i counts the lines to be added afterwards, j is for counting how many lines to remove
+
+        if (flag) {
+            i++;
+        }
+
+        if (tooltip.size() + i > ConfigHandler.heldItemTooltipsConfig.rows) {
+
+            if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showLastLine) {
+                i++;
+            }
+
+            j = tooltip.size() - ConfigHandler.heldItemTooltipsConfig.rows + i;
+
+            if (j == tooltip.size()) {
+                i--; // prevent item name from being removed
+                j = this.itemstack.isItemDamaged() ? 0 : j; // prioritise durability over last line
+            }
+
+            tooltip.subList(ConfigHandler.heldItemTooltipsConfig.rows - i, tooltip.size()).clear();
+
+        }
+
+        if (flag) {
+            this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), true);
+        }
+
+        if (j > 0 && ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showLastLine ) {
+            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), j);
         }
 
     }
