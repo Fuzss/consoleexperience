@@ -17,9 +17,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
-import java.util.IllegalFormatConversionException;
-import java.util.List;
-import java.util.MissingFormatArgumentException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,8 +68,7 @@ public class TooltipElementsHelper {
         } else {
             this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
             information = information.stream().map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
-            // remove empty lines from a list of strings
-            information.removeIf(Strings::isNullOrEmpty);
+            information.removeIf(Strings::isNullOrEmpty); // remove empty lines from a list of strings
         }
 
         list.addAll(information);
@@ -199,7 +196,7 @@ public class TooltipElementsHelper {
             try {
                 list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat, this.itemstack.getMaxDamage() -
                         this.itemstack.getItemDamage(), this.itemstack.getMaxDamage())).setStyle(style).getFormattedText());
-            } catch (MissingFormatArgumentException | IllegalFormatConversionException e) {
+            } catch (IllegalFormatException e) {
                 ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Durability Format to fix this.");
             }
 
@@ -243,7 +240,7 @@ public class TooltipElementsHelper {
 
             try {
                 list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineFormat, i)).setStyle(style).getFormattedText());
-            } catch (MissingFormatArgumentException | IllegalFormatConversionException e) {
+            } catch (IllegalFormatException e) {
                 ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Last Line Format to fix this.");
             }
 

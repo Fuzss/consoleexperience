@@ -3,7 +3,7 @@ package com.fuzs.consolehud;
 import com.fuzs.consolehud.handler.SaveIconHandler;
 import com.fuzs.consolehud.handler.SelectedItemHandler;
 import com.fuzs.consolehud.handler.HoveringHotbarHandler;
-import com.fuzs.consolehud.renders.RenderPaperDoll;
+import com.fuzs.consolehud.handler.PaperDollHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -34,13 +34,12 @@ public class ConsoleHud
     public static final String FINGERPRINT = "@FINGERPRINT@";
 
     public static final Logger LOGGER = LogManager.getLogger(ConsoleHud.NAME);
-    private final Minecraft mc = Minecraft.getMinecraft();
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
 
         MinecraftForge.EVENT_BUS.register(new SelectedItemHandler());
-        MinecraftForge.EVENT_BUS.register(new RenderPaperDoll());
+        MinecraftForge.EVENT_BUS.register(new PaperDollHandler());
         MinecraftForge.EVENT_BUS.register(new HoveringHotbarHandler());
         MinecraftForge.EVENT_BUS.register(new SaveIconHandler());
 

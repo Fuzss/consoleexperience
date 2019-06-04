@@ -1,18 +1,16 @@
 package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.ConsoleHud;
+import com.fuzs.consolehud.helper.PaperDollHelper;
 import com.fuzs.consolehud.util.EnumPositionPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-
-import java.util.Collection;
 
 @SuppressWarnings("unused")
 public class SaveIconHandler extends GuiIngame {
@@ -67,7 +65,7 @@ public class SaveIconHandler extends GuiIngame {
             int l = position.getY(this.height, evt.getResolution().getScaledHeight(), ConfigHandler.saveIconConfig.yOffset);
 
             if (ConfigHandler.saveIconConfig.potionShift && position.shouldShift()) {
-                l += this.getPotionShift();
+                l += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
             }
 
             int textureX = (int) ((this.remainingDisplayTicks % 16) * 0.5F) * 18;
@@ -84,21 +82,6 @@ public class SaveIconHandler extends GuiIngame {
             GlStateManager.popMatrix();
 
         }
-
-    }
-
-    private int getPotionShift() {
-
-        Collection<PotionEffect> collection = this.mc.player.getActivePotionEffects();
-        int shift = 0;
-        boolean renderInHUD = collection.stream().anyMatch(it -> it.getPotion().shouldRenderHUD(it));
-        boolean doesShowParticles = collection.stream().anyMatch(PotionEffect::doesShowParticles);
-
-        if (!collection.isEmpty() && renderInHUD && doesShowParticles) {
-            shift += collection.stream().anyMatch(it -> !it.getPotion().isBeneficial()) ? 50 : 25;
-        }
-
-        return shift;
 
     }
 

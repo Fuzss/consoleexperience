@@ -27,19 +27,19 @@ public class ConfigHandler {
 	public static SaveIconConfig saveIconConfig = new SaveIconConfig();
 
 	@Config.Name("Held Item Tooltips")
-	@Config.Comment("Enhances vanilla held item tooltips with information about enchantments, potions effects, shulker box contents, and more.")
+	@Config.Comment("Enhances vanilla held item tooltips with information about enchantments, potions effects, shulker box contents and more.")
 	public static boolean heldItemTooltips = true;
 
 	@Config.Name("Paper Doll")
-	@Config.Comment("Shows a small player model in a configurable corner of the screen while the player is sprinting, sneaking, or flying.")
+	@Config.Comment("Show a small player model in a configurable corner of the screen while the player is performing certain actions like sprinting, sneaking, or flying.")
 	public static boolean paperDoll = true;
 
 	@Config.Name("Hovering Hotbar")
-	@Config.Comment("Enables the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.")
+	@Config.Comment("Enable the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.")
 	public static boolean hoveringHotbar = true;
 
 	@Config.Name("Save Icon")
-	@Config.Comment("Enables the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.")
+	@Config.Comment("Show an animated icon on the screen whenever the world is being saved (every 45 seconds by default). This only works in singleplayer.")
 	public static boolean saveIcon = true;
 
 	public static class SelectedItemConfig {
@@ -77,10 +77,10 @@ public class ConfigHandler {
 		public boolean cacheTooltip = true;
 
 		@Config.Name("Text Color")
-		@Config.Comment("Default text color. Only used when the text doesn't already have a color assigned internally.")
+		@Config.Comment("Default text color. Only applied when the text doesn't already have a color assigned internally.")
 		public EnumTextColor textColor = EnumTextColor.SILVER;
 
-		public static class AppearanceConfig {
+		public class AppearanceConfig {
 
 			@Config.Name("Show Modded Tooltips")
 			@Config.Comment("Enables tooltip information added by other mods like Hwyla to be displayed as a held item tooltip.")
@@ -103,11 +103,11 @@ public class ConfigHandler {
 			public boolean sumShulkerBox = true;
 
 			@Config.Name("Last Line Format")
-			@Config.Comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this empty for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.")
+			@Config.Comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this blank for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.")
 			public String lastLineFormat = "";
 
 			@Config.Name("Durability Format")
-			@Config.Comment("Define a custom format to be used for the durability line. Leave this empty for the default, translatable string. Use %s (up to two times) to include remaining uses and total uses in your custom format. \"Show Durability\" has to be enabled for this to have any effect.")
+			@Config.Comment("Define a custom format to be used for the durability line. Leave this blank for the default, translatable string. Use %s (up to two times) to include remaining uses and total uses in your custom format. \"Show Durability\" has to be enabled for this to have any effect.")
 			public String durabilityFormat = "";
 
 		}
@@ -119,13 +119,8 @@ public class ConfigHandler {
 		@Config.Name("displayactions")
 		public DisplayActionsConfig displayActionsConfig = new DisplayActionsConfig();
 
-		@Config.Name("Screen Corner Old")
-		@Config.Comment("Defines a screen corner to display the paper doll in. [0: top left, 1: bottom left, 2: top right, 3: bottom right, default: 0]")
-		@Config.RangeInt(min = 0, max = 3)
-		public int oldPosition = 0;
-
 		@Config.Name("Screen Corner")
-		@Config.Comment("Defines a screen corner to display the paper doll in.")
+		@Config.Comment("Define a screen corner to display the paper doll in.")
 		public EnumPositionPreset position = EnumPositionPreset.TOP_LEFT;
 
 		@Config.Name("Scale")
@@ -145,38 +140,46 @@ public class ConfigHandler {
 		public int yOffset = 0;
 
 		@Config.Name("Display Time")
-		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its conditions are no longer met.")
+		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.")
 		@Config.RangeInt(min = 0)
-		public int displayTime = 20;
+		public int displayTime = 5;
 
-		public static class DisplayActionsConfig {
+		@Config.Name("Fix Rotation")
+		@Config.Comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.")
+		public boolean blockRotation = false;
+
+		@Config.Name("Potion Shift")
+		@Config.Comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
+		public boolean potionShift = true;
+
+		public class DisplayActionsConfig {
 
 			@Config.Name("Always")
-			@Config.Comment("Always displays the paper doll, no matter what action the player is performing.")
+			@Config.Comment("Always display the paper doll, no matter what action the player is performing.")
 			public boolean always = false;
 
 			@Config.Name("Sprinting")
-			@Config.Comment("Enables the paper doll while the player is sprinting.")
+			@Config.Comment("Enable the paper doll while the player is sprinting.")
 			public boolean sprinting = true;
 
 			@Config.Name("Crouching")
-			@Config.Comment("Enables the paper doll while the player is crouching.")
+			@Config.Comment("Enable the paper doll while the player is crouching.")
 			public boolean crouching = true;
 
 			@Config.Name("Flying")
-			@Config.Comment("Displays the paper doll when the player is using creative mode flight.")
+			@Config.Comment("Display the paper doll when the player is using creative mode flight.")
 			public boolean flying = true;
 
 			@Config.Name("Elytra Flying")
-			@Config.Comment("Shows the paper doll while the player is flying with an elytra.")
+			@Config.Comment("Show the paper doll while the player is flying with an elytra.")
 			public boolean elytraFlying = true;
 
 			@Config.Name("Burning")
-			@Config.Comment("Disables flame overlay on the hud when on fire and displays the burning paper doll instead.")
+			@Config.Comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.")
 			public boolean burning = false;
 
 			@Config.Name("Riding")
-			@Config.Comment("Shows the paper doll while the player is riding any entity.")
+			@Config.Comment("Show the paper doll while the player is riding any entity.")
 			public boolean riding = false;
 
 		}
@@ -196,7 +199,7 @@ public class ConfigHandler {
 		public int yOffset = 18;
 
 		@Config.Name("Mod Compatibility")
-		@Config.Comment("Attempt to be compatible with dysfunctional mods. Only enable this when modded hud elements aren't moved together with the hotbar when they should be.")
+		@Config.Comment("Attempt to be compatible with dysfunctional mods. Only enable this when modded hud elements aren't shifted together with the hotbar when they should be.")
 		public boolean modCompat = false;
 
 	}
@@ -214,7 +217,7 @@ public class ConfigHandler {
 		public int yOffset = 15;
 
 		@Config.Name("Screen Corner")
-		@Config.Comment("Defines a screen corner to display the save icon in.")
+		@Config.Comment("Define a screen corner to display the save icon in.")
 		public EnumPositionPreset position = EnumPositionPreset.TOP_RIGHT;
 
 		@Config.Name("Display Time")
@@ -225,6 +228,14 @@ public class ConfigHandler {
 		@Config.Name("Potion Shift")
 		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
 		public boolean potionShift = true;
+
+//		@Config.Name("Show Arrow")
+//		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
+//		public boolean showArrow = true;
+//
+//		@Config.Name("Rotating Model")
+//		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
+//		public boolean rotatingModel = true;
 
 	}
 
