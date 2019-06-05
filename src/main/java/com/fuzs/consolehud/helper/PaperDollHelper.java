@@ -97,7 +97,7 @@ public class PaperDollHelper {
 
         // apply rotation change from entity
         if (Math.abs(renderYawOffsetDiff) >= 0.05F) {
-            rotationYaw += renderYawOffsetDiff;
+            rotationYaw += renderYawOffsetDiff * 0.5F;
         }
 
         rotationYaw = MathHelper.clamp(rotationYaw, -45.0F, 45.0F);

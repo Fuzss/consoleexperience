@@ -33,7 +33,7 @@ public class TooltipHelper extends TooltipElementsHelper {
         }
 
         this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
         this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
         //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
         //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));

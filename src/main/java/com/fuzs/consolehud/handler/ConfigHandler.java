@@ -55,7 +55,7 @@ public class ConfigHandler {
 		@Config.Comment("Maximum amount of rows to be displayed for held item tooltips.")
 		@Config.RangeInt(min = 0, max = 9)
 		@Config.SlidingOption
-		public int rows = 5;
+		public int rows = 4;
 
 		@Config.Name("Display Time")
 		@Config.Comment("Amount of ticks the held item tooltip will be displayed for.")
@@ -142,7 +142,7 @@ public class ConfigHandler {
 		@Config.Name("Display Time")
 		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.")
 		@Config.RangeInt(min = 0)
-		public int displayTime = 5;
+		public int displayTime = 10;
 
 		@Config.Name("Fix Rotation")
 		@Config.Comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.")
@@ -229,13 +229,13 @@ public class ConfigHandler {
 		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
 		public boolean potionShift = true;
 
-//		@Config.Name("Show Arrow")
-//		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
-//		public boolean showArrow = true;
-//
-//		@Config.Name("Rotating Model")
-//		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
-//		public boolean rotatingModel = true;
+		@Config.Name("Show Arrow")
+		@Config.Comment("Show a downwards pointing, animated arrow above the save icon.")
+		public boolean showArrow = true;
+
+		@Config.Name("Rotating Model")
+		@Config.Comment("Use an animated chest model instead of the static texture.")
+		public boolean rotatingModel = true;
 
 	}
 

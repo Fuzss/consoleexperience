@@ -68,15 +68,28 @@ public class SaveIconHandler extends GuiIngame {
                 l += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
             }
 
-            int textureX = (int) ((this.remainingDisplayTicks % 16) * 0.5F) * 18;
-            int textureY = 0;
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (position.isMirrored()) {
-                textureY += 30;
+            if (ConfigHandler.saveIconConfig.rotatingModel) {
+
+                int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
+                int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
+                GlStateManager.scale(0.5F, 0.5F, 0.5F);
+                this.drawTexturedModalRect(k * 2, (l + 14) * 2, textureX, textureY, 36, 36);
+                GlStateManager.scale(2.0F, 2.0F, 2.0F);
+
+            } else {
+
+                this.drawTexturedModalRect(k, l, position.isMirrored() ? 162 : 144, 0, this.width, this.height);
+
             }
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawTexturedModalRect(k, l, textureX, textureY, this.width, this.height);
+            if (ConfigHandler.saveIconConfig.showArrow) {
+
+                int x = (int) ((this.remainingDisplayTicks % 16) * 0.5F) * this.width;
+                this.drawTexturedModalRect(k, l, x, 0, this.width, this.height);
+
+            }
 
             GlStateManager.disableBlend();
             GlStateManager.popMatrix();
