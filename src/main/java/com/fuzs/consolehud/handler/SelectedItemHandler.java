@@ -76,7 +76,7 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
-        if (!this.mc.gameSettings.heldItemTooltips || this.mc.playerController.isSpectator() || (ConfigHandler.heldItemTooltips && ConfigHandler.heldItemTooltipsConfig.rows < 1)) {
+        if (this.mc.playerController.isSpectator() || (ConfigHandler.heldItemTooltips && ConfigHandler.heldItemTooltipsConfig.rows < 1)) {
             return;
         }
 
