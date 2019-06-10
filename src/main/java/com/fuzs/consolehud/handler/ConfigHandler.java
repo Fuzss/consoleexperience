@@ -142,7 +142,7 @@ public class ConfigHandler {
 		@Config.Name("Display Time")
 		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.")
 		@Config.RangeInt(min = 0)
-		public int displayTime = 10;
+		public int displayTime = 12;
 
 		@Config.Name("Fix Rotation")
 		@Config.Comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.")
