@@ -152,6 +152,10 @@ public class ConfigHandler {
 		@Config.Comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
 		public boolean potionShift = true;
 
+		@Config.Name("Burning Doll")
+		@Config.Comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.")
+		public boolean burning = false;
+
 		public class DisplayActionsConfig {
 
 			@Config.Name("Always")
@@ -174,13 +178,13 @@ public class ConfigHandler {
 			@Config.Comment("Show the paper doll while the player is flying with an elytra.")
 			public boolean elytraFlying = true;
 
-			@Config.Name("Burning")
-			@Config.Comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.")
-			public boolean burning = false;
-
 			@Config.Name("Riding")
 			@Config.Comment("Show the paper doll while the player is riding any entity.")
 			public boolean riding = false;
+
+			@Config.Name("Hurt")
+			@Config.Comment("Show the paper doll when the player is hurt.")
+			public boolean hurt = false;
 
 		}
 

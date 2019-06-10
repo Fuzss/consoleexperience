@@ -21,10 +21,11 @@ public class PaperDollHelper {
         boolean crouching = ConfigHandler.paperDollConfig.displayActionsConfig.crouching && player.isSneaking() && remainingRidingTicks == 0;
         boolean flying = ConfigHandler.paperDollConfig.displayActionsConfig.flying && player.capabilities.isFlying;
         boolean elytra = ConfigHandler.paperDollConfig.displayActionsConfig.elytraFlying && player.isElytraFlying();
-        boolean burning = ConfigHandler.paperDollConfig.displayActionsConfig.burning && player.isBurning();
+        boolean burning = ConfigHandler.paperDollConfig.burning && player.isBurning();
         boolean mounting = ConfigHandler.paperDollConfig.displayActionsConfig.riding && player.isRiding();
+        boolean hurt = ConfigHandler.paperDollConfig.displayActionsConfig.hurt && player.hurtTime > 0;
 
-        return crouching || sprinting || burning || elytra || flying || mounting;
+        return crouching || sprinting || burning || elytra || flying || mounting || hurt;
 
     }
 

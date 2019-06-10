@@ -81,7 +81,7 @@ public class PaperDollHandler {
 
     @SubscribeEvent
     public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
-        if (ConfigHandler.paperDoll && ConfigHandler.paperDollConfig.displayActionsConfig.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
+        if (ConfigHandler.paperDoll && ConfigHandler.paperDollConfig.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
             evt.setCanceled(true);
         }
     }
