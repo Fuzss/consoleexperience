@@ -37,7 +37,7 @@ public class PaperDollHandler {
             // don't show paper doll in sneaking position after unmounting a vehicle / mount
             if (ConfigHandler.paperDoll && this.mc.player.isRiding()) {
                 this.remainingRidingTicks = 10;
-            } else if (remainingRidingTicks > 0) {
+            } else if (this.remainingRidingTicks > 0) {
                 this.remainingRidingTicks--;
             }
 
@@ -56,7 +56,7 @@ public class PaperDollHandler {
 
             boolean riding = ConfigHandler.paperDollConfig.displayActionsConfig.always || ConfigHandler.paperDollConfig.displayActionsConfig.riding || !this.mc.player.isRiding();
 
-            if (!mc.player.isInvisible() && !this.mc.playerController.isSpectator() && this.mc.gameSettings.thirdPersonView == 0 && riding && this.remainingDisplayTicks > 0) {
+            if (!this.mc.player.isInvisible() && !this.mc.playerController.isSpectator() && (this.mc.gameSettings.thirdPersonView == 0 || !ConfigHandler.paperDollConfig.firstPerson) && riding && this.remainingDisplayTicks > 0) {
 
                 int scale = ConfigHandler.paperDollConfig.scale * 5;
                 EnumPositionPreset position = ConfigHandler.paperDollConfig.position;
@@ -71,7 +71,7 @@ public class PaperDollHandler {
                     y += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
                 }
 
-                this.prevRotationYaw = PaperDollHelper.drawEntityOnScreen(mc, x, y, scale, this.mc.player, evt.getPartialTicks(), this.prevRotationYaw);
+                this.prevRotationYaw = PaperDollHelper.drawEntityOnScreen(this.mc, x, y, scale, this.mc.player, evt.getPartialTicks(), this.prevRotationYaw);
 
             }
 

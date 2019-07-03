@@ -52,6 +52,7 @@ public class PaperDollHelper {
         // save rotation as we don't want to change the actual entity
         float f = entity.renderYawOffset;
         float f1 = entity.rotationYawHead;
+        int i = mc.gameSettings.thirdPersonView;
 
         if (!ConfigHandler.paperDollConfig.blockRotation) {
             // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
@@ -62,8 +63,13 @@ public class PaperDollHelper {
 
         entity.renderYawOffset = entity.rotationYawHead = ConfigHandler.paperDollConfig.position.getRotation(22.5F) + prevRotationYaw;
 
+
+        // mo' bends workaround
+        if (ConfigHandler.paperDollConfig.mobends) {
+            mc.gameSettings.thirdPersonView = 1;
+        }
+
         // do render
-        GlStateManager.translate(0.0F, 0.0F, 0.0F);
         RenderManager rendermanager = mc.getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
         rendermanager.setRenderShadow(false);
@@ -73,6 +79,7 @@ public class PaperDollHelper {
         // reset entity rotation
         entity.renderYawOffset = f;
         entity.rotationYawHead = f1;
+        mc.gameSettings.thirdPersonView = i;
 
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
@@ -103,8 +110,7 @@ public class PaperDollHelper {
 
         rotationYaw = MathHelper.clamp(rotationYaw, -45.0F, 45.0F);
 
-        // rotate back to origin, never
-        // overshoot 0
+        // rotate back to origin, never overshoot 0
         if (rotationYaw < -0.05F) {
             rotationYaw = Math.min(0, rotationYaw + partialTicks * 2.0F);
         } else if (rotationYaw > 0.05F) {

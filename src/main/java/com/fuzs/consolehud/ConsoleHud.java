@@ -1,10 +1,6 @@
 package com.fuzs.consolehud;
 
-import com.fuzs.consolehud.handler.SaveIconHandler;
-import com.fuzs.consolehud.handler.SelectedItemHandler;
-import com.fuzs.consolehud.handler.HoveringHotbarHandler;
-import com.fuzs.consolehud.handler.PaperDollHandler;
-import net.minecraft.client.Minecraft;
+import com.fuzs.consolehud.handler.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -42,6 +38,7 @@ public class ConsoleHud
         MinecraftForge.EVENT_BUS.register(new PaperDollHandler());
         MinecraftForge.EVENT_BUS.register(new HoveringHotbarHandler());
         MinecraftForge.EVENT_BUS.register(new SaveIconHandler());
+        MinecraftForge.EVENT_BUS.register(new MiscHandler());
 
     }
 

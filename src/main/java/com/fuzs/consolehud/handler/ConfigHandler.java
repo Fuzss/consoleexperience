@@ -10,6 +10,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+@SuppressWarnings("WeakerAccess")
 @Config(modid = ConsoleHud.MODID)
 @Mod.EventBusSubscriber
 public class ConfigHandler {
@@ -25,6 +26,9 @@ public class ConfigHandler {
 
 	@Config.Name("saveicon")
 	public static SaveIconConfig saveIconConfig = new SaveIconConfig();
+
+	@Config.Name("miscellaneous")
+	public static MiscConfig miscConfig = new MiscConfig();
 
 	@Config.Name("Held Item Tooltips")
 	@Config.Comment("Enhances vanilla held item tooltips with information about enchantments, potions effects, shulker box contents and more.")
@@ -98,10 +102,6 @@ public class ConfigHandler {
 			@Config.Comment("Show how many more lines there are that currently don't fit the tooltip.")
 			public boolean showLastLine = true;
 
-			@Config.Name("Sum Shulker Box Contents")
-			@Config.Comment("Sum up stacks of equal items in a shulker box. Only affects the inventory tooltip, held item tooltips always use this.")
-			public boolean sumShulkerBox = true;
-
 			@Config.Name("Last Line Format")
 			@Config.Comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this blank for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.")
 			public String lastLineFormat = "";
@@ -155,6 +155,14 @@ public class ConfigHandler {
 		@Config.Name("Burning Doll")
 		@Config.Comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.")
 		public boolean burning = false;
+
+		@Config.Name("Mo' Bends Compat")
+		@Config.Comment("Workaround for Mo' Bends so the player head won't go missing from the paper doll.")
+		public boolean mobends = false;
+
+		@Config.Name("First Person Only")
+		@Config.Comment("Only show the paper doll when in first person mode.")
+		public boolean firstPerson = true;
 
 		public class DisplayActionsConfig {
 
@@ -240,6 +248,18 @@ public class ConfigHandler {
 		@Config.Name("Rotating Model")
 		@Config.Comment("Use an animated chest model instead of the static texture.")
 		public boolean rotatingModel = true;
+
+	}
+
+	public static class MiscConfig {
+
+		@Config.Name("Elytra Camera Tilt")
+		@Config.Comment("Tilt the camera according to elytra flight angle.")
+		public boolean elytraTilt = true;
+
+		@Config.Name("Sum Shulker Box Contents")
+		@Config.Comment("Sum up stacks of equal items for the shulker box tooltip.")
+		public boolean sumShulkerBox = true;
 
 	}
 

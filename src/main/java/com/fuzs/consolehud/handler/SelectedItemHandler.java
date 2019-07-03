@@ -152,32 +152,4 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
         this.getFontRenderer().drawStringWithShadow(text, x - this.getFontRenderer().getStringWidth(text) / 2, y, color);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void makeTooltip(ItemTooltipEvent evt) {
-
-        if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.sumShulkerBox && evt.getItemStack().getItem() instanceof ItemShulkerBox) {
-
-            List<String> tooltip = evt.getToolTip();
-            List<String> contents = Lists.newArrayList();
-
-            evt.getItemStack().getItem().addInformation(evt.getItemStack(), evt.getEntityPlayer() == null ? null : evt.getEntityPlayer().world, contents, evt.getFlags());
-
-            if (!tooltip.isEmpty() && !contents.isEmpty()) {
-
-                int i = tooltip.indexOf(contents.get(0));
-
-                if (i != -1 && tooltip.removeAll(contents)) {
-
-                    List<String> list = Lists.newArrayList();
-                    TooltipShulkerBoxHelper.getLootTableTooltip(list, evt.getItemStack());
-                    TooltipShulkerBoxHelper.getContentsTooltip(list, evt.getItemStack(), new Style().setColor(TextFormatting.GRAY), 6);
-                    tooltip.addAll(i, list);
-
-                }
-
-            }
-
-        }
-
-    }
 }
