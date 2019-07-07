@@ -2,23 +2,32 @@ package com.fuzs.consolehud.helper;
 
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemShulkerBox;
+import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TooltipHelper extends TooltipElementsHelper {
 
-    public List<String> createTooltip(ItemStack stack, boolean simple) {
+    public List<ITextComponent> createTooltip(ItemStack stack, boolean simple) {
 
         this.itemstack = stack;
-        List<String> tooltip = Lists.newArrayList();
+        List<ITextComponent> tooltip = Lists.newArrayList();
 
         this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), ITooltipFlag.TooltipFlags.NORMAL);
 
@@ -26,20 +35,20 @@ public class TooltipHelper extends TooltipElementsHelper {
             return tooltip;
         }
 
-        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getInformation(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
 
-        if (stack.getItem() instanceof ItemShulkerBox && tooltip.size() == ConfigHandler.heldItemTooltipsConfig.rows) {
+        if (Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock && tooltip.size() == ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
             return tooltip;
         }
 
-        this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
+        this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.get().getChatColor()));
+        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
         this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
         //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
-        //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), false);
-        //this.getNameID(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
+        //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
+        this.getDurability(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.get().getChatColor()), false);
+        //this.getNameID(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
+        //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
         this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
 
         this.applyLastLine(tooltip);
@@ -48,56 +57,72 @@ public class TooltipHelper extends TooltipElementsHelper {
 
     }
 
-    private void applyLastLine(List<String> tooltip) {
+    private void applyLastLine(List<ITextComponent> tooltip) {
 
-        boolean flag = ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showDurability && ConfigHandler.heldItemTooltipsConfig.appearanceConfig.forceDurability && this.itemstack.isItemDamaged();
+        boolean flag = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showDurability.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.forceDurability.get() && this.itemstack.isDamaged();
         int i = 0, j = 0; // i counts the lines to be added afterwards, j is for counting how many lines to remove
 
         if (flag) {
             i++;
         }
 
-        if (tooltip.size() + i > ConfigHandler.heldItemTooltipsConfig.rows) {
+        if (tooltip.size() + i > ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
 
-            if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showLastLine) {
+            if (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
                 i++;
             }
 
-            j = tooltip.size() - ConfigHandler.heldItemTooltipsConfig.rows + i;
+            j = tooltip.size() - ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() + i;
 
             if (j == tooltip.size()) {
                 i--; // prevent item name from being removed
-                j = this.itemstack.isItemDamaged() ? 0 : j; // prioritise durability over last line
+                j = this.itemstack.isDamaged() ? 0 : j; // prioritise durability over last line
             }
 
-            tooltip.subList(ConfigHandler.heldItemTooltipsConfig.rows - i, tooltip.size()).clear();
+            tooltip.subList(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.hashCode() - i, tooltip.size()).clear();
 
         }
 
         if (flag) {
-            this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), true);
+            this.getDurability(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.get().getChatColor()), true);
         }
 
-        if (j > 0 && ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showLastLine ) {
-            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), j);
+        if (j > 0 && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
+            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.get().getChatColor()), j);
         }
 
     }
 
-    public static void getAdventureBlockInfo(List<String> list, Style style, NBTTagList nbttaglist) {
+    public static void getAdventureBlockInfo(List<ITextComponent> list, Style style, ListNBT nbttaglist) {
 
-        for (int k1 = 0; k1 < nbttaglist.tagCount(); ++k1)
-        {
-            Block block1 = Block.getBlockFromName(nbttaglist.getStringTagAt(k1));
+        for (int i = 0; i < nbttaglist.size(); i++) {
 
-            if (block1 != null)
-            {
-                list.add(new TextComponentString(block1.getLocalizedName()).setStyle(style).getFormattedText());
+            try {
+
+                BlockStateParser blockstateparser = new BlockStateParser(new StringReader(nbttaglist.getString(i)), true).parse(true);
+                BlockState blockstate = blockstateparser.getState();
+                ResourceLocation resourcelocation = blockstateparser.getTag();
+                boolean flag = blockstate != null;
+                boolean flag1 = resourcelocation != null;
+
+                if (flag || flag1) {
+                    if (flag) {
+                        list.addAll(Lists.newArrayList(blockstate.getBlock().getNameTextComponent().setStyle(style)));
+                    }
+
+                    Tag<Block> tag = BlockTags.getCollection().get(resourcelocation);
+                    if (tag != null) {
+                        Collection<Block> collection = tag.getAllElements();
+                        if (!collection.isEmpty()) {
+                            list.addAll(collection.stream().map(Block::getNameTextComponent).map(it -> it.setStyle(style)).collect(Collectors.toList()));
+                        }
+                    }
+                }
+
+            } catch (CommandSyntaxException ignored) {
+
             }
-            else
-            {
-                list.add(new TextComponentString("missingno").setStyle(style).getFormattedText());
-            }
+
         }
 
     }

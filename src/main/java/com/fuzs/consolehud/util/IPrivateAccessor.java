@@ -9,7 +9,8 @@
  */
 package com.fuzs.consolehud.util;
 
-import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.IngameGui;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,17 +25,17 @@ public interface IPrivateAccessor {
 
     String[] GUIINGAME_HIGHLIGHTTICKS = new String[]{"remainingHighlightTicks", "field_92017_k"};
     
-    default void setHighlightTicks(GuiIngame instance, int highlightTicks) {
+    default void setHighlightTicks(IngameGui instance, int highlightTicks) {
         try {
-            ObfuscationReflectionHelper.setPrivateValue(GuiIngame.class, instance, highlightTicks, GUIINGAME_HIGHLIGHTTICKS[1]);
+            ObfuscationReflectionHelper.setPrivateValue(IngameGui.class, instance, highlightTicks, GUIINGAME_HIGHLIGHTTICKS[1]);
         } catch (Exception ex) {
             LOGGER.error("setHighlightTicks() failed", ex);
         }
     }
 
-    default int getHighlightTicks(GuiIngame instance) {
+    default int getHighlightTicks(IngameGui instance) {
         try {
-            return ObfuscationReflectionHelper.getPrivateValue(GuiIngame.class, instance, GUIINGAME_HIGHLIGHTTICKS[1]);
+            return ObfuscationReflectionHelper.getPrivateValue(IngameGui.class, instance, GUIINGAME_HIGHLIGHTTICKS[1]);
         } catch (Exception ex) {
             LOGGER.error("getHighlightTicks() failed", ex);
         }

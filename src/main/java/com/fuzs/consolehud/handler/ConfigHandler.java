@@ -1,114 +1,94 @@
 package com.fuzs.consolehud.handler;
 
-import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.util.EnumPositionPreset;
 import com.fuzs.consolehud.util.EnumTextColor;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.Config.Type;
-import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 @SuppressWarnings("WeakerAccess")
-@Config(modid = ConsoleHud.MODID)
-@Mod.EventBusSubscriber
 public class ConfigHandler {
 
-	@Config.Name("helditemtooltips")
-	public static SelectedItemConfig heldItemTooltipsConfig = new SelectedItemConfig();
+	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-	@Config.Name("paperdoll")
-	public static PaperDollConfig paperDollConfig = new PaperDollConfig();
+	public static final GeneralConfig GENERAL_CONFIG = new GeneralConfig("general");
+	public static final SelectedItemConfig HELD_ITEM_TOOLTIPS_CONFIG = new SelectedItemConfig("helditemtooltips");
+	public static final PaperDollConfig PAPER_DOLL_CONFIG = new PaperDollConfig("paperdoll");
+	public static final HoveringHotbarConfig HOVERING_HOTBAR_CONFIG = new HoveringHotbarConfig("hoveringhotbar");
+	public static final SaveIconConfig SAVE_ICON_CONFIG = new SaveIconConfig("saveicon");
 
-	@Config.Name("hoveringhotbar")
-	public static HoveringHotbarConfig hoveringHotbarConfig = new HoveringHotbarConfig();
+	public static class GeneralConfig {
 
-	@Config.Name("saveicon")
-	public static SaveIconConfig saveIconConfig = new SaveIconConfig();
+		public final ForgeConfigSpec.BooleanValue heldItemTooltips;
+		public final ForgeConfigSpec.BooleanValue paperDoll;
+		public final ForgeConfigSpec.BooleanValue hoveringHotbar;
+		public final ForgeConfigSpec.BooleanValue saveIcon;
+		public final ForgeConfigSpec.BooleanValue sumShulkerBox;
 
-	@Config.Name("miscellaneous")
-	public static MiscConfig miscConfig = new MiscConfig();
+		private GeneralConfig(String name) {
 
-	@Config.Name("Held Item Tooltips")
-	@Config.Comment("Enhances vanilla held item tooltips with information about enchantments, potions effects, shulker box contents and more.")
-	public static boolean heldItemTooltips = true;
+			BUILDER.push(name);
 
-	@Config.Name("Paper Doll")
-	@Config.Comment("Show a small player model in a configurable corner of the screen while the player is performing certain actions like sprinting, sneaking, or flying.")
-	public static boolean paperDoll = true;
+			this.heldItemTooltips = ConfigHandler.BUILDER.comment("Enhances vanilla held item tooltips with information about enchantments, potions effects, shulker box contents and more.").define("Held Item Tooltips", true);
+			this.paperDoll = ConfigHandler.BUILDER.comment("Show a small player model in a configurable corner of the screen while the player is performing certain actions like sprinting, sneaking, or flying.").define("Paper Doll", true);
+			this.hoveringHotbar = ConfigHandler.BUILDER.comment("Enable the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.").define("Hovering Hotbar", true);
+			this.saveIcon = ConfigHandler.BUILDER.comment("Show an animated icon on the screen whenever the world is being saved (every 45 seconds by default). This only works in singleplayer.").define("Save Icon", true);
+			this.sumShulkerBox = ConfigHandler.BUILDER.comment("Sum up stacks of equal items for the shulker box tooltip.").define("Sum Shulker Box Contents", true);
 
-	@Config.Name("Hovering Hotbar")
-	@Config.Comment("Enable the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.")
-	public static boolean hoveringHotbar = true;
+			BUILDER.pop();
 
-	@Config.Name("Save Icon")
-	@Config.Comment("Show an animated icon on the screen whenever the world is being saved (every 45 seconds by default). This only works in singleplayer.")
-	public static boolean saveIcon = true;
+		}
+
+	}
 
 	public static class SelectedItemConfig {
 
-		@Config.Name("appearance")
-		public AppearanceConfig appearanceConfig = new AppearanceConfig();
+		public final AppearanceConfig appearanceConfig;
+		public final ForgeConfigSpec.IntValue rows;
+		public final ForgeConfigSpec.IntValue displayTime;
+		public final ForgeConfigSpec.IntValue xOffset;
+		public final ForgeConfigSpec.IntValue yOffset;
+		public final ForgeConfigSpec.BooleanValue cacheTooltip;
+		public final ForgeConfigSpec.EnumValue<EnumTextColor> textColor;
 
-		@Config.Name("Blacklist")
-		@Config.Comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping.")
-		public String[] blacklist = new String[]{"psi:cad", "psi:psimetal_shovel", "psi:psimetal_pickaxe", "psi:psimetal_axe", "psi:psimetal_exosuit_helmet", "psi:psimetal_exosuit_chestplate", "psi:psimetal_exosuit_leggings", "psi:psimetal_exosuit_boots"};
+		private SelectedItemConfig(String name) {
 
-		@Config.Name("Rows")
-		@Config.Comment("Maximum amount of rows to be displayed for held item tooltips.")
-		@Config.RangeInt(min = 0, max = 9)
-		@Config.SlidingOption
-		public int rows = 4;
+			BUILDER.push(name);
 
-		@Config.Name("Display Time")
-		@Config.Comment("Amount of ticks the held item tooltip will be displayed for.")
-		@Config.RangeInt(min = 0)
-		public int displayTime = 40;
+			this.rows = ConfigHandler.BUILDER.comment("Maximum amount of rows to be displayed for held item tooltips.").defineInRange("Rows", 4, 0, 9);
+			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the held item tooltip will be displayed for.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
+			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 59, 0, Integer.MAX_VALUE);
+			this.cacheTooltip = ConfigHandler.BUILDER.comment("Cache the tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed.").define("Cache Tooltip", true);
+			this.textColor = ConfigHandler.BUILDER.comment("Text Color").defineEnum("Text Color", EnumTextColor.SILVER);
 
-		@Config.Name("X-Offset")
-		@Config.Comment("Offset on x-axis from screen center.")
-		@Config.RangeInt()
-		public int xOffset = 0;
+			BUILDER.pop();
 
-		@Config.Name("Y-Offset")
-		@Config.Comment("Offset on y-axis from screen bottom.")
-		@Config.RangeInt(min = 0)
-		public int yOffset = 59;
+			this.appearanceConfig = new AppearanceConfig(name + "_appearance");
 
-		@Config.Name("Cache Tooltip")
-		@Config.Comment("Cache the tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed.")
-		public boolean cacheTooltip = true;
-
-		@Config.Name("Text Color")
-		@Config.Comment("Default text color. Only applied when the text doesn't already have a color assigned internally.")
-		public EnumTextColor textColor = EnumTextColor.SILVER;
+		}
 
 		public class AppearanceConfig {
 
-			@Config.Name("Show Modded Tooltips")
-			@Config.Comment("Enables tooltip information added by other mods like Hwyla to be displayed as a held item tooltip.")
-			public boolean moddedTooltips = false;
+			public final ForgeConfigSpec.BooleanValue moddedTooltips;
+			public final ForgeConfigSpec.BooleanValue showDurability;
+			public final ForgeConfigSpec.BooleanValue forceDurability;
+			public final ForgeConfigSpec.BooleanValue showLastLine;
+			public final ForgeConfigSpec.ConfigValue<String> lastLineFormat;
+			public final ForgeConfigSpec.ConfigValue<String> durabilityFormat;
 
-			@Config.Name("Show Durability")
-			@Config.Comment("Displays the item's durability as part of its held item tooltip.")
-			public boolean showDurability = true;
+			private AppearanceConfig(String name) {
 
-			@Config.Name("Force Durability")
-			@Config.Comment("Force the durability to always be on the tooltip. \"Show Durability\" has to be enabled for this to have any effect.")
-			public boolean forceDurability = true;
+				BUILDER.push(name);
 
-			@Config.Name("Show Last Line")
-			@Config.Comment("Show how many more lines there are that currently don't fit the tooltip.")
-			public boolean showLastLine = true;
+				this.moddedTooltips = ConfigHandler.BUILDER.comment("Enables tooltip information added by other mods like Hwyla to be displayed as a held item tooltip.").define("Show Modded Tooltips", false);
+				this.showDurability = ConfigHandler.BUILDER.comment("Displays the item's durability as part of its held item tooltip.").define("Show Durability", true);
+				this.forceDurability = ConfigHandler.BUILDER.comment("Force the durability to always be on the tooltip. \"Show Durability\" has to be enabled for this to have any effect.").define("Force Durability", true);
+				this.showLastLine = ConfigHandler.BUILDER.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Show Last Line", true);
+				this.lastLineFormat = ConfigHandler.BUILDER.comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this blank for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.").define("Last Line Format", "");
+				this.durabilityFormat = ConfigHandler.BUILDER.comment("Define a custom format to be used for the durability line. Leave this blank for the default, translatable string. Use %s (up to two times) to include remaining uses and total uses in your custom format. \"Show Durability\" has to be enabled for this to have any effect.").define("Durability Format", "");
 
-			@Config.Name("Last Line Format")
-			@Config.Comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this blank for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.")
-			public String lastLineFormat = "";
+				BUILDER.pop();
 
-			@Config.Name("Durability Format")
-			@Config.Comment("Define a custom format to be used for the durability line. Leave this blank for the default, translatable string. Use %s (up to two times) to include remaining uses and total uses in your custom format. \"Show Durability\" has to be enabled for this to have any effect.")
-			public String durabilityFormat = "";
+			}
 
 		}
 
@@ -116,83 +96,64 @@ public class ConfigHandler {
 
 	public static class PaperDollConfig {
 
-		@Config.Name("displayactions")
-		public DisplayActionsConfig displayActionsConfig = new DisplayActionsConfig();
+		public final DisplayActionsConfig displayActionsConfig;
+		public final ForgeConfigSpec.EnumValue<EnumPositionPreset> position;
+		public final ForgeConfigSpec.IntValue scale;
+		public final ForgeConfigSpec.IntValue xOffset;
+		public final ForgeConfigSpec.IntValue yOffset;
+		public final ForgeConfigSpec.IntValue displayTime;
+		public final ForgeConfigSpec.BooleanValue blockRotation;
+		public final ForgeConfigSpec.BooleanValue potionShift;
+		public final ForgeConfigSpec.BooleanValue burning;
+		public final ForgeConfigSpec.BooleanValue firstPerson;
 
-		@Config.Name("Screen Corner")
-		@Config.Comment("Define a screen corner to display the paper doll in.")
-		public EnumPositionPreset position = EnumPositionPreset.TOP_LEFT;
+		private PaperDollConfig(String name) {
 
-		@Config.Name("Scale")
-		@Config.Comment("Scale of the paper doll. This is additionally adjusted by the GUI Scale option in Video Settings.")
-		@Config.RangeInt(min = 1, max = 24)
-		@Config.SlidingOption
-		public int scale = 4;
+			BUILDER.push(name);
 
-		@Config.Name("X-Offset")
-		@Config.Comment("Offset on x-axis from original doll position.")
-		@Config.RangeInt()
-		public int xOffset = 0;
+			this.scale = ConfigHandler.BUILDER.comment("Scale of the paper doll. This is additionally adjusted by the GUI Scale option in Video Settings.").defineInRange("Scale", 4, 1, 24);
+			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
+			this.position = ConfigHandler.BUILDER.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", EnumPositionPreset.TOP_LEFT);
+			this.blockRotation = ConfigHandler.BUILDER.comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.").define("Fix Rotation", false);
+			this.potionShift = ConfigHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".").define("Potion Shift", true);
+			this.burning = ConfigHandler.BUILDER.comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.").define("Burning Doll", false);
+			this.firstPerson = ConfigHandler.BUILDER.comment("Only show the paper doll when in first person mode.").define("First Person Only", true);
+			
+			BUILDER.pop();
 
-		@Config.Name("Y-Offset")
-		@Config.Comment("Offset on y-axis from original doll position.")
-		@Config.RangeInt()
-		public int yOffset = 0;
+			this.displayActionsConfig = new DisplayActionsConfig(name + "_displayactions");
 
-		@Config.Name("Display Time")
-		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.")
-		@Config.RangeInt(min = 0)
-		public int displayTime = 12;
-
-		@Config.Name("Fix Rotation")
-		@Config.Comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.")
-		public boolean blockRotation = false;
-
-		@Config.Name("Potion Shift")
-		@Config.Comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
-		public boolean potionShift = true;
-
-		@Config.Name("Burning Doll")
-		@Config.Comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.")
-		public boolean burning = false;
-
-		@Config.Name("Mo' Bends Compat")
-		@Config.Comment("Workaround for Mo' Bends so the player head won't go missing from the paper doll.")
-		public boolean mobends = false;
-
-		@Config.Name("First Person Only")
-		@Config.Comment("Only show the paper doll when in first person mode.")
-		public boolean firstPerson = true;
+		}
 
 		public class DisplayActionsConfig {
 
-			@Config.Name("Always")
-			@Config.Comment("Always display the paper doll, no matter what action the player is performing.")
-			public boolean always = false;
+			public final ForgeConfigSpec.BooleanValue always;
+			public final ForgeConfigSpec.BooleanValue sprinting;
+			public final ForgeConfigSpec.BooleanValue swimming;
+			public final ForgeConfigSpec.BooleanValue crouching;
+			public final ForgeConfigSpec.BooleanValue flying;
+			public final ForgeConfigSpec.BooleanValue elytraFlying;
+			public final ForgeConfigSpec.BooleanValue riding;
+			public final ForgeConfigSpec.BooleanValue hurt;
 
-			@Config.Name("Sprinting")
-			@Config.Comment("Enable the paper doll while the player is sprinting.")
-			public boolean sprinting = true;
+			private DisplayActionsConfig(String name) {
 
-			@Config.Name("Crouching")
-			@Config.Comment("Enable the paper doll while the player is crouching.")
-			public boolean crouching = true;
+				BUILDER.push(name);
 
-			@Config.Name("Flying")
-			@Config.Comment("Display the paper doll when the player is using creative mode flight.")
-			public boolean flying = true;
+				this.always = ConfigHandler.BUILDER.comment("Always display the paper doll, no matter what action the player is performing.").define("Always", false);
+				this.sprinting = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is sprinting.").define("Sprinting", true);
+				this.swimming = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is swimming.").define("Swimming", true);
+				this.crouching = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is crouching.").define("Crouching", true);
+				this.flying = ConfigHandler.BUILDER.comment("Display the paper doll when the player is using creative mode flight.").define("Flying", true);
+				this.elytraFlying = ConfigHandler.BUILDER.comment("Show the paper doll while the player is flying with an elytra.").define("Elytra Flying", true);
+				this.riding = ConfigHandler.BUILDER.comment("Show the paper doll while the player is riding any entity.").define("Riding", false);
+				this.hurt = ConfigHandler.BUILDER.comment("Show the paper doll when the player is hurt.").define("Hurt", false);
 
-			@Config.Name("Elytra Flying")
-			@Config.Comment("Show the paper doll while the player is flying with an elytra.")
-			public boolean elytraFlying = true;
+				BUILDER.pop();
 
-			@Config.Name("Riding")
-			@Config.Comment("Show the paper doll while the player is riding any entity.")
-			public boolean riding = false;
-
-			@Config.Name("Hurt")
-			@Config.Comment("Show the paper doll when the player is hurt.")
-			public boolean hurt = false;
+			}
 
 		}
 
@@ -200,74 +161,52 @@ public class ConfigHandler {
 
 	public static class HoveringHotbarConfig {
 
-		@Config.Name("X-Offset")
-		@Config.Comment("Offset on x-axis from screen center.")
-		@Config.RangeInt()
-		public int xOffset = 0;
+		public final ForgeConfigSpec.IntValue xOffset;
+		public final ForgeConfigSpec.IntValue yOffset;
+		public final ForgeConfigSpec.BooleanValue modCompat;
 
-		@Config.Name("Y-Offset")
-		@Config.Comment("Offset on y-axis from screen bottom.")
-		@Config.RangeInt(min = 0)
-		public int yOffset = 18;
+		private HoveringHotbarConfig(String name) {
 
-		@Config.Name("Mod Compatibility")
-		@Config.Comment("Attempt to be compatible with dysfunctional mods. Only enable this when modded hud elements aren't shifted together with the hotbar when they should be.")
-		public boolean modCompat = false;
+			BUILDER.push(name);
+
+			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from screen center.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE);
+			this.modCompat = ConfigHandler.BUILDER.comment("Attempt to be compatible with dysfunctional mods. Only enable this when modded hud elements aren't shifted together with the hotbar when they should be.").define("Mod Compatibility", false);
+
+			BUILDER.pop();
+
+		}
 
 	}
 
 	public static class SaveIconConfig {
 
-		@Config.Name("X-Offset")
-		@Config.Comment("Offset on x-axis from screen border.")
-		@Config.RangeInt()
-		public int xOffset = 17;
+		public final ForgeConfigSpec.IntValue xOffset;
+		public final ForgeConfigSpec.IntValue yOffset;
+		public final ForgeConfigSpec.EnumValue<EnumPositionPreset> position;
+		public final ForgeConfigSpec.IntValue displayTime;
+		public final ForgeConfigSpec.BooleanValue potionShift;
+		public final ForgeConfigSpec.BooleanValue showArrow;
+		public final ForgeConfigSpec.BooleanValue rotatingModel;
 
-		@Config.Name("Y-Offset")
-		@Config.Comment("Offset on y-axis from screen border.")
-		@Config.RangeInt()
-		public int yOffset = 15;
+		private SaveIconConfig(String name) {
 
-		@Config.Name("Screen Corner")
-		@Config.Comment("Define a screen corner to display the save icon in.")
-		public EnumPositionPreset position = EnumPositionPreset.TOP_RIGHT;
+			BUILDER.push(name);
 
-		@Config.Name("Display Time")
-		@Config.Comment("Amount of ticks the save icon will be displayed for.")
-		@Config.RangeInt(min = 0)
-		public int displayTime = 40;
+			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 17, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.position = ConfigHandler.BUILDER.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", EnumPositionPreset.TOP_RIGHT);
+			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the save icon will be displayed for.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
+			this.potionShift = ConfigHandler.BUILDER.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".").define("Potion Shift", true);
+			this.showArrow = ConfigHandler.BUILDER.comment("Show a downwards pointing, animated arrow above the save icon.").define("Show Arrow", true);
+			this.rotatingModel = ConfigHandler.BUILDER.comment("Use an animated chest model instead of the static texture.").define("Rotating Model", true);
 
-		@Config.Name("Potion Shift")
-		@Config.Comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".")
-		public boolean potionShift = true;
+			BUILDER.pop();
 
-		@Config.Name("Show Arrow")
-		@Config.Comment("Show a downwards pointing, animated arrow above the save icon.")
-		public boolean showArrow = true;
-
-		@Config.Name("Rotating Model")
-		@Config.Comment("Use an animated chest model instead of the static texture.")
-		public boolean rotatingModel = true;
-
-	}
-
-	public static class MiscConfig {
-
-		@Config.Name("Elytra Camera Tilt")
-		@Config.Comment("Tilt the camera according to elytra flight angle.")
-		public boolean elytraTilt = true;
-
-		@Config.Name("Sum Shulker Box Contents")
-		@Config.Comment("Sum up stacks of equal items for the shulker box tooltip.")
-		public boolean sumShulkerBox = true;
-
-	}
-
-	@SubscribeEvent
-	public static void configChanged(ConfigChangedEvent.OnConfigChangedEvent evt) {
-		if (evt.getModID().equals(ConsoleHud.MODID)) {
-			ConfigManager.sync(ConsoleHud.MODID, Type.INSTANCE);
 		}
+
 	}
+
+	public static final ForgeConfigSpec SPEC = BUILDER.build();
 	
 }

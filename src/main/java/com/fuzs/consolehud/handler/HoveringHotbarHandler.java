@@ -1,10 +1,10 @@
 package com.fuzs.consolehud.handler;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class HoveringHotbarHandler {
 
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getInstance();
     // list of gui elements to be moved
     private List<RenderGameOverlayEvent.ElementType> elements = Arrays.asList(
             RenderGameOverlayEvent.ElementType.ARMOR,
@@ -28,14 +28,14 @@ public class HoveringHotbarHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
-        if (!ConfigHandler.hoveringHotbar) {
+        if (!ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
             return;
         }
 
         if (this.elements.contains(evt.getType())) {
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            GlStateManager.translate((float) ConfigHandler.hoveringHotbarConfig.xOffset, (float) -ConfigHandler.hoveringHotbarConfig.yOffset, 0.0F);
+            GlStateManager.translatef((float) ConfigHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) -ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
     }
@@ -43,16 +43,16 @@ public class HoveringHotbarHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void renderGameOverlayPost(RenderGameOverlayEvent.Post evt) {
 
-        if (!ConfigHandler.hoveringHotbar) {
+        if (!ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
             return;
         }
 
         if (this.elements.contains(evt.getType())) {
-            GlStateManager.translate((float) -ConfigHandler.hoveringHotbarConfig.xOffset, (float) ConfigHandler.hoveringHotbarConfig.yOffset, 0.0F);
+            GlStateManager.translatef((float) -ConfigHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
-        if (ConfigHandler.hoveringHotbarConfig.modCompat && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-            GlStateManager.translate((float) -ConfigHandler.hoveringHotbarConfig.xOffset, (float) ConfigHandler.hoveringHotbarConfig.yOffset, 0.0F);
+        if (ConfigHandler.HOVERING_HOTBAR_CONFIG.modCompat.get() && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+            GlStateManager.translatef((float) -ConfigHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
     }
@@ -60,14 +60,14 @@ public class HoveringHotbarHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void renderGameOverlayPostAll(RenderGameOverlayEvent.Post evt) {
 
-        if (!ConfigHandler.hoveringHotbar) {
+        if (!ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
             return;
         }
 
-        if (ConfigHandler.hoveringHotbarConfig.modCompat && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+        if (ConfigHandler.HOVERING_HOTBAR_CONFIG.modCompat.get() && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            GlStateManager.translate((float) ConfigHandler.hoveringHotbarConfig.xOffset, (float) -ConfigHandler.hoveringHotbarConfig.yOffset, 0.0F);
+            GlStateManager.translatef((float) ConfigHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) -ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
     }

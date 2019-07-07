@@ -4,115 +4,92 @@ import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonParseException;
+import net.minecraft.block.Block;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.*;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.*;
+import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
+@SuppressWarnings({"ConstantConditions", "WeakerAccess"})
 public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
 
-    protected void getName(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getName(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        String s = new TextComponentString(this.itemstack.getDisplayName()).setStyle((new Style()).setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getItem().getForgeRarity(this.itemstack).getColor())).getFormattedText();
-        String s2 = "";
-
-        if (tooltipflag.isAdvanced()) {
-            String s1 = "";
-
-            if (!s.isEmpty())
-            {
-                s2 = s2 + " (";
-                s1 = ")";
-            }
-
-            int i = Item.getIdFromItem(this.itemstack.getItem());
-
-            if (this.itemstack.getHasSubtypes())
-            {
-                s2 = s2 + String.format("#%04d/%d%s", i, this.itemstack.getItemDamage(), s1);
-            }
-            else
-            {
-                s2 = s2 + String.format("#%04d%s", i, s1);
-            }
-        } else if (!this.itemstack.hasDisplayName() && this.itemstack.getItem() == Items.FILLED_MAP) {
-            s2 = s2 + " #" + this.itemstack.getItemDamage();
-        }
-
-        list.add(s + new TextComponentString(s2).setStyle(style).getFormattedText());
+        list.add(new StringTextComponent("").appendSibling(this.itemstack.getDisplayName()).setStyle(new Style().setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getRarity().color)));
 
     }
 
-    protected void getInformation(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getInformation(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        List<String> information = Lists.newArrayList();
+        List<ITextComponent> information = Lists.newArrayList();
 
-        if (this.itemstack.getItem() instanceof ItemShulkerBox) {
-            TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.heldItemTooltipsConfig.rows - 1);
+        if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
+            TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
         } else {
             this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
-            information = information.stream().map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
-            information.removeIf(Strings::isNullOrEmpty); // remove empty lines from a list of strings
+            // remove empty lines from a list of strings
+            information = information.stream().filter(it -> !Strings.isNullOrEmpty(it.getString())).collect(Collectors.toList());
+
         }
 
         list.addAll(information);
 
     }
 
-    protected void getEnchantments(List<String> list, Style style) {
+    protected void getEnchantments(List<ITextComponent> list, Style style) {
 
-        if (this.itemstack.hasTagCompound()) {
+        if (this.itemstack.hasTag()) {
 
-            NBTTagList nbttaglist = this.itemstack.getEnchantmentTagList();
+            ListNBT nbttaglist = this.itemstack.getEnchantmentTagList();
 
-            for (int j = 0; j < nbttaglist.tagCount(); ++j) {
-                NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(j);
-                int k = nbttagcompound.getShort("id");
-                int l = nbttagcompound.getShort("lvl");
+            for (int i = 0; i < nbttaglist.size(); i++) {
+
+//                CompoundNBT nbttagcompound = nbttaglist.getCompound(i);
+//                Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(ResourceLocation.tryCreate(nbttagcompound.getString("id")));
+
+                CompoundNBT nbttagcompound = nbttaglist.getCompound(i);
+                int k = nbttagcompound.getInt("id");
+                int l = nbttagcompound.getInt("lvl");
                 Enchantment enchantment = Enchantment.getEnchantmentByID(k);
 
                 if (enchantment != null) {
-                    list.add(new TextComponentString(enchantment.getTranslatedName(l)).setStyle(style).getFormattedText());
+                    //list.add(enchantment.getDisplayName(nbttagcompound.getInt("lvl")));
+                    list.add(enchantment.getDisplayName(l).setStyle(style));
                 }
+
             }
 
         }
 
     }
 
-    protected void getColorTag(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getColorTag(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        if (this.itemstack.hasTagCompound())
-        {
-            if (this.itemstack.getTagCompound().hasKey("display", 10))
-            {
-                NBTTagCompound nbttagcompound = this.itemstack.getTagCompound().getCompoundTag("display");
+        if (this.itemstack.hasTag()) {
+            if (this.itemstack.getTag().contains("display", 10)) {
+                CompoundNBT nbttagcompound = this.itemstack.getTag().getCompound("display");
 
-                if (nbttagcompound.hasKey("color", 3))
-                {
-                    if (tooltipflag.isAdvanced())
-                    {
-                        list.add(new TextComponentTranslation("item.color", String.format("#%06X", nbttagcompound.getInteger("color"))).setStyle(style).getFormattedText());
+                if (nbttagcompound.contains("color", 3)) {
+                    if (tooltipflag.isAdvanced()) {
+                        list.add(new TranslationTextComponent("item.color", String.format("#%06X", nbttagcompound.getInt("color"))).setStyle(style));
                     }
-                    else
-                    {
-                        list.add(new TextComponentTranslation("item.dyed").setStyle(style.setItalic(true)).getFormattedText());
+                    else {
+                        list.add(new TranslationTextComponent("item.dyed").setStyle(style.setItalic(true)));
                     }
                 }
             }
@@ -120,23 +97,26 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getLoreTag(List<String> list, Style style) {
+    protected void getLoreTag(List<ITextComponent> list, Style style) {
 
-        if (this.itemstack.hasTagCompound())
-        {
-            if (this.itemstack.getTagCompound().hasKey("display", 10))
-            {
-                NBTTagCompound nbttagcompound = this.itemstack.getTagCompound().getCompoundTag("display");
+        if (this.itemstack.hasTag()) {
+            if (this.itemstack.getTag().contains("display", 10)) {
+                CompoundNBT nbttagcompound = this.itemstack.getTag().getCompound("display");
 
-                if (nbttagcompound.getTagId("Lore") == 9)
-                {
-                    NBTTagList nbttaglist = nbttagcompound.getTagList("Lore", 8);
+                if (nbttagcompound.getTagId("Lore") == 9) {
+                    ListNBT nbttaglist = nbttagcompound.getList("Lore", 8);
 
-                    if (!nbttaglist.hasNoTags())
-                    {
-                        for (int l1 = 0; l1 < nbttaglist.tagCount(); ++l1)
-                        {
-                            list.add(new TextComponentString(nbttaglist.getStringTagAt(l1)).setStyle(style).getFormattedText());
+                    for(int j = 0; j < nbttaglist.size(); ++j) {
+
+                        String s = nbttaglist.getString(j);
+
+                        try {
+                            ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s);
+                            if (itextcomponent != null) {
+                                list.add(TextComponentUtils.mergeStyles(itextcomponent, style));
+                            }
+                        } catch (JsonParseException var19) {
+                            nbttagcompound.remove("Lore");
                         }
                     }
                 }
@@ -145,37 +125,37 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getUnbreakable(List<String> list, Style style) {
+    protected void getUnbreakable(List<ITextComponent> list, Style style) {
 
-        if (this.itemstack.hasTagCompound() && this.itemstack.getTagCompound().getBoolean("Unbreakable")) {
-            list.add(new TextComponentTranslation("item.unbreakable").setStyle(style).getFormattedText());
+        if (this.itemstack.hasTag() && this.itemstack.getTag().getBoolean("Unbreakable")) {
+            list.add(new TranslationTextComponent("item.unbreakable").setStyle(style));
         }
 
     }
 
-    protected void getAdventureStats(List<String> list, Style style) {
+    protected void getAdventureStats(List<ITextComponent> list, Style style) {
 
-        if (this.itemstack.hasTagCompound()) {
+        if (this.itemstack.hasTag()) {
 
-            if (this.itemstack.getTagCompound().hasKey("CanDestroy", 9)) {
+            if (this.itemstack.getTag().contains("CanDestroy", 9)) {
 
-                NBTTagList nbttaglist1 = this.itemstack.getTagCompound().getTagList("CanDestroy", 8);
+                ListNBT nbttaglist1 = this.itemstack.getTag().getList("CanDestroy", 8);
 
-                if (!nbttaglist1.hasNoTags()) {
+                if (!nbttaglist1.isEmpty()) {
 
-                    list.add(new TextComponentTranslation("item.canBreak").setStyle(style).getFormattedText());
+                    list.add(new TranslationTextComponent("item.canBreak").setStyle(style));
 
                     TooltipHelper.getAdventureBlockInfo(list, style, nbttaglist1);
                 }
             }
 
-            if (this.itemstack.getTagCompound().hasKey("CanPlaceOn", 9)) {
+            if (this.itemstack.getTag().contains("CanPlaceOn", 9)) {
 
-                NBTTagList nbttaglist2 = this.itemstack.getTagCompound().getTagList("CanPlaceOn", 8);
+                ListNBT nbttaglist2 = this.itemstack.getTag().getList("CanPlaceOn", 8);
 
-                if (!nbttaglist2.hasNoTags()) {
+                if (!nbttaglist2.isEmpty()) {
 
-                    list.add(new TextComponentTranslation("item.canPlace").setStyle(style).getFormattedText());
+                    list.add(new TranslationTextComponent("item.canPlace").setStyle(style));
 
                     TooltipHelper.getAdventureBlockInfo(list, style, nbttaglist2);
                 }
@@ -185,68 +165,68 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getDurability(List<String> list, Style style, boolean force) {
+    protected void getDurability(List<ITextComponent> list, Style style, boolean force) {
 
-        if ((!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showDurability || ConfigHandler.heldItemTooltipsConfig.appearanceConfig.forceDurability) && !force || !this.itemstack.isItemDamaged()) {
+        if ((!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showDurability.get() || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.forceDurability.get()) && !force || !this.itemstack.isDamaged()) {
             return;
         }
 
-        if (!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat.isEmpty()) {
+        if (!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.durabilityFormat.get().isEmpty()) {
 
             try {
-                list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat, this.itemstack.getMaxDamage() -
-                        this.itemstack.getItemDamage(), this.itemstack.getMaxDamage())).setStyle(style).getFormattedText());
+                list.add(new StringTextComponent(String.format(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.durabilityFormat.get(), this.itemstack.getMaxDamage() -
+                        this.itemstack.getDamage(), this.itemstack.getMaxDamage())).setStyle(style));
             } catch (IllegalFormatException e) {
                 ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Durability Format to fix this.");
             }
 
         } else  {
 
-            list.add(new TextComponentTranslation("item.durability", this.itemstack.getMaxDamage() -
-                    this.itemstack.getItemDamage(), this.itemstack.getMaxDamage()).setStyle(style).getFormattedText());
+            list.add(new TranslationTextComponent("item.durability", this.itemstack.getMaxDamage() -
+                    this.itemstack.getDamage(), this.itemstack.getMaxDamage()).setStyle(style));
 
         }
 
     }
 
-    protected void getNameID(List<String> list, Style style) {
+    protected void getNameID(List<ITextComponent> list, Style style) {
 
-        ResourceLocation resource = Item.REGISTRY.getNameForObject(this.itemstack.getItem());
-        if (resource != null) {
-            list.add(new TextComponentString(resource.toString()).setStyle(style).getFormattedText());
+        ResourceLocation resourceLocation = ForgeRegistries.ITEMS.getKey(this.itemstack.getItem());
+        if (resourceLocation != null) {
+            list.add(new StringTextComponent(resourceLocation.toString()).setStyle(style));
         }
 
     }
 
-    protected void getNBTAmount(List<String> list, Style style) {
+    protected void getNBTAmount(List<ITextComponent> list, Style style) {
 
-        if (this.itemstack.hasTagCompound()) {
-            list.add(new TextComponentTranslation("item.nbt_tags", this.itemstack.getTagCompound().getKeySet().size()).setStyle(style).getFormattedText());
+        if (this.itemstack.hasTag()) {
+            list.add(new TranslationTextComponent("item.nbt_tags", this.itemstack.getTag().keySet().size()).setStyle(style));
         }
 
     }
 
-    protected void getForgeInformation(List<String> list, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getForgeInformation(List<ITextComponent> list, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.moddedTooltips) {
+        if (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.moddedTooltips.get()) {
             net.minecraftforge.event.ForgeEventFactory.onItemTooltip(this.itemstack, null, list, tooltipflag);
         }
 
     }
 
-    protected void getLastLine(List<String> list, Style style, int i) {
+    protected void getLastLine(List<ITextComponent> list, Style style, int i) {
 
-        if (!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineFormat.isEmpty()) {
+        if (!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.lastLineFormat.get().isEmpty()) {
 
             try {
-                list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineFormat, i)).setStyle(style).getFormattedText());
+                list.add(new StringTextComponent(String.format(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.lastLineFormat.get(), i)).setStyle(style));
             } catch (IllegalFormatException e) {
                 ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Last Line Format to fix this.");
             }
 
         } else  {
 
-            list.add(new TextComponentTranslation("container.shulkerBox.more", i).setStyle(style).getFormattedText());
+            list.add(new TranslationTextComponent("container.shulkerBox.more", i).setStyle(style));
 
         }
 

@@ -3,33 +3,32 @@ package com.fuzs.consolehud.helper;
 import com.google.common.collect.Lists;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 
 public class TooltipShulkerBoxHelper {
 
-    public static void getLootTableTooltip(List<String> list, ItemStack stack) {
+    public static void getLootTableTooltip(List<ITextComponent> tooltip, ItemStack stack) {
 
-        NBTTagCompound nbttagcompound = stack.getTagCompound();
+        CompoundNBT nbttagcompound = stack.getChildTag("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("BlockEntityTag", 10))
-        {
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("BlockEntityTag");
+        if (nbttagcompound != null) {
 
-            if (nbttagcompound1.hasKey("LootTable", 8))
-            {
-                list.add("???????");
+            if (nbttagcompound.contains("LootTable", 8)) {
+                tooltip.add(new StringTextComponent("???????"));
             }
+
         }
 
     }
 
-    public static void getContentsTooltip(List<String> list, ItemStack stack, Style style, int rows) {
+    public static void getContentsTooltip(List<ITextComponent> tooltip, ItemStack stack, Style style, int rows) {
 
         List<ItemStack> contents = contentsToList(stack);
 
@@ -41,17 +40,17 @@ public class TooltipShulkerBoxHelper {
 
             for (ItemStack itemstack : contents.subList(0, rows - 1)) {
 
-                list.add(new TextComponentString(String.format("%s x%d", itemstack.getItem().getItemStackDisplayName(itemstack), itemstack.getCount())).setStyle(style).getFormattedText());
+                tooltip.add(itemstack.getDisplayName().deepCopy().appendText(" x").appendText(String.valueOf(itemstack.getCount())).setStyle(style));
 
             }
 
-            list.add(new TextComponentTranslation("container.shulkerBox.more", contents.size() - rows + 1).setStyle(style.setItalic(true)).getFormattedText());
+            tooltip.add(new TranslationTextComponent("container.shulkerBox.more", contents.size() - rows + 1).setStyle(style.setItalic(true)));
 
         } else {
 
             for (ItemStack itemstack : contents) {
 
-                list.add(new TextComponentString(String.format("%s x%d", itemstack.getItem().getItemStackDisplayName(itemstack), itemstack.getCount())).setStyle(style).getFormattedText());
+                tooltip.add(itemstack.getDisplayName().deepCopy().appendText(" x").appendText(String.valueOf(itemstack.getCount())).setStyle(style));
 
             }
 
@@ -61,19 +60,19 @@ public class TooltipShulkerBoxHelper {
 
     private static List<ItemStack> contentsToList(ItemStack stack) {
 
-        NBTTagCompound nbttagcompound = stack.getTagCompound();
+        CompoundNBT nbttagcompound = stack.getChildTag("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("BlockEntityTag", 10))
-        {
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("BlockEntityTag");
+        if (nbttagcompound != null) {
 
-            if (nbttagcompound1.hasKey("Items", 9))
-            {
+            if (nbttagcompound.contains("Items", 9)) {
+
                 NonNullList<ItemStack> nonnulllist = NonNullList.withSize(27, ItemStack.EMPTY);
-                ItemStackHelper.loadAllItems(nbttagcompound1, nonnulllist);
+                ItemStackHelper.loadAllItems(nbttagcompound, nonnulllist);
 
                 return mergeInventory(nonnulllist);
+
             }
+
         }
 
         return null;

@@ -2,37 +2,30 @@ package com.fuzs.consolehud;
 
 import com.fuzs.consolehud.handler.*;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(
-        modid = ConsoleHud.MODID,
-        name = ConsoleHud.NAME,
-        version = ConsoleHud.VERSION,
-        acceptedMinecraftVersions = ConsoleHud.RANGE,
-        clientSideOnly = ConsoleHud.CLIENT,
-        dependencies = ConsoleHud.DEPENDENCIES,
-        certificateFingerprint = ConsoleHud.FINGERPRINT
-)
-@SuppressWarnings("unused")
-public class ConsoleHud
-{
+@Mod(ConsoleHud.MODID)
+public class ConsoleHud {
+
     public static final String MODID = "consolehud";
     public static final String NAME = "Console HUD";
-    public static final String VERSION = "@VERSION@";
-    public static final String RANGE = "[1.12.2]";
-    public static final boolean CLIENT = true;
-    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2816,)";
-    public static final String FINGERPRINT = "@FINGERPRINT@";
-
     public static final Logger LOGGER = LogManager.getLogger(ConsoleHud.NAME);
 
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
+    public ConsoleHud() {
+
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.SPEC, MODID + ".toml");
+        MinecraftForge.EVENT_BUS.register(this);
+
+    }
+
+    private void clientSetup(final FMLClientSetupEvent evt) {
 
         MinecraftForge.EVENT_BUS.register(new SelectedItemHandler());
         MinecraftForge.EVENT_BUS.register(new PaperDollHandler());
@@ -42,8 +35,4 @@ public class ConsoleHud
 
     }
 
-    @EventHandler
-    public void fingerprintViolation(FMLFingerprintViolationEvent event) {
-        LOGGER.warn("Invalid fingerprint detected! The file " + event.getSource().getName() + " may have been tampered with. This version will NOT be supported by the author!");
-    }
 }
