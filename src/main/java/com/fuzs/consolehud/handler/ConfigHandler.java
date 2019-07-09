@@ -58,7 +58,6 @@ public class ConfigHandler {
 		@Config.Name("Rows")
 		@Config.Comment("Maximum amount of rows to be displayed for held item tooltips.")
 		@Config.RangeInt(min = 0, max = 9)
-		@Config.SlidingOption
 		public int rows = 4;
 
 		@Config.Name("Display Time")
@@ -126,7 +125,6 @@ public class ConfigHandler {
 		@Config.Name("Scale")
 		@Config.Comment("Scale of the paper doll. This is additionally adjusted by the GUI Scale option in Video Settings.")
 		@Config.RangeInt(min = 1, max = 24)
-		@Config.SlidingOption
 		public int scale = 4;
 
 		@Config.Name("X-Offset")
@@ -272,7 +270,7 @@ public class ConfigHandler {
 
 		@Config.Name("Death Coordinates Format")
 		@Config.Comment("Show current coordinates on the death screen.")
-		public String deathCoordsFormat = "XYZ: %.0f / %.0f / %.0f";
+		public String deathCoordsFormat = "XYZ: %.1f / %.1f / %.1f";
 
 	}
 

@@ -4,7 +4,6 @@ import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -17,22 +16,24 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
-import java.util.*;
+import java.util.IllegalFormatException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
+@SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue"})
 public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
 
-    protected void getName(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getName(List<String> list, Style style, boolean tooltipflag) {
 
-        String s = new TextComponentString(this.itemstack.getDisplayName()).setStyle((new Style()).setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getItem().getForgeRarity(this.itemstack).getColor())).getFormattedText();
+        String s = new TextComponentString(this.itemstack.getDisplayName()).setStyle((new Style()).setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getItem().getRarity(this.itemstack).rarityColor)).getFormattedText();
         String s2 = "";
 
-        if (tooltipflag.isAdvanced()) {
+        if (tooltipflag) {
             String s1 = "";
 
             if (!s.isEmpty())
@@ -59,7 +60,7 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getInformation(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getInformation(List<String> list, Style style, boolean tooltipflag) {
 
         List<String> information = Lists.newArrayList();
 
@@ -67,8 +68,9 @@ public class TooltipElementsHelper {
             TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.heldItemTooltipsConfig.rows - 1);
         } else {
             this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
-            information = information.stream().map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
-            information.removeIf(Strings::isNullOrEmpty); // remove empty lines from a list of strings
+            // remove empty lines from a list of strings
+            information = information.stream().filter(it -> !Strings.isNullOrEmpty(it))
+                    .map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
         }
 
         list.addAll(information);
@@ -96,7 +98,7 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getColorTag(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getColorTag(List<String> list, Style style, boolean tooltipflag) {
 
         if (this.itemstack.hasTagCompound())
         {
@@ -106,7 +108,7 @@ public class TooltipElementsHelper {
 
                 if (nbttagcompound.hasKey("color", 3))
                 {
-                    if (tooltipflag.isAdvanced())
+                    if (tooltipflag)
                     {
                         list.add(new TextComponentTranslation("item.color", String.format("#%06X", nbttagcompound.getInteger("color"))).setStyle(style).getFormattedText());
                     }
@@ -226,7 +228,7 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getForgeInformation(List<String> list, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getForgeInformation(List<String> list, boolean tooltipflag) {
 
         if (ConfigHandler.heldItemTooltipsConfig.appearanceConfig.moddedTooltips) {
             net.minecraftforge.event.ForgeEventFactory.onItemTooltip(this.itemstack, null, list, tooltipflag);

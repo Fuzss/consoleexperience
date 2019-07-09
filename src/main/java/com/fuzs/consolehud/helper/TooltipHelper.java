@@ -3,7 +3,6 @@ package com.fuzs.consolehud.helper;
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
@@ -20,27 +19,27 @@ public class TooltipHelper extends TooltipElementsHelper {
         this.itemstack = stack;
         List<String> tooltip = Lists.newArrayList();
 
-        this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), false);
 
         if (simple) {
             return tooltip;
         }
 
-        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), false);
 
         if (stack.getItem() instanceof ItemShulkerBox && tooltip.size() == ConfigHandler.heldItemTooltipsConfig.rows) {
             return tooltip;
         }
 
         this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
+        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), true);
         this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
         //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
         //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
         this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), false);
         //this.getNameID(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
         //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
+        this.getForgeInformation(tooltip, false);
 
         this.applyLastLine(tooltip);
 

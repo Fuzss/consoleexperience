@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
         version = ConsoleHud.VERSION,
         acceptedMinecraftVersions = ConsoleHud.RANGE,
         clientSideOnly = ConsoleHud.CLIENT,
-        dependencies = ConsoleHud.DEPENDENCIES,
         certificateFingerprint = ConsoleHud.FINGERPRINT
 )
 @SuppressWarnings({"WeakerAccess", "unused"})
@@ -24,9 +23,8 @@ public class ConsoleHud
     public static final String MODID = "consolehud";
     public static final String NAME = "Console HUD";
     public static final String VERSION = "@VERSION@";
-    public static final String RANGE = "[1.12.2]";
+    public static final String RANGE = "[1.11, 1.11.2]";
     public static final boolean CLIENT = true;
-    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2816,)";
     public static final String FINGERPRINT = "@FINGERPRINT@";
 
     public static final Logger LOGGER = LogManager.getLogger(ConsoleHud.NAME);

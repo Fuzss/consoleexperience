@@ -73,7 +73,7 @@ public class PaperDollHelper {
         RenderManager rendermanager = mc.getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
         rendermanager.setRenderShadow(false);
-        rendermanager.renderEntity(entity, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, true); // boolean parameter forces the bounding box to always be hidden
+        rendermanager.doRenderEntity(entity, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, true); // boolean parameter forces the bounding box to always be hidden
         rendermanager.setRenderShadow(true);
 
         // reset entity rotation

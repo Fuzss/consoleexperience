@@ -42,12 +42,12 @@ public class MiscHandler {
                 // code from RenderPlayer#applyRotations which is used there for rotating the player model
                 Vec3d vec3d = player.getLook((float) evt.getRenderPartialTicks());
                 double d0 = player.motionX * player.motionX + player.motionZ * player.motionZ;
-                double d1 = vec3d.x * vec3d.x + vec3d.z * vec3d.z;
+                double d1 = vec3d.xCoord * vec3d.xCoord + vec3d.zCoord * vec3d.zCoord;
 
                 if (d0 > 0.0 && d1 > 0.0) {
 
-                    double d2 = (player.motionX * vec3d.x + player.motionZ * vec3d.z) / (Math.sqrt(d0) * Math.sqrt(d1));
-                    double d3 = player.motionX * vec3d.z - player.motionZ * vec3d.x;
+                    double d2 = (player.motionX * vec3d.xCoord + player.motionZ * vec3d.zCoord) / (Math.sqrt(d0) * Math.sqrt(d1));
+                    double d3 = player.motionX * vec3d.zCoord - player.motionZ * vec3d.xCoord;
 
                     // fixed Math#acos returning NaN when d2 > 1.0
                     this.list.add(Math.signum(d3) * Math.acos(Math.min(d2, 1.0)) * 180.0 / (Math.PI * (1.0 / ConfigHandler.miscConfig.elytraMultiplier)));
@@ -75,7 +75,7 @@ public class MiscHandler {
 
             try {
                 String s = String.format(Locale.ROOT, ConfigHandler.miscConfig.deathCoordsFormat, this.mc.player.posX, this.mc.player.getEntityBoundingBox().minY, this.mc.player.posZ);
-                evt.getGui().drawCenteredString(this.mc.fontRenderer, s, evt.getGui().width / 2, 115, 16777215);
+                evt.getGui().drawCenteredString(this.mc.fontRendererObj, s, evt.getGui().width / 2, 115, 16777215);
             } catch (IllegalFormatException e) {
                 ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > miscellaneous > Death Coordinates Format to fix this.");
             }
@@ -93,7 +93,7 @@ public class MiscHandler {
             List<String> tooltip = evt.getToolTip();
             List<String> contents = Lists.newArrayList();
 
-            evt.getItemStack().getItem().addInformation(evt.getItemStack(), evt.getEntityPlayer() == null ? null : evt.getEntityPlayer().world, contents, evt.getFlags());
+            evt.getItemStack().getItem().addInformation(evt.getItemStack(), evt.getEntityPlayer(), contents, this.mc.gameSettings.advancedItemTooltips);
 
             if (!tooltip.isEmpty() && !contents.isEmpty()) {
 
