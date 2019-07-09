@@ -272,7 +272,7 @@ public class ConfigHandler {
 
 		@Config.Name("Death Coordinates Format")
 		@Config.Comment("Show current coordinates on the death screen.")
-		public String deathCoordsFormat = "XYZ: %.0f / %.0f / %.0f";
+		public String deathCoordsFormat = "XYZ: %.1f / %.1f / %.1f";
 
 	}
 

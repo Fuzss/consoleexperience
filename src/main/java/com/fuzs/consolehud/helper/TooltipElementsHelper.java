@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
+@SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue"})
 public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
@@ -67,8 +68,9 @@ public class TooltipElementsHelper {
             TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.heldItemTooltipsConfig.rows - 1);
         } else {
             this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
-            information = information.stream().map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
-            information.removeIf(Strings::isNullOrEmpty); // remove empty lines from a list of strings
+            // remove empty lines from a list of strings
+            information = information.stream().filter(it -> !Strings.isNullOrEmpty(it))
+                    .map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
         }
 
         list.addAll(information);
