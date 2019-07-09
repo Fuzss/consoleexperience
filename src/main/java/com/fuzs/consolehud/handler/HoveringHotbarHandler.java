@@ -9,7 +9,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class HoveringHotbarHandler {
 
     private final Minecraft mc = Minecraft.getMinecraft();
@@ -25,6 +24,7 @@ public class HoveringHotbarHandler {
             RenderGameOverlayEvent.ElementType.JUMPBAR
     );
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
@@ -40,6 +40,7 @@ public class HoveringHotbarHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void renderGameOverlayPost(RenderGameOverlayEvent.Post evt) {
 
@@ -57,6 +58,7 @@ public class HoveringHotbarHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void renderGameOverlayPostAll(RenderGameOverlayEvent.Post evt) {
 

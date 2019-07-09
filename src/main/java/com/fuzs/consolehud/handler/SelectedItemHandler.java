@@ -1,28 +1,21 @@
 package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.helper.TooltipHelper;
-import com.fuzs.consolehud.helper.TooltipShulkerBoxHelper;
 import com.fuzs.consolehud.util.IPrivateAccessor;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
     private final TooltipHelper tooltipHelper = new TooltipHelper();
@@ -32,6 +25,7 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
         super(Minecraft.getMinecraft());
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent evt) {
 
@@ -73,6 +67,7 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
@@ -129,7 +124,8 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
                 for (int i = 0; i < size; i++) {
 
-                    this.drawCenteredString(this.tooltipCache.get(i), (float) posX, (float) posY, alpha << 24);
+                    String text = this.tooltipCache.get(i);
+                    this.getFontRenderer().drawStringWithShadow(text, (float) (posX - this.getFontRenderer().getStringWidth(text) / 2), (float) posY, 16777215 + (alpha << 24));
                     posY += i == 0 ? 12 : 10;
 
                 }
@@ -142,14 +138,6 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
         }
 
-    }
-
-    /**
-     * Renders the specified text to the screen, center-aligned. Args : renderer, string, x, y, color
-     */
-    private void drawCenteredString(String text, float x, float y, int color)
-    {
-        this.getFontRenderer().drawStringWithShadow(text, x - this.getFontRenderer().getStringWidth(text) / 2, y, color);
     }
 
 }

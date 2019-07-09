@@ -33,13 +33,13 @@ minecraft {
 }
 
 jar {
-    archiveName "${mod_name}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
+    archiveName "${mod_name.replaceAll("\\s", "")}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
 }
 
 processResources {
 
     // this will ensure that this task is redone when the versions change.
-    inputs.property "mod_version", project.ext.author
+    inputs.property "mod_version", project.version
     inputs.property "mc_version", project.minecraft.version
     inputs.property "mod_slug", project.ext.slug
     inputs.property "mod_description", project.ext.description

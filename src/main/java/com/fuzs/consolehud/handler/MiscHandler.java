@@ -1,25 +1,32 @@
 package com.fuzs.consolehud.handler;
 
+import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.helper.TooltipShulkerBoxHelper;
 import com.google.common.collect.Lists;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.IllegalFormatException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
-@SuppressWarnings("unused")
 public class MiscHandler {
 
+    private final Minecraft mc = Minecraft.getMinecraft();
     private LinkedList<Double> list = new LinkedList<>();
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void cameraSetup(EntityViewRenderEvent.CameraSetup evt) {
 
@@ -43,8 +50,8 @@ public class MiscHandler {
                     double d3 = player.motionX * vec3d.z - player.motionZ * vec3d.x;
 
                     // fixed Math#acos returning NaN when d2 > 1.0
-                    this.list.add(Math.signum(d3) * Math.acos(Math.min(d2, 1.0)) * 180.0 / (Math.PI * 2));
-                    if (this.list.size() > 3) {
+                    this.list.add(Math.signum(d3) * Math.acos(Math.min(d2, 1.0)) * 180.0 / (Math.PI * (1.0 / ConfigHandler.miscConfig.elytraMultiplier)));
+                    if (this.list.size() > (ConfigHandler.miscConfig.elytraMultiplier > 0.5 ? 5 : 3)) {
                         this.list.removeFirst();
                     }
 
@@ -56,6 +63,28 @@ public class MiscHandler {
         }
     }
 
+    @SuppressWarnings("unused")
+    @SubscribeEvent
+    public void drawScreen(GuiScreenEvent.DrawScreenEvent evt) {
+
+        if (!ConfigHandler.miscConfig.deathCoords) {
+            return;
+        }
+
+        if (evt.getGui() instanceof GuiGameOver) {
+
+            try {
+                String s = String.format(Locale.ROOT, ConfigHandler.miscConfig.deathCoordsFormat, this.mc.player.posX, this.mc.player.getEntityBoundingBox().minY, this.mc.player.posZ);
+                evt.getGui().drawCenteredString(this.mc.fontRenderer, s, evt.getGui().width / 2, 115, 16777215);
+            } catch (IllegalFormatException e) {
+                ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > miscellaneous > Death Coordinates Format to fix this.");
+            }
+
+        }
+
+    }
+
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.LOW)
     public void makeTooltip(ItemTooltipEvent evt) {
 

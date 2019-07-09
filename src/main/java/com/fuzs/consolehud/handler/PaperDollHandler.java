@@ -8,7 +8,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-@SuppressWarnings("unused")
 public class PaperDollHandler {
 
     private final Minecraft mc = Minecraft.getMinecraft();
@@ -17,6 +16,7 @@ public class PaperDollHandler {
     private int remainingRidingTicks;
     private float prevRotationYaw;
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent evt) {
 
@@ -45,6 +45,7 @@ public class PaperDollHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
@@ -79,6 +80,7 @@ public class PaperDollHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
         if (ConfigHandler.paperDoll && ConfigHandler.paperDollConfig.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {

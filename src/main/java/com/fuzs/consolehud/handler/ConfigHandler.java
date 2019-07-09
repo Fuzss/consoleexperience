@@ -253,16 +253,30 @@ public class ConfigHandler {
 
 	public static class MiscConfig {
 
-		@Config.Name("Elytra Camera Tilt")
+		@Config.Name("Tilt Elytra Camera")
 		@Config.Comment("Tilt the camera according to elytra flight angle.")
 		public boolean elytraTilt = true;
+
+		@Config.Name("Elytra Tilt Multiplier")
+		@Config.Comment("Multiplier for the camera tilt when elytra flying.")
+		@Config.RangeDouble(min = 0.0, max = 1.0)
+		public double elytraMultiplier = 0.5;
 
 		@Config.Name("Sum Shulker Box Contents")
 		@Config.Comment("Sum up stacks of equal items for the shulker box tooltip.")
 		public boolean sumShulkerBox = true;
 
+		@Config.Name("Show Death Coordinates")
+		@Config.Comment("Show current coordinates on the death screen.")
+		public boolean deathCoords = true;
+
+		@Config.Name("Death Coordinates Format")
+		@Config.Comment("Show current coordinates on the death screen.")
+		public String deathCoordsFormat = "XYZ: %.0f / %.0f / %.0f";
+
 	}
 
+	@SuppressWarnings("unused")
 	@SubscribeEvent
 	public static void configChanged(ConfigChangedEvent.OnConfigChangedEvent evt) {
 		if (evt.getModID().equals(ConsoleHud.MODID)) {

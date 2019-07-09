@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
         dependencies = ConsoleHud.DEPENDENCIES,
         certificateFingerprint = ConsoleHud.FINGERPRINT
 )
-@SuppressWarnings("unused")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ConsoleHud
 {
     public static final String MODID = "consolehud";

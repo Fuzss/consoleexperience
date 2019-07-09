@@ -84,6 +84,7 @@ public class TooltipHelper extends TooltipElementsHelper {
 
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static void getAdventureBlockInfo(List<String> list, Style style, NBTTagList nbttaglist) {
 
         for (int k1 = 0; k1 < nbttaglist.tagCount(); ++k1)
