@@ -26,8 +26,8 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            if (ConfigHandler.paperDoll && (ConfigHandler.paperDollConfig.displayActionsConfig.always || PaperDollHelper.showDoll(this.mc.player, this.remainingRidingTicks))) {
-                this.remainingDisplayTicks = ConfigHandler.paperDollConfig.displayTime;
+            if (ConfigHandler.paperDoll && (ConfigHandler.paperDollConfig.displayTime == 0 || PaperDollHelper.showDoll(this.mc.player, this.remainingRidingTicks))) {
+                this.remainingDisplayTicks = ConfigHandler.paperDollConfig.displayTime == 0 ? 1 : ConfigHandler.paperDollConfig.displayTime;
             } else if (this.remainingDisplayTicks > 0) {
                 this.remainingDisplayTicks--;
             } else {
@@ -55,7 +55,8 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            boolean riding = ConfigHandler.paperDollConfig.displayActionsConfig.always || ConfigHandler.paperDollConfig.displayActionsConfig.riding || !this.mc.player.isRiding();
+            // only show while riding when specifically enabled as it looks quit janky
+            boolean riding = ConfigHandler.paperDollConfig.displayTime == 0 || ConfigHandler.paperDollConfig.displayActionsConfig.riding || !this.mc.player.isRiding();
 
             if (!this.mc.player.isInvisible() && !this.mc.playerController.isSpectator() && (this.mc.gameSettings.thirdPersonView == 0 || !ConfigHandler.paperDollConfig.firstPerson) && riding && this.remainingDisplayTicks > 0) {
 
@@ -83,9 +84,11 @@ public class PaperDollHandler {
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
+
         if (ConfigHandler.paperDoll && ConfigHandler.paperDollConfig.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
             evt.setCanceled(true);
         }
+
     }
 
 }

@@ -1,6 +1,5 @@
 package com.fuzs.consolehud.handler;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -11,7 +10,6 @@ import java.util.List;
 
 public class HoveringHotbarHandler {
 
-    private final Minecraft mc = Minecraft.getMinecraft();
     // list of gui elements to be moved
     private List<RenderGameOverlayEvent.ElementType> elements = Arrays.asList(
             RenderGameOverlayEvent.ElementType.ARMOR,

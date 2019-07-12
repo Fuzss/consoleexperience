@@ -26,18 +26,18 @@ public class TooltipHelper extends TooltipElementsHelper {
             return tooltip;
         }
 
-        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
 
         if (stack.getItem() instanceof ItemShulkerBox && tooltip.size() == ConfigHandler.heldItemTooltipsConfig.rows) {
             return tooltip;
         }
 
-        this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
+        this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()));
+        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
         this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
         //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
         //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
-        this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), false);
+        this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), false);
         //this.getNameID(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
         //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()));
         this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
@@ -75,17 +75,17 @@ public class TooltipHelper extends TooltipElementsHelper {
         }
 
         if (flag) {
-            this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), true);
+            this.getDurability(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), true);
         }
 
         if (j > 0 && ConfigHandler.heldItemTooltipsConfig.appearanceConfig.showLastLine ) {
-            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigHandler.heldItemTooltipsConfig.textColor.getChatColor()), j);
+            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), j);
         }
 
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static void getAdventureBlockInfo(List<String> list, Style style, NBTTagList nbttaglist) {
+    protected static void getAdventureBlockInfo(List<String> list, Style style, NBTTagList nbttaglist) {
 
         for (int k1 = 0; k1 < nbttaglist.tagCount(); ++k1)
         {

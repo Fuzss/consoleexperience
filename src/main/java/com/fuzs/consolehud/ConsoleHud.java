@@ -2,10 +2,14 @@ package com.fuzs.consolehud;
 
 import com.fuzs.consolehud.handler.*;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +22,7 @@ import org.apache.logging.log4j.Logger;
         dependencies = ConsoleHud.DEPENDENCIES,
         certificateFingerprint = ConsoleHud.FINGERPRINT
 )
+@Mod.EventBusSubscriber(modid = ConsoleHud.MODID)
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class ConsoleHud
 {
@@ -38,6 +43,7 @@ public class ConsoleHud
         MinecraftForge.EVENT_BUS.register(new PaperDollHandler());
         MinecraftForge.EVENT_BUS.register(new HoveringHotbarHandler());
         MinecraftForge.EVENT_BUS.register(new SaveIconHandler());
+        MinecraftForge.EVENT_BUS.register(new CoordinateDisplayHandler());
         MinecraftForge.EVENT_BUS.register(new MiscHandler());
 
     }
@@ -45,5 +51,14 @@ public class ConsoleHud
     @EventHandler
     public void fingerprintViolation(FMLFingerprintViolationEvent event) {
         LOGGER.warn("Invalid fingerprint detected! The file " + event.getSource().getName() + " may have been tampered with. This version will NOT be supported by the author!");
+    }
+
+    @SubscribeEvent
+    public static void configChanged(ConfigChangedEvent.OnConfigChangedEvent evt) {
+
+        if (evt.getModID().equals(ConsoleHud.MODID)) {
+            ConfigManager.sync(ConsoleHud.MODID, Config.Type.INSTANCE);
+        }
+
     }
 }
