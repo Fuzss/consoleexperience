@@ -91,7 +91,7 @@ public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
                 posY += 14;
             }
 
-            if (ConfigHandler.hoveringHotbar) {
+            if (ConfigHandler.hoveringHotbar && ConfigHandler.heldItemTooltipsConfig.tied) {
                 posX += ConfigHandler.hoveringHotbarConfig.xOffset;
                 posY -= ConfigHandler.hoveringHotbarConfig.yOffset;
             }

@@ -4,15 +4,9 @@ import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.util.EnumPositionPreset;
 import com.fuzs.consolehud.util.EnumTextColor;
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.Config.Type;
-import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @SuppressWarnings("WeakerAccess")
 @Config(modid = ConsoleHud.MODID)
-@Mod.EventBusSubscriber
 public class ConfigHandler {
 
 	@Config.Name("helditemtooltips")
@@ -27,8 +21,11 @@ public class ConfigHandler {
 	@Config.Name("saveicon")
 	public static SaveIconConfig saveIconConfig = new SaveIconConfig();
 
-	@Config.Name("miscellaneous")
-	public static MiscConfig miscConfig = new MiscConfig();
+	@Config.Name("coordinates")
+	public static CoordinateDisplayConfig coordinateDisplayConfig = new CoordinateDisplayConfig();
+
+	@Config.Name("miscellaneous") // a is for sorting purposes
+	public static MiscConfig amiscConfig = new MiscConfig();
 
 	@Config.Name("Held Item Tooltips")
 	@Config.Comment("Enhances vanilla held item tooltips with information about enchantments, potions effects, shulker box contents and more.")
@@ -45,6 +42,10 @@ public class ConfigHandler {
 	@Config.Name("Save Icon")
 	@Config.Comment("Show an animated icon on the screen whenever the world is being saved (every 45 seconds by default). This only works in singleplayer.")
 	public static boolean saveIcon = true;
+
+	@Config.Name("Coordinate Display")
+	@Config.Comment("Always show player coordinates on screen.")
+	public static boolean coordinateDisplay = false;
 
 	public static class SelectedItemConfig {
 
@@ -79,9 +80,9 @@ public class ConfigHandler {
 		@Config.Comment("Cache the tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed.")
 		public boolean cacheTooltip = true;
 
-		@Config.Name("Text Color")
-		@Config.Comment("Default text color. Only applied when the text doesn't already have a color assigned internally.")
-		public EnumTextColor textColor = EnumTextColor.SILVER;
+		@Config.Name("Tie To Hotbar")
+		@Config.Comment("Tie held item tooltips position to the hovering hotbar feature.")
+		public boolean tied = true;
 
 		public class AppearanceConfig {
 
@@ -101,13 +102,9 @@ public class ConfigHandler {
 			@Config.Comment("Show how many more lines there are that currently don't fit the tooltip.")
 			public boolean showLastLine = true;
 
-			@Config.Name("Last Line Format")
-			@Config.Comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this blank for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.")
-			public String lastLineFormat = "";
-
-			@Config.Name("Durability Format")
-			@Config.Comment("Define a custom format to be used for the durability line. Leave this blank for the default, translatable string. Use %s (up to two times) to include remaining uses and total uses in your custom format. \"Show Durability\" has to be enabled for this to have any effect.")
-			public String durabilityFormat = "";
+			@Config.Name("Text Color")
+			@Config.Comment("Default text color. Only applied when the text doesn't already have a color assigned internally.")
+			public EnumTextColor textColor = EnumTextColor.SILVER;
 
 		}
 
@@ -138,7 +135,7 @@ public class ConfigHandler {
 		public int yOffset = 0;
 
 		@Config.Name("Display Time")
-		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.")
+		@Config.Comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the paper doll, no matter what action the player is performing.")
 		@Config.RangeInt(min = 0)
 		public int displayTime = 12;
 
@@ -154,19 +151,15 @@ public class ConfigHandler {
 		@Config.Comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.")
 		public boolean burning = false;
 
-		@Config.Name("Mo' Bends Compat")
-		@Config.Comment("Workaround for Mo' Bends so the player head won't go missing from the paper doll.")
-		public boolean mobends = false;
-
 		@Config.Name("First Person Only")
 		@Config.Comment("Only show the paper doll when in first person mode.")
 		public boolean firstPerson = true;
 
-		public class DisplayActionsConfig {
+		@Config.Name("Mo' Bends Compat")
+		@Config.Comment("Workaround for Mo' Bends so the player head won't go missing from the paper doll.")
+		public boolean mobends = false;
 
-			@Config.Name("Always")
-			@Config.Comment("Always display the paper doll, no matter what action the player is performing.")
-			public boolean always = false;
+		public class DisplayActionsConfig {
 
 			@Config.Name("Sprinting")
 			@Config.Comment("Enable the paper doll while the player is sprinting.")
@@ -249,6 +242,34 @@ public class ConfigHandler {
 
 	}
 
+	public static class CoordinateDisplayConfig {
+
+		@Config.Name("X-Offset")
+		@Config.Comment("Offset on x-axis from screen left.")
+		@Config.RangeInt(min = 0)
+		public int xOffset = 0;
+
+		@Config.Name("Y-Offset")
+		@Config.Comment("Offset on y-axis from top.")
+		@Config.RangeInt(min = 0)
+		public int yOffset = 60;
+
+		@Config.Name("Show Background")
+		@Config.Comment("Show black chat background behind coordinate display for better visibility.")
+		public boolean background = true;
+
+		@Config.Name("Decimal Places")
+		@Config.Comment("Amount of decimal places for the three coordinates.")
+		@Config.RangeInt(min = 0)
+		public int decimalPlaces = 0;
+
+		@Config.Name("Background Border")
+		@Config.Comment("Thickness of the background border in pixels. Only has an effect when \"Show Background\" is enabled.")
+		@Config.RangeInt(min = 0)
+		public int backgroundBorder = 2;
+
+	}
+
 	public static class MiscConfig {
 
 		@Config.Name("Tilt Elytra Camera")
@@ -257,29 +278,13 @@ public class ConfigHandler {
 
 		@Config.Name("Elytra Tilt Multiplier")
 		@Config.Comment("Multiplier for the camera tilt when elytra flying.")
-		@Config.RangeDouble(min = 0.0, max = 1.0)
+		@Config.RangeDouble(min = 0.1, max = 1.0)
 		public double elytraMultiplier = 0.5;
 
 		@Config.Name("Sum Shulker Box Contents")
 		@Config.Comment("Sum up stacks of equal items for the shulker box tooltip.")
 		public boolean sumShulkerBox = true;
 
-		@Config.Name("Show Death Coordinates")
-		@Config.Comment("Show current coordinates on the death screen.")
-		public boolean deathCoords = true;
-
-		@Config.Name("Death Coordinates Format")
-		@Config.Comment("Show current coordinates on the death screen.")
-		public String deathCoordsFormat = "XYZ: %.1f / %.1f / %.1f";
-
-	}
-
-	@SuppressWarnings("unused")
-	@SubscribeEvent
-	public static void configChanged(ConfigChangedEvent.OnConfigChangedEvent evt) {
-		if (evt.getModID().equals(ConsoleHud.MODID)) {
-			ConfigManager.sync(ConsoleHud.MODID, Type.INSTANCE);
-		}
 	}
 	
 }

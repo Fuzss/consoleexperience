@@ -1,6 +1,5 @@
 package com.fuzs.consolehud.helper;
 
-import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -16,14 +15,14 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
-import java.util.IllegalFormatException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
-@SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue"})
+@SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue", "unused"})
 public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
@@ -46,11 +45,11 @@ public class TooltipElementsHelper {
 
             if (this.itemstack.getHasSubtypes())
             {
-                s2 = s2 + String.format("#%04d/%d%s", i, this.itemstack.getItemDamage(), s1);
+                s2 = s2 + String.format(Locale.ROOT, "#%04d/%d%s", i, this.itemstack.getItemDamage(), s1);
             }
             else
             {
-                s2 = s2 + String.format("#%04d%s", i, s1);
+                s2 = s2 + String.format(Locale.ROOT, "#%04d%s", i, s1);
             }
         } else if (!this.itemstack.hasDisplayName() && this.itemstack.getItem() == Items.FILLED_MAP) {
             s2 = s2 + " #" + this.itemstack.getItemDamage();
@@ -110,7 +109,7 @@ public class TooltipElementsHelper {
                 {
                     if (tooltipflag)
                     {
-                        list.add(new TextComponentTranslation("item.color", String.format("#%06X", nbttagcompound.getInteger("color"))).setStyle(style).getFormattedText());
+                        list.add(new TextComponentTranslation("item.color", String.format(Locale.ROOT, "#%06X", nbttagcompound.getInteger("color"))).setStyle(style).getFormattedText());
                     }
                     else
                     {
@@ -193,21 +192,8 @@ public class TooltipElementsHelper {
             return;
         }
 
-        if (!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat.isEmpty()) {
-
-            try {
-                list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.durabilityFormat, this.itemstack.getMaxDamage() -
-                        this.itemstack.getItemDamage(), this.itemstack.getMaxDamage())).setStyle(style).getFormattedText());
-            } catch (IllegalFormatException e) {
-                ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Durability Format to fix this.");
-            }
-
-        } else  {
-
-            list.add(new TextComponentTranslation("item.durability", this.itemstack.getMaxDamage() -
-                    this.itemstack.getItemDamage(), this.itemstack.getMaxDamage()).setStyle(style).getFormattedText());
-
-        }
+        list.add(new TextComponentTranslation("item.durability", this.itemstack.getMaxDamage() -
+                this.itemstack.getItemDamage(), this.itemstack.getMaxDamage()).setStyle(style).getFormattedText());
 
     }
 
@@ -238,19 +224,7 @@ public class TooltipElementsHelper {
 
     protected void getLastLine(List<String> list, Style style, int i) {
 
-        if (!ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineFormat.isEmpty()) {
-
-            try {
-                list.add(new TextComponentString(String.format(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.lastLineFormat, i)).setStyle(style).getFormattedText());
-            } catch (IllegalFormatException e) {
-                ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Last Line Format to fix this.");
-            }
-
-        } else  {
-
-            list.add(new TextComponentTranslation("container.shulkerBox.more", i).setStyle(style).getFormattedText());
-
-        }
+        list.add(new TextComponentTranslation("container.shulkerBox.more", i).setStyle(style).getFormattedText());
 
     }
 
