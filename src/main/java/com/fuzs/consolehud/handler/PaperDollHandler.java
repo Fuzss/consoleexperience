@@ -8,7 +8,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-@SuppressWarnings("unused")
 public class PaperDollHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
@@ -17,6 +16,7 @@ public class PaperDollHandler {
     private int remainingRidingTicks;
     private float prevRotationYaw;
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent evt) {
 
@@ -26,8 +26,8 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.always.get() || PaperDollHelper.showDoll(this.mc.player, this.remainingRidingTicks))) {
-                this.remainingDisplayTicks = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get();
+            if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || PaperDollHelper.showDoll(this.mc.player, this.remainingRidingTicks))) {
+                this.remainingDisplayTicks = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 ? 1 : ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get();
             } else if (this.remainingDisplayTicks > 0) {
                 this.remainingDisplayTicks--;
             } else {
@@ -45,6 +45,7 @@ public class PaperDollHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
@@ -54,7 +55,8 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            boolean riding = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.always.get() || ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() || !this.mc.player.isPassenger();
+            // only show while riding when specifically enabled as it looks quit janky
+            boolean riding = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() || !this.mc.player.isPassenger();
 
             if (!this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode() && (this.mc.gameSettings.thirdPersonView == 0 || !ConfigHandler.PAPER_DOLL_CONFIG.firstPerson.get()) && riding && this.remainingDisplayTicks > 0) {
 
@@ -79,11 +81,14 @@ public class PaperDollHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
+
         if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && ConfigHandler.PAPER_DOLL_CONFIG.burning.get() && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
             evt.setCanceled(true);
         }
+
     }
 
 }

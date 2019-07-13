@@ -10,6 +10,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 @Mod(ConsoleHud.MODID)
 public class ConsoleHud {
 
@@ -31,6 +32,7 @@ public class ConsoleHud {
         MinecraftForge.EVENT_BUS.register(new PaperDollHandler());
         MinecraftForge.EVENT_BUS.register(new HoveringHotbarHandler());
         MinecraftForge.EVENT_BUS.register(new SaveIconHandler());
+        MinecraftForge.EVENT_BUS.register(new CoordinateDisplayHandler());
         MinecraftForge.EVENT_BUS.register(new MiscHandler());
 
     }

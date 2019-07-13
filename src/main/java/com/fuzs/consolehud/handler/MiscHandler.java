@@ -13,9 +13,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class MiscHandler {
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.LOW)
     public void makeTooltip(ItemTooltipEvent evt) {
 

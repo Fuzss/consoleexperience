@@ -8,25 +8,26 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
 
-    private final TooltipHelper tooltipHelper = new TooltipHelper();
+    private final TooltipHelper tooltipHelper;
     private List<ITextComponent> tooltipCache = Lists.newArrayList();
 
     public SelectedItemHandler() {
         super(Minecraft.getInstance());
+        this.tooltipHelper = new TooltipHelper(this.mc);
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent evt) {
 
@@ -68,6 +69,7 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
@@ -91,7 +93,7 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
                 posY += 14;
             }
 
-            if (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
+            if (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.tied.get()) {
                 posX += ConfigHandler.HOVERING_HOTBAR_CONFIG.xOffset.get();
                 posY -= ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get();
             }
@@ -104,9 +106,12 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
                 GlStateManager.enableBlend();
                 GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
+                ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.highlightingItemStack.getItem());
+                boolean blacklisted = resourcelocation != null && (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.toString()) || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.getNamespace()));
+
                 // using -2 instead of -1 in case some lag interferes, will run twice most of the time then, but still better than 40 times
                 if (!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.cacheTooltip.get() || this.remainingHighlightTicks > ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() - 2) {
-                    this.tooltipCache = this.tooltipHelper.createTooltip(this.highlightingItemStack, !ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() == 1);
+                    this.tooltipCache = this.tooltipHelper.createTooltip(this.highlightingItemStack, !ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() || blacklisted || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() == 1);
                 }
 
                 int size = this.tooltipCache.size();
@@ -120,7 +125,8 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
 
                 for (int i = 0; i < size; i++) {
 
-                    this.drawCenteredString(this.tooltipCache.get(i).getFormattedText(), (float) posX, (float) posY, alpha << 24);
+                    String text = this.tooltipCache.get(i).getFormattedText();
+                    this.getFontRenderer().drawStringWithShadow(text, (float) (posX - this.getFontRenderer().getStringWidth(text) / 2), (float) posY, 16777215 + (alpha << 24));
                     posY += i == 0 ? 12 : 10;
 
                 }
@@ -133,15 +139,6 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
 
         }
 
-    }
-
-    /**
-     * Renders the specified text to the screen, center-aligned. Args : renderer, string, x, y, color
-     */
-    @SuppressWarnings("IntegerDivisionInFloatingPointContext")
-    private void drawCenteredString(String text, float x, float y, int color)
-    {
-        this.getFontRenderer().drawStringWithShadow(text, x - this.getFontRenderer().getStringWidth(text) / 2, y, color);
     }
 
 }

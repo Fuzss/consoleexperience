@@ -83,6 +83,22 @@ processResources {
 }
 
 jar {
+    
+    manifest {
+        attributes([
+
+                "Specification-Title": project.name,
+                "Specification-Version": "1.0", // We are version 1.0 of ourselves
+                "Specification-Vendor": project.ext.author.toLowerCase(),
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Implementation-Vendor" : project.ext.author.toLowerCase(),
+                "Implementation-Vendor-Id" : project.group,
+                "Implementation-URL" : "https://www.curseforge.com/minecraft/mc-mods/${mod_slug}",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+
+        ])
+    }
 
     archiveName "${project.ext.name.replaceAll("\\s", "")}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
 

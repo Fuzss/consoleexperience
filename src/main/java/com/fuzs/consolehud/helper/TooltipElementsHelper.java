@@ -1,6 +1,5 @@
 package com.fuzs.consolehud.helper;
 
-import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -14,16 +13,17 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
+import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.IllegalFormatException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
-@SuppressWarnings({"ConstantConditions", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue", "unused"})
 public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
@@ -32,16 +32,27 @@ public class TooltipElementsHelper {
 
         list.add(new StringTextComponent("").appendSibling(this.itemstack.getDisplayName()).setStyle(new Style().setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getRarity().color)));
 
+//        ITextComponent component = new StringTextComponent("").appendSibling(this.itemstack.getDisplayName()).setStyle(new Style().setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getRarity().color));
+//
+//        if (!this.itemstack.hasDisplayName() && this.itemstack.getItem() == Items.FILLED_MAP) {
+//            component.appendSibling(new StringTextComponent(" #" + FilledMapItem.getMapId(this.itemstack)).setStyle(style));
+//        }
+//
+//        list.add(component);
+
     }
 
-    protected void getInformation(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getInformation(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag, World world) {
 
         List<ITextComponent> information = Lists.newArrayList();
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
+
             TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+
         } else {
-            this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
+
+            this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
             // remove empty lines from a list of strings
             information = information.stream().filter(it -> !Strings.isNullOrEmpty(it.getString())).collect(Collectors.toList());
 
@@ -86,7 +97,7 @@ public class TooltipElementsHelper {
 
                 if (nbttagcompound.contains("color", 3)) {
                     if (tooltipflag.isAdvanced()) {
-                        list.add(new TranslationTextComponent("item.color", String.format("#%06X", nbttagcompound.getInt("color"))).setStyle(style));
+                        list.add(new TranslationTextComponent("item.color", String.format(Locale.ROOT, "#%06X", nbttagcompound.getInt("color"))).setStyle(style));
                     }
                     else {
                         list.add(new TranslationTextComponent("item.dyed").setStyle(style.setItalic(true)));
@@ -171,21 +182,8 @@ public class TooltipElementsHelper {
             return;
         }
 
-        if (!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.durabilityFormat.get().isEmpty()) {
-
-            try {
-                list.add(new StringTextComponent(String.format(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.durabilityFormat.get(), this.itemstack.getMaxDamage() -
-                        this.itemstack.getDamage(), this.itemstack.getMaxDamage())).setStyle(style));
-            } catch (IllegalFormatException e) {
-                ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Durability Format to fix this.");
-            }
-
-        } else  {
-
-            list.add(new TranslationTextComponent("item.durability", this.itemstack.getMaxDamage() -
-                    this.itemstack.getDamage(), this.itemstack.getMaxDamage()).setStyle(style));
-
-        }
+        list.add(new TranslationTextComponent("item.durability", this.itemstack.getMaxDamage() -
+                this.itemstack.getDamage(), this.itemstack.getMaxDamage()).setStyle(style));
 
     }
 
@@ -216,19 +214,7 @@ public class TooltipElementsHelper {
 
     protected void getLastLine(List<ITextComponent> list, Style style, int i) {
 
-        if (!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.lastLineFormat.get().isEmpty()) {
-
-            try {
-                list.add(new StringTextComponent(String.format(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.lastLineFormat.get(), i)).setStyle(style));
-            } catch (IllegalFormatException e) {
-                ConsoleHud.LOGGER.error("Caught exception while parsing string format. Go to config file > helditemtooltips > appearance > Last Line Format to fix this.");
-            }
-
-        } else  {
-
-            list.add(new TranslationTextComponent("container.shulkerBox.more", i).setStyle(style));
-
-        }
+        list.add(new TranslationTextComponent("container.shulkerBox.more", i).setStyle(style));
 
     }
 

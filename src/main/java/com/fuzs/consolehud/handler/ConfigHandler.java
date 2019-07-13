@@ -4,6 +4,9 @@ import com.fuzs.consolehud.util.EnumPositionPreset;
 import com.fuzs.consolehud.util.EnumTextColor;
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SuppressWarnings("WeakerAccess")
 public class ConfigHandler {
 
@@ -14,6 +17,7 @@ public class ConfigHandler {
 	public static final PaperDollConfig PAPER_DOLL_CONFIG = new PaperDollConfig("paperdoll");
 	public static final HoveringHotbarConfig HOVERING_HOTBAR_CONFIG = new HoveringHotbarConfig("hoveringhotbar");
 	public static final SaveIconConfig SAVE_ICON_CONFIG = new SaveIconConfig("saveicon");
+	public static final CoordinateDisplayConfig COORDINATE_DISPLAY_CONFIG = new CoordinateDisplayConfig("coordinates");
 
 	public static class GeneralConfig {
 
@@ -21,6 +25,7 @@ public class ConfigHandler {
 		public final ForgeConfigSpec.BooleanValue paperDoll;
 		public final ForgeConfigSpec.BooleanValue hoveringHotbar;
 		public final ForgeConfigSpec.BooleanValue saveIcon;
+		public final ForgeConfigSpec.BooleanValue coordinateDisplay;
 		public final ForgeConfigSpec.BooleanValue sumShulkerBox;
 
 		private GeneralConfig(String name) {
@@ -31,6 +36,7 @@ public class ConfigHandler {
 			this.paperDoll = ConfigHandler.BUILDER.comment("Show a small player model in a configurable corner of the screen while the player is performing certain actions like sprinting, sneaking, or flying.").define("Paper Doll", true);
 			this.hoveringHotbar = ConfigHandler.BUILDER.comment("Enable the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.").define("Hovering Hotbar", true);
 			this.saveIcon = ConfigHandler.BUILDER.comment("Show an animated icon on the screen whenever the world is being saved (every 45 seconds by default). This only works in singleplayer.").define("Save Icon", true);
+			this.coordinateDisplay = ConfigHandler.BUILDER.comment("Always show player coordinates on screen.").define("Coordinate Display", false);
 			this.sumShulkerBox = ConfigHandler.BUILDER.comment("Sum up stacks of equal items for the shulker box tooltip.").define("Sum Shulker Box Contents", true);
 
 			BUILDER.pop();
@@ -42,23 +48,25 @@ public class ConfigHandler {
 	public static class SelectedItemConfig {
 
 		public final AppearanceConfig appearanceConfig;
+		public final ForgeConfigSpec.ConfigValue<List<String>> blacklist;
 		public final ForgeConfigSpec.IntValue rows;
 		public final ForgeConfigSpec.IntValue displayTime;
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
 		public final ForgeConfigSpec.BooleanValue cacheTooltip;
-		public final ForgeConfigSpec.EnumValue<EnumTextColor> textColor;
+		public final ForgeConfigSpec.BooleanValue tied;
 
 		private SelectedItemConfig(String name) {
 
 			BUILDER.push(name);
 
+			this.blacklist = ConfigHandler.BUILDER.comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping. Enter as either \"modid:item\" or \"modid\" respectively.").define("Blacklist", new ArrayList<>());
 			this.rows = ConfigHandler.BUILDER.comment("Maximum amount of rows to be displayed for held item tooltips.").defineInRange("Rows", 4, 0, 9);
 			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the held item tooltip will be displayed for.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
 			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 59, 0, Integer.MAX_VALUE);
 			this.cacheTooltip = ConfigHandler.BUILDER.comment("Cache the tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed.").define("Cache Tooltip", true);
-			this.textColor = ConfigHandler.BUILDER.comment("Text Color").defineEnum("Text Color", EnumTextColor.SILVER);
+			this.tied = ConfigHandler.BUILDER.comment("Tie held item tooltips position to the hovering hotbar feature.").define("Tie To Hotbar", true);
 
 			BUILDER.pop();
 
@@ -72,8 +80,7 @@ public class ConfigHandler {
 			public final ForgeConfigSpec.BooleanValue showDurability;
 			public final ForgeConfigSpec.BooleanValue forceDurability;
 			public final ForgeConfigSpec.BooleanValue showLastLine;
-			public final ForgeConfigSpec.ConfigValue<String> lastLineFormat;
-			public final ForgeConfigSpec.ConfigValue<String> durabilityFormat;
+			public final ForgeConfigSpec.EnumValue<EnumTextColor> textColor;
 
 			private AppearanceConfig(String name) {
 
@@ -83,8 +90,7 @@ public class ConfigHandler {
 				this.showDurability = ConfigHandler.BUILDER.comment("Displays the item's durability as part of its held item tooltip.").define("Show Durability", true);
 				this.forceDurability = ConfigHandler.BUILDER.comment("Force the durability to always be on the tooltip. \"Show Durability\" has to be enabled for this to have any effect.").define("Force Durability", true);
 				this.showLastLine = ConfigHandler.BUILDER.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Show Last Line", true);
-				this.lastLineFormat = ConfigHandler.BUILDER.comment("Define a custom format to be used for the last line of a tooltip when there are more lines than there is space. Leave this blank for the default, translatable string. Use %s (up to one time) in your custom format to include the amount of cut off lines.").define("Last Line Format", "");
-				this.durabilityFormat = ConfigHandler.BUILDER.comment("Define a custom format to be used for the durability line. Leave this blank for the default, translatable string. Use %s (up to two times) to include remaining uses and total uses in your custom format. \"Show Durability\" has to be enabled for this to have any effect.").define("Durability Format", "");
+				this.textColor = ConfigHandler.BUILDER.comment("Text Color").defineEnum("Text Color", EnumTextColor.SILVER);
 
 				BUILDER.pop();
 
@@ -114,7 +120,7 @@ public class ConfigHandler {
 			this.scale = ConfigHandler.BUILDER.comment("Scale of the paper doll. This is additionally adjusted by the GUI Scale option in Video Settings.").defineInRange("Scale", 4, 1, 24);
 			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Obviously has no effect when the doll is always displayed.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
+			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the paper doll, no matter what action the player is performing.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
 			this.position = ConfigHandler.BUILDER.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", EnumPositionPreset.TOP_LEFT);
 			this.blockRotation = ConfigHandler.BUILDER.comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.").define("Fix Rotation", false);
 			this.potionShift = ConfigHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".").define("Potion Shift", true);
@@ -129,7 +135,6 @@ public class ConfigHandler {
 
 		public class DisplayActionsConfig {
 
-			public final ForgeConfigSpec.BooleanValue always;
 			public final ForgeConfigSpec.BooleanValue sprinting;
 			public final ForgeConfigSpec.BooleanValue swimming;
 			public final ForgeConfigSpec.BooleanValue crouching;
@@ -142,7 +147,6 @@ public class ConfigHandler {
 
 				BUILDER.push(name);
 
-				this.always = ConfigHandler.BUILDER.comment("Always display the paper doll, no matter what action the player is performing.").define("Always", false);
 				this.sprinting = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is sprinting.").define("Sprinting", true);
 				this.swimming = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is swimming.").define("Swimming", true);
 				this.crouching = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is crouching.").define("Crouching", true);
@@ -200,6 +204,30 @@ public class ConfigHandler {
 			this.potionShift = ConfigHandler.BUILDER.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".").define("Potion Shift", true);
 			this.showArrow = ConfigHandler.BUILDER.comment("Show a downwards pointing, animated arrow above the save icon.").define("Show Arrow", true);
 			this.rotatingModel = ConfigHandler.BUILDER.comment("Use an animated chest model instead of the static texture.").define("Rotating Model", true);
+
+			BUILDER.pop();
+
+		}
+
+	}
+
+	public static class CoordinateDisplayConfig {
+
+		public final ForgeConfigSpec.IntValue xOffset;
+		public final ForgeConfigSpec.IntValue yOffset;
+		public final ForgeConfigSpec.BooleanValue background;
+		public final ForgeConfigSpec.IntValue decimalPlaces;
+		public final ForgeConfigSpec.IntValue backgroundBorder;
+
+		private CoordinateDisplayConfig(String name) {
+
+			BUILDER.push(name);
+
+			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from screen left.").defineInRange("X-Offset", 0, 0, Integer.MAX_VALUE);
+			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from top.").defineInRange("Y-Offset", 60, 0, Integer.MAX_VALUE);
+			this.background = ConfigHandler.BUILDER.comment("Show black chat background behind coordinate display for better visibility.").define("Show Background", true);
+			this.decimalPlaces = ConfigHandler.BUILDER.comment("Amount of decimal places for the three coordinates.").defineInRange("Decimal Places", 0, 0, Integer.MAX_VALUE);
+			this.backgroundBorder = ConfigHandler.BUILDER.comment("Thickness of the background border in pixels. Only has an effect when \\\"Show Background\\\" is enabled.").defineInRange("Background Border", 2, 0, Integer.MAX_VALUE);
 
 			BUILDER.pop();
 

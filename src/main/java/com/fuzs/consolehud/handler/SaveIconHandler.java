@@ -12,7 +12,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("FieldCanBeLocal")
 public class SaveIconHandler extends IngameGui {
 
     private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleHud.MODID,"textures/gui/auto_save.png");
@@ -24,6 +24,7 @@ public class SaveIconHandler extends IngameGui {
         super(Minecraft.getInstance());
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void saveWorld(WorldEvent.Save evt) {
 
@@ -33,6 +34,7 @@ public class SaveIconHandler extends IngameGui {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent evt) {
 
@@ -46,6 +48,7 @@ public class SaveIconHandler extends IngameGui {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 

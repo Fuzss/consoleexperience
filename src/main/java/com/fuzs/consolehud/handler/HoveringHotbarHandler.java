@@ -1,7 +1,6 @@
 package com.fuzs.consolehud.handler;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -9,10 +8,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class HoveringHotbarHandler {
 
-    private final Minecraft mc = Minecraft.getInstance();
     // list of gui elements to be moved
     private List<RenderGameOverlayEvent.ElementType> elements = Arrays.asList(
             RenderGameOverlayEvent.ElementType.ARMOR,
@@ -25,6 +22,7 @@ public class HoveringHotbarHandler {
             RenderGameOverlayEvent.ElementType.JUMPBAR
     );
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
@@ -40,6 +38,7 @@ public class HoveringHotbarHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void renderGameOverlayPost(RenderGameOverlayEvent.Post evt) {
 
@@ -57,6 +56,7 @@ public class HoveringHotbarHandler {
 
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void renderGameOverlayPostAll(RenderGameOverlayEvent.Post evt) {
 
