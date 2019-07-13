@@ -1,24 +1,24 @@
 modLoader="javafml"
-loaderVersion="[27,)"
+loaderVersion="[${forge_version},)"
 
 [[mods]]
     modId="${mod_id}"
     displayName="${mod_name}"
     description="${mod_description}"
     version="${mod_version}"
-    displayURL="https://www.curseforge.com/minecraft/mc-mods/${mod_slug}"
+    displayURL="${mod_url}"
     authors="${mod_author}"
 
 [[dependencies.consolehud]]
     modId="forge"
     mandatory=true
-    versionRange="[27,)"
+    versionRange="[${forge_version},)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.consolehud]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.3,)"
+    versionRange="[${mc_version},)"
     ordering="NONE"
     side="BOTH"

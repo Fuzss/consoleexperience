@@ -1,6 +1,6 @@
 package com.fuzs.consolehud.handler;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

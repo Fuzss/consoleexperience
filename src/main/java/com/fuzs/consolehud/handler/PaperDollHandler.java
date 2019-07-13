@@ -63,11 +63,11 @@ public class PaperDollHandler {
                 int scale = ConfigHandler.PAPER_DOLL_CONFIG.scale.get() * 5;
                 EnumPositionPreset position = ConfigHandler.PAPER_DOLL_CONFIG.position.get();
 
-                int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + ConfigHandler.PAPER_DOLL_CONFIG.xOffset.get());
+                int x = position.getX(0, this.mc.mainWindow.getScaledWidth(), (int) (scale * 1.5F) + ConfigHandler.PAPER_DOLL_CONFIG.xOffset.get());
 
                 // can't use EnumPositionPreset#getY as the orientation point isn't in the top left corner of the image
                 int yOffset = ConfigHandler.PAPER_DOLL_CONFIG.yOffset.get();
-                int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - yOffset : (int) (scale * 2.5F) + yOffset;
+                int y = position.isBottom() ? this.mc.mainWindow.getScaledHeight() - scale - yOffset : (int) (scale * 2.5F) + yOffset;
 
                 if (ConfigHandler.PAPER_DOLL_CONFIG.potionShift.get() && position.shouldShift()) {
                     y += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());

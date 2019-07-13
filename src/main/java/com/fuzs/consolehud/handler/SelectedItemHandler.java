@@ -3,13 +3,13 @@ package com.fuzs.consolehud.handler;
 import com.fuzs.consolehud.helper.TooltipHelper;
 import com.fuzs.consolehud.util.IPrivateAccessor;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IngameGui;
+import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -17,7 +17,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
+public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
     private final TooltipHelper tooltipHelper;
     private List<ITextComponent> tooltipCache = Lists.newArrayList();
@@ -79,8 +79,8 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
 
         if (this.remainingHighlightTicks > 0 && !this.highlightingItemStack.isEmpty()) {
 
-            int posX = evt.getWindow().getScaledWidth() / 2;
-            int posY = evt.getWindow().getScaledHeight();
+            int posX = this.mc.mainWindow.getScaledWidth() / 2;
+            int posY = this.mc.mainWindow.getScaledHeight();
 
             if (ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get()) {
                 posX += ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.xOffset.get();
@@ -118,7 +118,7 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
 
                 // clears the action bar so it won't overlap with the tooltip
                 if (size > (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get() ? 0 : 1)) {
-                    this.mc.player.sendStatusMessage(new StringTextComponent(""), true);
+                    this.mc.player.sendStatusMessage(new TextComponentString(""), true);
                 }
 
                 posY -= size > 1 ? (size - 1) * 10 + 2 : (size - 1) * 10;

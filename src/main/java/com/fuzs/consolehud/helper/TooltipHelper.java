@@ -5,13 +5,13 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.block.BlockShulkerBox;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
@@ -44,7 +44,7 @@ public class TooltipHelper extends TooltipElementsHelper {
 
         this.getInformation(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
 
-        if (Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock && tooltip.size() == ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
+        if (Block.getBlockFromItem(stack.getItem()) instanceof BlockShulkerBox && tooltip.size() == ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
             return tooltip;
         }
 
@@ -101,14 +101,14 @@ public class TooltipHelper extends TooltipElementsHelper {
     }
 
     @SuppressWarnings({"WeakerAccess", "ConstantConditions"})
-    protected static void getAdventureBlockInfo(List<ITextComponent> list, Style style, ListNBT nbttaglist) {
+    protected static void getAdventureBlockInfo(List<ITextComponent> list, Style style, NBTTagList nbttaglist) {
 
         for (int i = 0; i < nbttaglist.size(); i++) {
 
             try {
 
                 BlockStateParser blockstateparser = new BlockStateParser(new StringReader(nbttaglist.getString(i)), true).parse(true);
-                BlockState blockstate = blockstateparser.getState();
+                IBlockState blockstate = blockstateparser.getState();
                 ResourceLocation resourcelocation = blockstateparser.getTag();
                 boolean flag = blockstate != null;
                 boolean flag1 = resourcelocation != null;

@@ -1,9 +1,9 @@
 package com.fuzs.consolehud.handler;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -27,11 +27,11 @@ public class CoordinateDisplayHandler {
 
         if (ConfigHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get() == 0) {
 
-            component = new TranslationTextComponent("screen.coordinates", (int) posX, (int) posY, (int) posZ);
+            component = new TextComponentTranslation("screen.coordinates", (int) posX, (int) posY, (int) posZ);
 
         } else {
 
-            component = new TranslationTextComponent("screen.coordinates", posX, posY, posZ);
+            component = new TextComponentTranslation("screen.coordinates", posX, posY, posZ);
 
         }
 
@@ -42,7 +42,7 @@ public class CoordinateDisplayHandler {
         int i = ConfigHandler.COORDINATE_DISPLAY_CONFIG.backgroundBorder.get();
 
         if (ConfigHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
-            AbstractGui.fill(x, y, x + width + i * 2, y + 7 + i * 2, f / 2 << 24);
+            Gui.drawRect(x, y, x + width + i * 2, y + 7 + i * 2, f / 2 << 24);
         }
 
         this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), x + i, y + i, 16777215 + (f << 24));

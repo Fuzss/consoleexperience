@@ -1,21 +1,21 @@
 package com.fuzs.consolehud.helper;
 
 import com.fuzs.consolehud.handler.ConfigHandler;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Collection;
 
 public class PaperDollHelper {
 
-    public static boolean showDoll(ClientPlayerEntity player, int remainingRidingTicks) {
+    public static boolean showDoll(EntityPlayerSP player, int remainingRidingTicks) {
 
         boolean sprinting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
         boolean swimming = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
@@ -33,7 +33,7 @@ public class PaperDollHelper {
     /**
      * Draws an entity on the screen looking toward the cursor.
      */
-    public static float drawEntityOnScreen(Minecraft mc, int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prevRotationYaw) {
+    public static float drawEntityOnScreen(Minecraft mc, int posX, int posY, int scale, EntityLivingBase entity, float partialTicks, float prevRotationYaw) {
 
         GlStateManager.enableDepthTest();
         GlStateManager.enableColorMaterial();
@@ -64,7 +64,7 @@ public class PaperDollHelper {
         entity.renderYawOffset = entity.rotationYawHead = ConfigHandler.PAPER_DOLL_CONFIG.position.get().getRotation(22.5F) + prevRotationYaw;
 
         // do render
-        EntityRendererManager rendermanager = mc.getRenderManager();
+        RenderManager rendermanager = mc.getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
         rendermanager.setRenderShadow(false);
         rendermanager.renderEntity(entity, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, true); // boolean parameter forces the bounding box to always be hidden
@@ -77,9 +77,9 @@ public class PaperDollHelper {
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableRescaleNormal();
-        GlStateManager.activeTexture(GLX.GL_TEXTURE1);
-        GlStateManager.disableTexture();
-        GlStateManager.activeTexture(GLX.GL_TEXTURE0);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE1);
+        GlStateManager.disableTexture2D();
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE0);
         GlStateManager.disableDepthTest();
         GlStateManager.disableColorMaterial();
 
@@ -114,11 +114,11 @@ public class PaperDollHelper {
 
     }
 
-    public static int getPotionShift(Collection<EffectInstance> collection) {
+    public static int getPotionShift(Collection<PotionEffect> collection) {
 
         int shift = 0;
         boolean renderInHUD = collection.stream().anyMatch(it -> it.getPotion().shouldRenderHUD(it));
-        boolean doesShowParticles = collection.stream().anyMatch(EffectInstance::doesShowParticles);
+        boolean doesShowParticles = collection.stream().anyMatch(PotionEffect::doesShowParticles);
 
         if (!collection.isEmpty() && renderInHUD && doesShowParticles) {
             shift += collection.stream().anyMatch(it -> !it.getPotion().isBeneficial()) ? 50 : 25;

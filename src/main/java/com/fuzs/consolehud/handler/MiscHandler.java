@@ -3,7 +3,7 @@ package com.fuzs.consolehud.handler;
 import com.fuzs.consolehud.helper.TooltipShulkerBoxHelper;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
-import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -19,7 +19,7 @@ public class MiscHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void makeTooltip(ItemTooltipEvent evt) {
 
-        if (ConfigHandler.GENERAL_CONFIG.sumShulkerBox.get() && Block.getBlockFromItem(evt.getItemStack().getItem()) instanceof ShulkerBoxBlock) {
+        if (ConfigHandler.GENERAL_CONFIG.sumShulkerBox.get() && Block.getBlockFromItem(evt.getItemStack().getItem()) instanceof BlockShulkerBox) {
 
             List<ITextComponent> tooltip = evt.getToolTip();
             List<ITextComponent> contents = Lists.newArrayList();

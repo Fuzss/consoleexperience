@@ -3,7 +3,7 @@ package com.fuzs.consolehud.util;
 import net.minecraft.util.text.TextFormatting;
 
 /**
- * Resembles {@link net.minecraft.item.DyeColor} with accessible text formatting codes and a default element
+ * Resembles {@link net.minecraft.item.EnumDyeColor} with accessible text formatting codes and a default element
  */
 @SuppressWarnings("unused")
 public enum EnumTextColor {
