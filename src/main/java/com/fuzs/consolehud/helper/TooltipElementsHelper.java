@@ -68,19 +68,13 @@ public class TooltipElementsHelper {
 
             ListNBT nbttaglist = this.itemstack.getEnchantmentTagList();
 
-            for (int i = 0; i < nbttaglist.size(); i++) {
+            for(int j = 0; j < nbttaglist.size(); ++j) {
 
-//                CompoundNBT nbttagcompound = nbttaglist.getCompound(i);
-//                Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(ResourceLocation.tryCreate(nbttagcompound.getString("id")));
-
-                CompoundNBT nbttagcompound = nbttaglist.getCompound(i);
-                int k = nbttagcompound.getInt("id");
-                int l = nbttagcompound.getInt("lvl");
-                Enchantment enchantment = Enchantment.getEnchantmentByID(k);
+                CompoundNBT nbttagcompound = nbttaglist.getCompound(j);
+                Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(ResourceLocation.tryCreate(nbttagcompound.getString("id")));
 
                 if (enchantment != null) {
-                    //list.add(enchantment.getDisplayName(nbttagcompound.getInt("lvl")));
-                    list.add(enchantment.getDisplayName(l).setStyle(style));
+                    list.add(enchantment.getDisplayName(nbttagcompound.getInt("lvl")));
                 }
 
             }
