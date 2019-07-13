@@ -3,6 +3,7 @@ package com.fuzs.consolehud.helper;
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
@@ -15,6 +16,12 @@ import java.util.List;
 
 public class TooltipHelper extends TooltipElementsHelper {
 
+    private final Minecraft mc;
+
+    public TooltipHelper(Minecraft mc) {
+        this.mc = mc;
+    }
+
     public List<String> createTooltip(ItemStack stack, boolean simple) {
 
         this.itemstack = stack;
@@ -26,7 +33,7 @@ public class TooltipHelper extends TooltipElementsHelper {
             return tooltip;
         }
 
-        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getInformation(tooltip, new Style().setColor(ConfigHandler.heldItemTooltipsConfig.appearanceConfig.textColor.getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
 
         if (stack.getItem() instanceof ItemShulkerBox && tooltip.size() == ConfigHandler.heldItemTooltipsConfig.rows) {
             return tooltip;

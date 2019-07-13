@@ -18,11 +18,12 @@ import java.util.List;
 
 public class SelectedItemHandler extends GuiIngame implements IPrivateAccessor {
 
-    private final TooltipHelper tooltipHelper = new TooltipHelper();
+    private final TooltipHelper tooltipHelper;
     private List<String> tooltipCache = Lists.newArrayList();
 
     public SelectedItemHandler() {
         super(Minecraft.getMinecraft());
+        this.tooltipHelper = new TooltipHelper(this.mc);
     }
 
     @SuppressWarnings("unused")

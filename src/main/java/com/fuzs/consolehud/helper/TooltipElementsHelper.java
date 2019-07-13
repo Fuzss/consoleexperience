@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Locale;
@@ -60,17 +61,21 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getInformation(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
+    protected void getInformation(List<String> list, Style style, ITooltipFlag.TooltipFlags tooltipflag, World world) {
 
         List<String> information = Lists.newArrayList();
 
         if (this.itemstack.getItem() instanceof ItemShulkerBox) {
+
             TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.heldItemTooltipsConfig.rows - 1);
+
         } else {
-            this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
+
+            this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
             // remove empty lines from a list of strings
             information = information.stream().filter(it -> !Strings.isNullOrEmpty(it))
                     .map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
+
         }
 
         list.addAll(information);
