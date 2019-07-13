@@ -4,6 +4,7 @@ import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemShulkerBox;
@@ -59,17 +60,21 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getInformation(List<String> list, Style style, boolean tooltipflag) {
+    protected void getInformation(List<String> list, Style style, boolean tooltipflag, EntityPlayer player) {
 
         List<String> information = Lists.newArrayList();
 
         if (this.itemstack.getItem() instanceof ItemShulkerBox) {
+
             TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.heldItemTooltipsConfig.rows - 1);
+
         } else {
-            this.itemstack.getItem().addInformation(this.itemstack, null, information, tooltipflag);
+
+            this.itemstack.getItem().addInformation(this.itemstack, player, information, tooltipflag);
             // remove empty lines from a list of strings
             information = information.stream().filter(it -> !Strings.isNullOrEmpty(it))
                     .map(it -> new TextComponentString(it).setStyle(style).getFormattedText()).collect(Collectors.toList());
+
         }
 
         list.addAll(information);
