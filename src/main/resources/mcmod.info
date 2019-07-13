@@ -5,7 +5,7 @@
   "description": "${mod_description}",
   "version": "${mod_version}",
   "mcversion": "${mc_version}",
-  "url": "https://minecraft.curseforge.com/projects/${mod_slug}",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/${mod_slug}",
   "authorList": ["${mod_author}"]
 }
 ]
