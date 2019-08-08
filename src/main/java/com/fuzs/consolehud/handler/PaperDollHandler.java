@@ -5,8 +5,8 @@ import com.fuzs.consolehud.util.EnumPositionPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class PaperDollHandler {
 
