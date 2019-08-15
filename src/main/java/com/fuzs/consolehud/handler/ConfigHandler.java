@@ -1,5 +1,6 @@
 package com.fuzs.consolehud.handler;
 
+import com.fuzs.consolehud.helper.ConfigHelper;
 import com.fuzs.consolehud.util.EnumPositionPreset;
 import com.fuzs.consolehud.util.EnumTextColor;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -90,7 +91,7 @@ public class ConfigHandler {
 				this.showDurability = ConfigHandler.BUILDER.comment("Displays the item's durability as part of its held item tooltip.").define("Show Durability", true);
 				this.forceDurability = ConfigHandler.BUILDER.comment("Force the durability to always be on the tooltip. \"Show Durability\" has to be enabled for this to have any effect.").define("Force Durability", true);
 				this.showLastLine = ConfigHandler.BUILDER.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Show Last Line", true);
-				this.textColor = ConfigHandler.BUILDER.comment("Text Color").defineEnum("Text Color", EnumTextColor.SILVER);
+				this.textColor = ConfigHandler.BUILDER.comment(ConfigHelper.getEnumDescription("Default text color. Only applied when the text doesn't already have a color assigned internally.", EnumTextColor.class)).defineEnum("Text Color", EnumTextColor.SILVER);
 
 				BUILDER.pop();
 
@@ -121,9 +122,9 @@ public class ConfigHandler {
 			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the paper doll, no matter what action the player is performing.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
-			this.position = ConfigHandler.BUILDER.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", EnumPositionPreset.TOP_LEFT);
+			this.position = ConfigHandler.BUILDER.comment(ConfigHelper.getEnumDescription("Define a screen corner to display the paper doll in.", EnumPositionPreset.class)).defineEnum("Screen Corner", EnumPositionPreset.TOP_LEFT);
 			this.blockRotation = ConfigHandler.BUILDER.comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.").define("Fix Rotation", false);
-			this.potionShift = ConfigHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".").define("Potion Shift", true);
+			this.potionShift = ConfigHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
 			this.burning = ConfigHandler.BUILDER.comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.").define("Burning Doll", false);
 			this.firstPerson = ConfigHandler.BUILDER.comment("Only show the paper doll when in first person mode.").define("First Person Only", true);
 			
@@ -199,9 +200,9 @@ public class ConfigHandler {
 
 			this.xOffset = ConfigHandler.BUILDER.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 17, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.position = ConfigHandler.BUILDER.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", EnumPositionPreset.TOP_RIGHT);
+			this.position = ConfigHandler.BUILDER.comment(ConfigHelper.getEnumDescription("Define a screen corner to display the save icon in.", EnumPositionPreset.class)).defineEnum("Screen Corner", EnumPositionPreset.TOP_RIGHT);
 			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the save icon will be displayed for.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
-			this.potionShift = ConfigHandler.BUILDER.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"topright\".").define("Potion Shift", true);
+			this.potionShift = ConfigHandler.BUILDER.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
 			this.showArrow = ConfigHandler.BUILDER.comment("Show a downwards pointing, animated arrow above the save icon.").define("Show Arrow", true);
 			this.rotatingModel = ConfigHandler.BUILDER.comment("Use an animated chest model instead of the static texture.").define("Rotating Model", true);
 

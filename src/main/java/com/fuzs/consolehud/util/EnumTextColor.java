@@ -25,17 +25,10 @@ public enum EnumTextColor {
     RED("red", TextFormatting.DARK_RED),
     BLACK("black", TextFormatting.BLACK);
 
-    private final String unlocalizedName;
     private final TextFormatting chatColor;
 
     EnumTextColor(String unlocalizedNameIn, TextFormatting chatColorIn) {
-        this.unlocalizedName =unlocalizedNameIn;
         this.chatColor = chatColorIn;
-    }
-
-    public String toString()
-    {
-        return this.unlocalizedName;
     }
 
     public TextFormatting getChatColor()

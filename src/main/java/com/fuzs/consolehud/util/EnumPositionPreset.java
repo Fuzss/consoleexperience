@@ -8,20 +8,14 @@ public enum EnumPositionPreset {
     BOTTOM_LEFT("bottomleft", 0, 1, false),
     BOTTOM_RIGHT("bottomright", 1, 1, false);
 
-    private String unlocalizedName;
     private int x;
     private int y;
     private boolean shift;
 
     EnumPositionPreset(String unlocalizedNameIn, int x, int y, boolean potionShift) {
-        this.unlocalizedName =unlocalizedNameIn;
         this.x = x;
         this.y = y;
         this.shift = potionShift;
-    }
-
-    public String toString() {
-        return this.unlocalizedName;
     }
 
     public boolean isMirrored() {
