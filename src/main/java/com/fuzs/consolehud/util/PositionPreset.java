@@ -1,7 +1,7 @@
 package com.fuzs.consolehud.util;
 
 @SuppressWarnings("unused")
-public enum EnumPositionPreset {
+public enum PositionPreset {
 
     TOP_LEFT("topleft", 0, 0, false),
     TOP_RIGHT("topright", 1, 0, true),
@@ -12,7 +12,7 @@ public enum EnumPositionPreset {
     private int y;
     private boolean shift;
 
-    EnumPositionPreset(String unlocalizedNameIn, int x, int y, boolean potionShift) {
+    PositionPreset(String unlocalizedNameIn, int x, int y, boolean potionShift) {
         this.x = x;
         this.y = y;
         this.shift = potionShift;

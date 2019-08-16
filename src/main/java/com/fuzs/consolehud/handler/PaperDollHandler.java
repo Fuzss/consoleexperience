@@ -1,7 +1,7 @@
 package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.helper.PaperDollHelper;
-import com.fuzs.consolehud.util.EnumPositionPreset;
+import com.fuzs.consolehud.util.PositionPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -61,11 +61,11 @@ public class PaperDollHandler {
             if (!this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode() && (this.mc.gameSettings.thirdPersonView == 0 || !ConfigHandler.PAPER_DOLL_CONFIG.firstPerson.get()) && riding && this.remainingDisplayTicks > 0) {
 
                 int scale = ConfigHandler.PAPER_DOLL_CONFIG.scale.get() * 5;
-                EnumPositionPreset position = ConfigHandler.PAPER_DOLL_CONFIG.position.get();
+                PositionPreset position = ConfigHandler.PAPER_DOLL_CONFIG.position.get();
 
                 int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + ConfigHandler.PAPER_DOLL_CONFIG.xOffset.get());
 
-                // can't use EnumPositionPreset#getY as the orientation point isn't in the top left corner of the image
+                // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
                 int yOffset = ConfigHandler.PAPER_DOLL_CONFIG.yOffset.get();
                 int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - yOffset : (int) (scale * 2.5F) + yOffset;
 

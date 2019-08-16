@@ -2,7 +2,7 @@ package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.ConsoleHud;
 import com.fuzs.consolehud.helper.PaperDollHelper;
-import com.fuzs.consolehud.util.EnumPositionPreset;
+import com.fuzs.consolehud.util.PositionPreset;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
@@ -58,7 +58,7 @@ public class SaveIconHandler extends IngameGui {
 
         if (this.remainingDisplayTicks > 0) {
 
-            EnumPositionPreset position = ConfigHandler.SAVE_ICON_CONFIG.position.get();
+            PositionPreset position = ConfigHandler.SAVE_ICON_CONFIG.position.get();
 
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
             GlStateManager.pushMatrix();

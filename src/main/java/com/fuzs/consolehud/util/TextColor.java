@@ -6,7 +6,7 @@ import net.minecraft.util.text.TextFormatting;
  * Resembles {@link net.minecraft.item.DyeColor} with accessible text formatting codes and a default element
  */
 @SuppressWarnings("unused")
-public enum EnumTextColor {
+public enum TextColor {
 
     WHITE("white", TextFormatting.WHITE),
     ORANGE("orange", TextFormatting.GOLD),
@@ -27,7 +27,7 @@ public enum EnumTextColor {
 
     private final TextFormatting chatColor;
 
-    EnumTextColor(String unlocalizedNameIn, TextFormatting chatColorIn) {
+    TextColor(String unlocalizedNameIn, TextFormatting chatColorIn) {
         this.chatColor = chatColorIn;
     }
 

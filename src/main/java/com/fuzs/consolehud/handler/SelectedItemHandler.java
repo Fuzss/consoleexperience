@@ -1,7 +1,7 @@
 package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.helper.TooltipHelper;
-import com.fuzs.consolehud.util.IPrivateAccessor;
+import com.fuzs.consolehud.helper.ReflectionHelper;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
+public class SelectedItemHandler extends IngameGui {
 
     private final TooltipHelper tooltipHelper;
     private List<ITextComponent> tooltipCache = Lists.newArrayList();
@@ -60,7 +60,7 @@ public class SelectedItemHandler extends IngameGui implements IPrivateAccessor {
             // as otherwise the game option might still be deactivated after the mod is removed
             // using -2 instead of -1 in case some lag interferes, will run twice most of the time then
             if (this.remainingHighlightTicks > ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() - 2) {
-                this.setHighlightTicks(this.mc.ingameGUI, 0);
+                ReflectionHelper.setHighlightTicks(this.mc.ingameGUI, 0);
             }
 
             this.highlightingItemStack = itemstack;
