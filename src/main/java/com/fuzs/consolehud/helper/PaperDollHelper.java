@@ -15,7 +15,16 @@ import java.util.Collection;
 
 public class PaperDollHelper {
 
-    public static boolean showDoll(ClientPlayerEntity player, int remainingRidingTicks) {
+    private final Minecraft mc;
+    private final float maxRotation = 30.0F;
+
+    public PaperDollHelper(Minecraft mc) {
+        this.mc = mc;
+    }
+
+    public boolean showDoll(int remainingRidingTicks) {
+
+        ClientPlayerEntity player = this.mc.player;
 
         boolean sprinting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
         boolean swimming = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
@@ -33,17 +42,19 @@ public class PaperDollHelper {
     /**
      * Draws an entity on the screen looking toward the cursor.
      */
-    public static float drawEntityOnScreen(Minecraft mc, int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prevRotationYaw) {
+    public float drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prevRotationYaw) {
 
+        // prepare
         GlStateManager.enableDepthTest();
-        GlStateManager.enableColorMaterial();
         GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.enableColorMaterial();
         GlStateManager.pushMatrix();
 
         // set position and scale
         GlStateManager.translatef((float) posX, (float) posY, 50.0F);
         GlStateManager.scalef((float) -scale, (float) scale, (float) scale);
 
+        // set angles and lighting
         GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotatef(135.0F, 0.0F, 1.0F, 0.0F);
         RenderHelper.enableStandardItemLighting();
@@ -51,29 +62,39 @@ public class PaperDollHelper {
         GlStateManager.rotatef(-15.0F, 1.0F, 0.0F, 0.0F);
 
         // save rotation as we don't want to change the actual entity
-        float f = entity.renderYawOffset;
-        float f1 = entity.rotationYawHead;
+        float f = entity.rotationPitch;
+        float f1 = entity.renderYawOffset;
+        float f2 = entity.rotationYawHead;
+        float f3 = entity.prevRotationPitch;
+        float f4 = entity.prevRenderYawOffset;
+        float f5 = entity.prevRotationYawHead;
 
-        if (!ConfigHandler.PAPER_DOLL_CONFIG.blockRotation.get()) {
-            // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
-            prevRotationYaw = rotateEntity(mc, prevRotationYaw, entity.rotationYawHead - entity.prevRotationYawHead, partialTicks);
-        } else {
-            prevRotationYaw = 0;
-        }
-
-        entity.renderYawOffset = entity.rotationYawHead = ConfigHandler.PAPER_DOLL_CONFIG.position.get().getRotation(22.5F) + prevRotationYaw;
+        // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
+        float defaultRotationYaw = ConfigHandler.PAPER_DOLL_CONFIG.position.get().getRotation(this.maxRotation / 2.0F);
+        entity.rotationPitch = 7.5F;
+        entity.prevRotationPitch = 7.5F;
+        entity.renderYawOffset = defaultRotationYaw;
+        entity.prevRenderYawOffset = defaultRotationYaw;
+        entity.prevRotationYawHead = defaultRotationYaw + prevRotationYaw;
+        prevRotationYaw = rotateEntity(prevRotationYaw, f2 - f5, partialTicks);
+        entity.rotationYawHead = defaultRotationYaw + prevRotationYaw;
 
         // do render
-        EntityRendererManager rendermanager = mc.getRenderManager();
+        EntityRendererManager rendermanager = this.mc.getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
         rendermanager.setRenderShadow(false);
-        rendermanager.renderEntity(entity, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, true); // boolean parameter forces the bounding box to always be hidden
+        rendermanager.renderEntity(entity, 0.0F, 0.0F, 0.0F, 0.0F, partialTicks, true); // boolean parameter forces the bounding box to always be hidden
         rendermanager.setRenderShadow(true);
 
-        // reset entity rotation
-        entity.renderYawOffset = f;
-        entity.rotationYawHead = f1;
+        // restore entity rotation
+        entity.rotationPitch = f;
+        entity.renderYawOffset = f1;
+        entity.rotationYawHead = f2;
+        entity.prevRotationPitch = f3;
+        entity.prevRenderYawOffset = f4;
+        entity.prevRotationYawHead = f5;
 
+        // finish
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableRescaleNormal();
@@ -90,24 +111,21 @@ public class PaperDollHelper {
     /**
      * Rotate entity according to its yaw, slowly spin back to default when yaw stays constant for a while
      */
-    private static float rotateEntity(Minecraft mc, float rotationYaw, float renderYawOffsetDiff, float partialTicks) {
+    private float rotateEntity(float rotationYaw, float renderYawOffsetDiff, float partialTicks) {
 
-        if (mc.isGamePaused()) {
+        if (this.mc.isGamePaused()) {
             return rotationYaw;
         }
 
         // apply rotation change from entity
-        if (Math.abs(renderYawOffsetDiff) >= 0.05F) {
-            rotationYaw += renderYawOffsetDiff * 0.5F;
-        }
-
-        rotationYaw = MathHelper.clamp(rotationYaw, -45.0F, 45.0F);
+        rotationYaw = MathHelper.clamp(rotationYaw + renderYawOffsetDiff * 0.5F, -this.maxRotation, this.maxRotation);
 
         // rotate back to origin, never overshoot 0
-        if (rotationYaw < -0.05F) {
-            rotationYaw = Math.min(0, rotationYaw + partialTicks * 2.0F);
-        } else if (rotationYaw > 0.05F) {
-            rotationYaw = Math.max(0, rotationYaw - partialTicks * 2.0F);
+        partialTicks *= this.maxRotation / 10.0F;
+        if (rotationYaw < 0.0F) {
+            rotationYaw = Math.min(0, rotationYaw - partialTicks * rotationYaw / this.maxRotation);
+        } else if (rotationYaw > 0.0F) {
+            rotationYaw = Math.max(0, rotationYaw - partialTicks * rotationYaw / this.maxRotation);
         }
 
         return rotationYaw;

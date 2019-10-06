@@ -43,7 +43,7 @@ public class ConsoleHud {
 
             try {
                 MinecraftForge.EVENT_BUS.register(it.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

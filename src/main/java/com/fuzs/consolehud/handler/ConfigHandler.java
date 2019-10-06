@@ -75,7 +75,7 @@ public class ConfigHandler {
 
 		}
 
-		public class AppearanceConfig {
+		public static class AppearanceConfig {
 
 			public final ForgeConfigSpec.BooleanValue moddedTooltips;
 			public final ForgeConfigSpec.BooleanValue showDurability;
@@ -109,7 +109,6 @@ public class ConfigHandler {
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
 		public final ForgeConfigSpec.IntValue displayTime;
-		public final ForgeConfigSpec.BooleanValue blockRotation;
 		public final ForgeConfigSpec.BooleanValue potionShift;
 		public final ForgeConfigSpec.BooleanValue burning;
 		public final ForgeConfigSpec.BooleanValue firstPerson;
@@ -123,7 +122,6 @@ public class ConfigHandler {
 			this.yOffset = ConfigHandler.BUILDER.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.displayTime = ConfigHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the paper doll, no matter what action the player is performing.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
 			this.position = ConfigHandler.BUILDER.comment(ConfigHelper.getEnumDescription("Define a screen corner to display the paper doll in.", PositionPreset.values())).defineEnum("Screen Corner", PositionPreset.TOP_LEFT);
-			this.blockRotation = ConfigHandler.BUILDER.comment("Disable the paper doll from being slightly rotated every so often depending on the player rotation.").define("Fix Rotation", false);
 			this.potionShift = ConfigHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
 			this.burning = ConfigHandler.BUILDER.comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.").define("Burning Doll", false);
 			this.firstPerson = ConfigHandler.BUILDER.comment("Only show the paper doll when in first person mode.").define("First Person Only", true);
@@ -134,7 +132,7 @@ public class ConfigHandler {
 
 		}
 
-		public class DisplayActionsConfig {
+		public static class DisplayActionsConfig {
 
 			public final ForgeConfigSpec.BooleanValue sprinting;
 			public final ForgeConfigSpec.BooleanValue swimming;

@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class PaperDollHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
+    private final PaperDollHelper helper = new PaperDollHelper(this.mc);
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
@@ -26,7 +27,7 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || PaperDollHelper.showDoll(this.mc.player, this.remainingRidingTicks))) {
+            if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || this.helper.showDoll(this.remainingRidingTicks))) {
                 this.remainingDisplayTicks = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 ? 1 : ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get();
             } else if (this.remainingDisplayTicks > 0) {
                 this.remainingDisplayTicks--;
@@ -73,7 +74,7 @@ public class PaperDollHandler {
                     y += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
                 }
 
-                this.prevRotationYaw = PaperDollHelper.drawEntityOnScreen(this.mc, x, y, scale, this.mc.player, evt.getPartialTicks(), this.prevRotationYaw);
+                this.prevRotationYaw = this.helper.drawEntityOnScreen(x, y, scale, this.mc.player, evt.getPartialTicks(), this.prevRotationYaw);
 
             }
 
