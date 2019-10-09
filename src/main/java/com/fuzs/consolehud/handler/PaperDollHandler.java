@@ -57,10 +57,10 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            // only show while riding when specifically enabled as it looks quit janky
-            boolean riding = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() || !this.mc.player.isPassenger();
+            boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode() && !this.mc.gameSettings.hideGUI;
+            boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !ConfigHandler.PAPER_DOLL_CONFIG.firstPerson.get();
 
-            if (!this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode() && (this.mc.gameSettings.thirdPersonView == 0 || !ConfigHandler.PAPER_DOLL_CONFIG.firstPerson.get()) && riding && this.remainingDisplayTicks > 0) {
+            if (flag && firstPerson && this.remainingDisplayTicks > 0) {
 
                 int scale = ConfigHandler.PAPER_DOLL_CONFIG.scale.get() * 5;
                 PositionPreset position = ConfigHandler.PAPER_DOLL_CONFIG.position.get();

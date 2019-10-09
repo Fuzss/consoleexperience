@@ -1,11 +1,10 @@
 package com.fuzs.consolehud.handler;
 
-import com.fuzs.consolehud.helper.TooltipHelper;
 import com.fuzs.consolehud.helper.ReflectionHelper;
+import com.fuzs.consolehud.helper.TooltipHelper;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IngameGui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -17,15 +16,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
-public class SelectedItemHandler extends IngameGui {
+public class SelectedItemHandler {
 
-    private final TooltipHelper tooltipHelper;
+    private final Minecraft mc = Minecraft.getInstance();
+    private final TooltipHelper tooltipHelper = new TooltipHelper(this.mc);
+
     private List<ITextComponent> tooltipCache = Lists.newArrayList();
-
-    public SelectedItemHandler() {
-        super(Minecraft.getInstance());
-        this.tooltipHelper = new TooltipHelper(this.mc);
-    }
+    private int remainingHighlightTicks;
+    private ItemStack highlightingItemStack = ItemStack.EMPTY;
 
     @SuppressWarnings("unused")
     @SubscribeEvent
@@ -73,7 +71,7 @@ public class SelectedItemHandler extends IngameGui {
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
-        if (this.mc.playerController.isSpectatorMode() || (ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() < 1)) {
+        if (this.mc.playerController.isSpectatorMode() || this.mc.gameSettings.hideGUI || (ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() < 1)) {
             return;
         }
 
@@ -126,7 +124,7 @@ public class SelectedItemHandler extends IngameGui {
                 for (int i = 0; i < size; i++) {
 
                     String text = this.tooltipCache.get(i).getFormattedText();
-                    this.getFontRenderer().drawStringWithShadow(text, (float) (posX - this.getFontRenderer().getStringWidth(text) / 2), (float) posY, 16777215 + (alpha << 24));
+                    this.mc.fontRenderer.drawStringWithShadow(text, (float) (posX - this.mc.fontRenderer.getStringWidth(text) / 2), (float) posY, 16777215 + (alpha << 24));
                     posY += i == 0 ? 12 : 10;
 
                 }

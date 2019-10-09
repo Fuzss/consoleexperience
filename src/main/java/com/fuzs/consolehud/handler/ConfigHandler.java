@@ -136,6 +136,7 @@ public class ConfigHandler {
 
 			public final ForgeConfigSpec.BooleanValue sprinting;
 			public final ForgeConfigSpec.BooleanValue swimming;
+			public final ForgeConfigSpec.BooleanValue crawling;
 			public final ForgeConfigSpec.BooleanValue crouching;
 			public final ForgeConfigSpec.BooleanValue flying;
 			public final ForgeConfigSpec.BooleanValue elytraFlying;
@@ -149,6 +150,7 @@ public class ConfigHandler {
 
 				this.sprinting = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is sprinting.").define("Sprinting", true);
 				this.swimming = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is swimming.").define("Swimming", true);
+				this.crawling = ConfigHandler.BUILDER.comment("Enable the paper doll when the player is crawling in a tight space.").define("Crawling", true);
 				this.crouching = ConfigHandler.BUILDER.comment("Enable the paper doll while the player is crouching.").define("Crouching", true);
 				this.flying = ConfigHandler.BUILDER.comment("Display the paper doll when the player is using creative mode flight.").define("Flying", true);
 				this.elytraFlying = ConfigHandler.BUILDER.comment("Show the paper doll while the player is flying with an elytra.").define("Elytra Flying", true);

@@ -30,6 +30,7 @@ public class PaperDollHelper {
 
         boolean sprinting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
         boolean swimming = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
+        boolean crawling = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crawling.get() && player.getPose() == Pose.SWIMMING && !player.isSwimming();
         boolean crouching = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && player.isSneaking() && remainingRidingTicks == 0;
         boolean flying = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.flying.get() && player.abilities.isFlying;
         boolean elytra = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.elytraFlying.get() && player.isElytraFlying();
@@ -38,7 +39,7 @@ public class PaperDollHelper {
         boolean spinning = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.spinAttacking.get() && player.isSpinAttacking();
         boolean hurt = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.hurt.get() && player.hurtTime > 0;
 
-        return crouching || sprinting || swimming || burning || elytra || flying || mounting || spinning || hurt;
+        return crouching || sprinting || swimming || crawling || burning || elytra || flying || mounting || spinning || hurt;
 
     }
 
@@ -54,7 +55,7 @@ public class PaperDollHelper {
         GlStateManager.pushMatrix();
 
         // set position and scale
-        GlStateManager.translatef((float) posX, (float) posY, 50.0F);
+        GlStateManager.translatef((float) posX, (float) posY, -50.0F);
         GlStateManager.scalef((float) -scale, (float) scale, (float) scale);
 
         // set angles and lighting
