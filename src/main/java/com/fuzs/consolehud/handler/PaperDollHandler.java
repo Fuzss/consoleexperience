@@ -27,6 +27,7 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
+            // update display ticks
             if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || this.helper.showDoll(this.remainingRidingTicks))) {
                 this.remainingDisplayTicks = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 ? 1 : ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get();
             } else if (this.remainingDisplayTicks > 0) {
@@ -69,6 +70,7 @@ public class PaperDollHandler {
                 // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
                 int yOffset = ConfigHandler.PAPER_DOLL_CONFIG.yOffset.get();
                 int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - yOffset : (int) (scale * 2.5F) + yOffset;
+                y -= scale - this.helper.updateOffset(evt.getPartialTicks()) * scale;
 
                 if (ConfigHandler.PAPER_DOLL_CONFIG.potionShift.get() && position.shouldShift()) {
                     y += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());

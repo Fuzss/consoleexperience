@@ -140,6 +140,7 @@ public class ConfigHandler {
 			public final ForgeConfigSpec.BooleanValue flying;
 			public final ForgeConfigSpec.BooleanValue elytraFlying;
 			public final ForgeConfigSpec.BooleanValue riding;
+			public final ForgeConfigSpec.BooleanValue spinAttacking;
 			public final ForgeConfigSpec.BooleanValue hurt;
 
 			private DisplayActionsConfig(String name) {
@@ -152,6 +153,7 @@ public class ConfigHandler {
 				this.flying = ConfigHandler.BUILDER.comment("Display the paper doll when the player is using creative mode flight.").define("Flying", true);
 				this.elytraFlying = ConfigHandler.BUILDER.comment("Show the paper doll while the player is flying with an elytra.").define("Elytra Flying", true);
 				this.riding = ConfigHandler.BUILDER.comment("Show the paper doll while the player is riding any entity.").define("Riding", false);
+				this.spinAttacking = ConfigHandler.BUILDER.comment("Show the paper doll when the player is spin attacking using a trident enchanted with riptide.").define("Spin Attacking", false);
 				this.hurt = ConfigHandler.BUILDER.comment("Show the paper doll when the player is hurt.").define("Hurt", false);
 
 				BUILDER.pop();

@@ -8,6 +8,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Pose;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.MathHelper;
 
@@ -17,6 +18,7 @@ public class PaperDollHelper {
 
     private final Minecraft mc;
     private final float maxRotation = 30.0F;
+    private float lastSwimAnimation = 1.0F;
 
     public PaperDollHelper(Minecraft mc) {
         this.mc = mc;
@@ -33,9 +35,10 @@ public class PaperDollHelper {
         boolean elytra = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.elytraFlying.get() && player.isElytraFlying();
         boolean burning = ConfigHandler.PAPER_DOLL_CONFIG.burning.get() && player.isBurning();
         boolean mounting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() && player.isPassenger();
+        boolean spinning = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.spinAttacking.get() && player.isSpinAttacking();
         boolean hurt = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.hurt.get() && player.hurtTime > 0;
 
-        return crouching || sprinting || swimming || burning || elytra || flying || mounting || hurt;
+        return crouching || sprinting || swimming || burning || elytra || flying || mounting || spinning || hurt;
 
     }
 
@@ -121,11 +124,11 @@ public class PaperDollHelper {
         rotationYaw = MathHelper.clamp(rotationYaw + renderYawOffsetDiff * 0.5F, -this.maxRotation, this.maxRotation);
 
         // rotate back to origin, never overshoot 0
-        partialTicks *= this.maxRotation / 10.0F;
+        partialTicks = rotationYaw - partialTicks * rotationYaw / 10.0F;
         if (rotationYaw < 0.0F) {
-            rotationYaw = Math.min(0, rotationYaw - partialTicks * rotationYaw / this.maxRotation);
+            rotationYaw = Math.min(0, partialTicks);
         } else if (rotationYaw > 0.0F) {
-            rotationYaw = Math.max(0, rotationYaw - partialTicks * rotationYaw / this.maxRotation);
+            rotationYaw = Math.max(0, partialTicks);
         }
 
         return rotationYaw;
@@ -143,6 +146,58 @@ public class PaperDollHelper {
         }
 
         return shift;
+
+    }
+
+    public float updateOffset(float partialTicks) {
+
+        ClientPlayerEntity player = this.mc.player;
+        float standingHeight = player.getSize(Pose.STANDING).height;
+        float relativeHeight = player.getHeight() / standingHeight;
+
+        if (player.getPose() == Pose.SNEAKING) {
+
+            if (player.shouldRenderSneaking()) {
+
+                return player.getSize(Pose.SNEAKING).height / standingHeight;
+
+            }
+
+        } else if (player.getPose() == Pose.FALL_FLYING) {
+
+            if (player.getTicksElytraFlying() > 0) {
+
+                float ticksElytraFlying = (float) player.getTicksElytraFlying() + partialTicks;
+                float f = 1.0F - MathHelper.clamp(ticksElytraFlying * ticksElytraFlying / 100.0F, 0.0F, 1.0F);
+                float flyingHeight = player.getSize(Pose.FALL_FLYING).height / standingHeight;
+
+                return flyingHeight + (1.0F - flyingHeight) * f;
+
+            }
+
+        } else if (player.getPose() == Pose.SWIMMING) {
+
+            if (player.getSwimAnimation(partialTicks) > 0) {
+
+                float swimmingHeight = player.getSize(Pose.SWIMMING).height / standingHeight;
+                float swimAnimation = player.getSwimAnimation(partialTicks);
+
+                if (this.lastSwimAnimation > swimAnimation) {
+                    swimmingHeight += (1.0F - swimmingHeight) * (1.0F - swimAnimation);
+                }
+
+                this.lastSwimAnimation = swimAnimation;
+                return swimmingHeight;
+
+            }
+
+        } else if (relativeHeight < 1.0F) {
+
+            return relativeHeight <= 0 ? 1.0F : relativeHeight;
+
+        }
+
+        return 1.0F;
 
     }
 
