@@ -25,10 +25,10 @@ public class PaperDollHandler {
             return;
         }
 
-        if (this.mc.player != null) {
+        if (this.mc.player != null && this.mc.player.movementInput != null) {
 
             // update display ticks
-            if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || this.helper.showDoll(this.remainingRidingTicks))) {
+            if (ConfigHandler.GENERAL_CONFIG.paperDoll.get() && (ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 || this.helper.checkConditions(this.remainingRidingTicks))) {
                 this.remainingDisplayTicks = ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get() == 0 ? 1 : ConfigHandler.PAPER_DOLL_CONFIG.displayTime.get();
             } else if (this.remainingDisplayTicks > 0) {
                 this.remainingDisplayTicks--;

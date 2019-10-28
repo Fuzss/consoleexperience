@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.item.ItemStack;
@@ -114,6 +115,7 @@ public class TooltipHelper extends TooltipElementsHelper {
                 boolean flag1 = resourcelocation != null;
 
                 if (flag || flag1) {
+
                     if (flag) {
                         list.addAll(Lists.newArrayList(blockstate.getBlock().getNameTextComponent().setStyle(style)));
                     }
@@ -125,6 +127,7 @@ public class TooltipHelper extends TooltipElementsHelper {
                             list.addAll(collection.stream().map(Block::getNameTextComponent).map(it -> it.setStyle(style)).collect(Collectors.toList()));
                         }
                     }
+
                 }
 
             } catch (CommandSyntaxException ignored) {

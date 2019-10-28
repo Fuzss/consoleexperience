@@ -1,6 +1,7 @@
 package com.fuzs.consolehud.helper;
 
 import com.fuzs.consolehud.handler.ConfigHandler;
+import com.fuzs.consolehud.util.HeadMovement;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 
 import java.util.Collection;
 
@@ -24,22 +26,26 @@ public class PaperDollHelper {
         this.mc = mc;
     }
 
-    public boolean showDoll(int remainingRidingTicks) {
+    public boolean checkConditions(int remainingRidingTicks) {
 
         ClientPlayerEntity player = this.mc.player;
 
         boolean sprinting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
         boolean swimming = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
         boolean crawling = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crawling.get() && player.getPose() == Pose.SWIMMING && !player.isSwimming();
-        boolean crouching = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && player.isSneaking() && remainingRidingTicks == 0;
+        boolean crouching = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && remainingRidingTicks == 0 && player.movementInput.sneak;
         boolean flying = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.flying.get() && player.abilities.isFlying;
         boolean elytra = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.elytraFlying.get() && player.isElytraFlying();
-        boolean burning = ConfigHandler.PAPER_DOLL_CONFIG.burning.get() && player.isBurning();
         boolean mounting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() && player.isPassenger();
         boolean spinning = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.spinAttacking.get() && player.isSpinAttacking();
+        boolean moving = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.moving.get() && !player.movementInput.getMoveVector().equals(Vec2f.ZERO);
+        boolean jumping = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.jumping.get() && player.movementInput.jump;
+        boolean attacking = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.attacking.get() && player.isSwingInProgress;
+        boolean using = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.using.get() && player.isHandActive();
         boolean hurt = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.hurt.get() && player.hurtTime > 0;
+        boolean burning = ConfigHandler.PAPER_DOLL_CONFIG.burning.get() && player.isBurning();
 
-        return crouching || sprinting || swimming || crawling || burning || elytra || flying || mounting || spinning || hurt;
+        return sprinting || swimming || crawling || crouching || flying || elytra || mounting || spinning || moving || jumping || attacking || using || hurt || burning;
 
     }
 
@@ -75,13 +81,20 @@ public class PaperDollHelper {
 
         // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
         float defaultRotationYaw = ConfigHandler.PAPER_DOLL_CONFIG.position.get().getRotation(this.maxRotation / 2.0F);
-        entity.rotationPitch = 7.5F;
-        entity.prevRotationPitch = 7.5F;
+        if (ConfigHandler.PAPER_DOLL_CONFIG.headMovement.get() == HeadMovement.YAW || entity.isElytraFlying()) {
+            entity.rotationPitch = 7.5F;
+            entity.prevRotationPitch = 7.5F;
+        }
         entity.renderYawOffset = defaultRotationYaw;
         entity.prevRenderYawOffset = defaultRotationYaw;
-        entity.prevRotationYawHead = defaultRotationYaw + prevRotationYaw;
-        prevRotationYaw = rotateEntity(prevRotationYaw, f2 - f5, partialTicks);
-        entity.rotationYawHead = defaultRotationYaw + prevRotationYaw;
+        if (ConfigHandler.PAPER_DOLL_CONFIG.headMovement.get() == HeadMovement.PITCH) {
+            entity.prevRotationYawHead = defaultRotationYaw;
+            entity.rotationYawHead = defaultRotationYaw;
+        } else {
+            entity.prevRotationYawHead = defaultRotationYaw + prevRotationYaw;
+            prevRotationYaw = rotateEntity(prevRotationYaw, f2 - f5, partialTicks);
+            entity.rotationYawHead = defaultRotationYaw + prevRotationYaw;
+        }
 
         // do render
         EntityRendererManager rendermanager = this.mc.getRenderManager();
@@ -125,7 +138,7 @@ public class PaperDollHelper {
         rotationYaw = MathHelper.clamp(rotationYaw + renderYawOffsetDiff * 0.5F, -this.maxRotation, this.maxRotation);
 
         // rotate back to origin, never overshoot 0
-        partialTicks = rotationYaw - partialTicks * rotationYaw / 10.0F;
+        partialTicks = rotationYaw - partialTicks * rotationYaw / 15.0F;
         if (rotationYaw < 0.0F) {
             rotationYaw = Math.min(0, partialTicks);
         } else if (rotationYaw > 0.0F) {
@@ -194,7 +207,7 @@ public class PaperDollHelper {
 
         } else if (relativeHeight < 1.0F) {
 
-            return relativeHeight <= 0 ? 1.0F : relativeHeight;
+            return relativeHeight <= 0.0F ? 1.0F : relativeHeight;
 
         }
 

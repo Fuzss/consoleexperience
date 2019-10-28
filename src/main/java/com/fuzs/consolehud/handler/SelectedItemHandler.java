@@ -2,9 +2,9 @@ package com.fuzs.consolehud.handler;
 
 import com.fuzs.consolehud.helper.ReflectionHelper;
 import com.fuzs.consolehud.helper.TooltipHelper;
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -21,7 +21,7 @@ public class SelectedItemHandler {
     private final Minecraft mc = Minecraft.getInstance();
     private final TooltipHelper tooltipHelper = new TooltipHelper(this.mc);
 
-    private List<ITextComponent> tooltipCache = Lists.newArrayList();
+    private List<ITextComponent> tooltipCache;
     private int remainingHighlightTicks;
     private ItemStack highlightingItemStack = ItemStack.EMPTY;
 
@@ -51,14 +51,13 @@ public class SelectedItemHandler {
             } else {
 
                 this.remainingHighlightTicks = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
+                this.tooltipCache = null;
 
-            }
+                // used to disable vanilla held item tooltips completely without modifying the game option,
+                // as otherwise the game option might still be deactivated after the mod is removed
+                // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
+                ReflectionHelper.setHighlightingItemStack(this.mc.ingameGUI, itemstack);
 
-            // used to disable vanilla held item tooltips completely without modifying the game option,
-            // as otherwise the game option might still be deactivated after the mod is removed
-            // using -2 instead of -1 in case some lag interferes, will run twice most of the time then
-            if (this.remainingHighlightTicks > ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() - 2) {
-                ReflectionHelper.setHighlightTicks(this.mc.ingameGUI, 0);
             }
 
             this.highlightingItemStack = itemstack;
@@ -71,11 +70,13 @@ public class SelectedItemHandler {
     @SubscribeEvent
     public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
-        if (this.mc.playerController.isSpectatorMode() || this.mc.gameSettings.hideGUI || (ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() < 1)) {
+        if (this.mc.playerController.isSpectatorMode() || this.mc.gameSettings.hideGUI) {
             return;
         }
 
-        if (this.remainingHighlightTicks > 0 && !this.highlightingItemStack.isEmpty()) {
+        boolean always = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() == 0;
+
+        if ((this.remainingHighlightTicks > 0 || always) && !this.highlightingItemStack.isEmpty()) {
 
             int posX = evt.getWindow().getScaledWidth() / 2;
             int posY = evt.getWindow().getScaledHeight();
@@ -96,26 +97,29 @@ public class SelectedItemHandler {
                 posY -= ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get();
             }
 
-            int alpha = (int) Math.min(255.0F, (float) this.remainingHighlightTicks * 256.0F / 10.0F);
+            int alpha = always ? 255 : (int) Math.min(255.0F, (float) this.remainingHighlightTicks * 256.0F / 10.0F);
 
             if (alpha > 0) {
 
                 GlStateManager.pushMatrix();
                 GlStateManager.enableBlend();
-                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
                 ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.highlightingItemStack.getItem());
-                boolean blacklisted = resourcelocation != null && (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.toString()) || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.getNamespace()));
+                boolean blacklisted = resourcelocation != null && (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.toString())
+                        || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.getNamespace()));
 
-                // using -2 instead of -1 in case some lag interferes, will run twice most of the time then, but still better than 40 times
-                if (!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.cacheTooltip.get() || this.remainingHighlightTicks > ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() - 2) {
-                    this.tooltipCache = this.tooltipHelper.createTooltip(this.highlightingItemStack, !ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() || blacklisted || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() == 1);
+                // update cache
+                if (this.tooltipCache == null || !ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.cacheTooltip.get() || always) {
+                    boolean flag = !ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() || blacklisted || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() == 1;
+                    this.tooltipCache = this.tooltipHelper.createTooltip(this.highlightingItemStack, flag);
                 }
 
                 int size = this.tooltipCache.size();
 
                 // clears the action bar so it won't overlap with the tooltip
-                if (size > (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get() ? 0 : 1)) {
+                if (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get() || size > 1) {
                     this.mc.player.sendStatusMessage(new StringTextComponent(""), true);
                 }
 
@@ -123,8 +127,16 @@ public class SelectedItemHandler {
 
                 for (int i = 0; i < size; i++) {
 
-                    String text = this.tooltipCache.get(i).getFormattedText();
-                    this.mc.fontRenderer.drawStringWithShadow(text, (float) (posX - this.mc.fontRenderer.getStringWidth(text) / 2), (float) posY, 16777215 + (alpha << 24));
+                    ITextComponent component = this.tooltipCache.get(i);
+                    int width = this.mc.fontRenderer.getStringWidth(component.getString()) / 2;
+                    int accessibilityOpacity = this.mc.gameSettings.func_216839_a(0);
+
+                    if (accessibilityOpacity != 0) {
+                        AbstractGui.fill(posX - width - 2, posY - 2, posX + width + 2, posY + 7 + 2, accessibilityOpacity);
+                        alpha = 255;
+                    }
+
+                    this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - width, posY, 16777215 + (alpha << 24));
                     posY += i == 0 ? 12 : 10;
 
                 }

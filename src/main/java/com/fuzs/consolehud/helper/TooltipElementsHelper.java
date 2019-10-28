@@ -2,7 +2,6 @@ package com.fuzs.consolehud.helper;
 
 import com.fuzs.consolehud.handler.ConfigHandler;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonParseException;
 import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
@@ -16,6 +15,8 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -44,7 +45,8 @@ public class TooltipElementsHelper {
 
     protected void getInformation(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag, World world) {
 
-        List<ITextComponent> information = Lists.newArrayList();
+        // create list with single element that'll be removed later anyways as some mods apparently expect the list to not be empty
+        List<ITextComponent> information = new ArrayList<>(Collections.singletonList(new StringTextComponent("")));
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
@@ -53,11 +55,11 @@ public class TooltipElementsHelper {
         } else {
 
             this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
-            // remove empty lines from a list of strings
-            information = information.stream().filter(it -> !Strings.isNullOrEmpty(it.getString())).collect(Collectors.toList());
 
         }
 
+        // remove empty lines from a list of strings
+        information = information.stream().filter(it -> !Strings.isNullOrEmpty(it.getString())).collect(Collectors.toList());
         list.addAll(information);
 
     }

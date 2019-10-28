@@ -75,7 +75,7 @@ public class SaveIconHandler {
 
     private void drawIcon(int width, int height) {
 
-        if (this.remainingDisplayTicks > 0) {
+        if (this.remainingDisplayTicks > 0 || ConfigHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) {
 
             PositionPreset position = ConfigHandler.SAVE_ICON_CONFIG.position.get();
 
