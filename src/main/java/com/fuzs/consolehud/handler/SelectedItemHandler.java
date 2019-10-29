@@ -23,6 +23,7 @@ public class SelectedItemHandler {
 
     private List<ITextComponent> tooltipCache;
     private int remainingHighlightTicks;
+    private int highlightingItemSlot = 9;
     private ItemStack highlightingItemStack = ItemStack.EMPTY;
 
     @SuppressWarnings("unused")
@@ -35,32 +36,43 @@ public class SelectedItemHandler {
 
         if (this.mc.player != null) {
 
-            ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
+            int i = this.mc.player.inventory.currentItem;
 
-            if (itemstack.isEmpty()) {
+            if (this.highlightingItemSlot == i) {
 
-                this.remainingHighlightTicks = 0;
+                if (this.remainingHighlightTicks > 0) {
 
-            } else if (!this.highlightingItemStack.isEmpty() && itemstack.getItem() == this.highlightingItemStack.getItem() && itemstack.getDisplayName().equals(this.highlightingItemStack.getDisplayName())) {
-
-                if (this.remainingHighlightTicks > 0)
-                {
                     --this.remainingHighlightTicks;
+
                 }
 
             } else {
 
-                this.remainingHighlightTicks = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
-                this.tooltipCache = null;
+                this.highlightingItemStack = this.mc.player.inventory.getCurrentItem();
 
-                // used to disable vanilla held item tooltips completely without modifying the game option,
-                // as otherwise the game option might still be deactivated after the mod is removed
-                // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
-                ReflectionHelper.setHighlightingItemStack(this.mc.ingameGUI, itemstack);
+                if (this.highlightingItemStack.isEmpty()) {
+
+                    this.remainingHighlightTicks = 0;
+
+                } else {
+
+                    this.remainingHighlightTicks = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
+                    this.tooltipCache = null;
+
+                    // used to disable vanilla held item tooltips completely without modifying the game option,
+                    // as otherwise the game option might still be deactivated after the mod is removed
+                    // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
+                    ReflectionHelper.setHighlightingItemStack(this.mc.ingameGUI, this.highlightingItemStack);
+                    // this is only here to fix a really weird bug where the vanilla tooltip wouldn't be deactivated
+                    // once when joining a world for the first time after the game has been started
+                    // so it's only required once, but now it's running every time
+                    ReflectionHelper.setHighlightTicks(this.mc.ingameGUI, 0);
+
+                }
 
             }
 
-            this.highlightingItemStack = itemstack;
+            this.highlightingItemSlot = i;
 
         }
 
