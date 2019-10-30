@@ -19,6 +19,7 @@ public class ConfigBuildHandler {
 	public static final HoveringHotbarConfig HOVERING_HOTBAR_CONFIG = new HoveringHotbarConfig("hoveringhotbar");
 	public static final SaveIconConfig SAVE_ICON_CONFIG = new SaveIconConfig("saveicon");
 	public static final CoordinateDisplayConfig COORDINATE_DISPLAY_CONFIG = new CoordinateDisplayConfig("coordinates");
+	public static final MiscellaneousConfig MISCELLANEOUS_CONFIG = new MiscellaneousConfig("miscellaneous");
 
 	public static class GeneralConfig {
 
@@ -27,8 +28,6 @@ public class ConfigBuildHandler {
 		public final ForgeConfigSpec.BooleanValue hoveringHotbar;
 		public final ForgeConfigSpec.BooleanValue saveIcon;
 		public final ForgeConfigSpec.BooleanValue coordinateDisplay;
-		public final ForgeConfigSpec.BooleanValue sumShulkerBox;
-		public final ForgeConfigSpec.BooleanValue hideHudInGui;
 
 		private GeneralConfig(String name) {
 
@@ -39,8 +38,6 @@ public class ConfigBuildHandler {
 			this.hoveringHotbar = ConfigBuildHandler.BUILDER.comment("Enable the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.").define("Hovering Hotbar", true);
 			this.saveIcon = ConfigBuildHandler.BUILDER.comment("Show an animated icon on the screen whenever the world is being saved (every 45 seconds by default). This only works in singleplayer.").define("Save Icon", true);
 			this.coordinateDisplay = ConfigBuildHandler.BUILDER.comment("Always show player coordinates on screen.").define("Coordinate Display", false);
-			this.sumShulkerBox = ConfigBuildHandler.BUILDER.comment("Sum up stacks of equal items for the shulker box tooltip.").define("Sum Shulker Box Contents", true);
-			this.hideHudInGui = ConfigBuildHandler.BUILDER.comment("Hide hud elements when inside of a gui.").define("Hide Hud In Gui", true);
 
 			BUILDER.pop();
 
@@ -189,7 +186,7 @@ public class ConfigBuildHandler {
 			BUILDER.push(name);
 
 			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen center.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE);
+			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE);
 			this.modCompat = ConfigBuildHandler.BUILDER.comment("Attempt to be compatible with dysfunctional mods. Only enable this when modded hud elements aren't shifted together with the hotbar when they should be.").define("Mod Compatibility", false);
 
 			BUILDER.pop();
@@ -212,8 +209,8 @@ public class ConfigBuildHandler {
 
 			BUILDER.push(name);
 
-			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 17, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 17, 0, Integer.MAX_VALUE);
+			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, 0, Integer.MAX_VALUE);
 			this.position = ConfigBuildHandler.BUILDER.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", PositionPreset.TOP_RIGHT);
 			this.displayTime = ConfigBuildHandler.BUILDER.comment("Amount of ticks the save icon will be displayed for. Set to 0 to always display the icon.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
 			this.potionShift = ConfigBuildHandler.BUILDER.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
@@ -230,6 +227,7 @@ public class ConfigBuildHandler {
 
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
+		public final ForgeConfigSpec.EnumValue<PositionPreset> position;
 		public final ForgeConfigSpec.BooleanValue background;
 		public final ForgeConfigSpec.IntValue decimalPlaces;
 
@@ -237,10 +235,35 @@ public class ConfigBuildHandler {
 
 			BUILDER.push(name);
 
-			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen left.").defineInRange("X-Offset", 0, 0, Integer.MAX_VALUE);
-			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from top.").defineInRange("Y-Offset", 60, 0, Integer.MAX_VALUE);
+			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 0, 0, Integer.MAX_VALUE);
+			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 60, 0, Integer.MAX_VALUE);
+			this.position = ConfigBuildHandler.BUILDER.comment("Define a screen corner to show the coordinate display in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT);
 			this.background = ConfigBuildHandler.BUILDER.comment("Show black chat background behind coordinate display for better visibility.").define("Draw Background", true);
 			this.decimalPlaces = ConfigBuildHandler.BUILDER.comment("Amount of decimal places for the three coordinates.").defineInRange("Decimal Places", 0, 0, Integer.MAX_VALUE);
+
+			BUILDER.pop();
+
+		}
+
+	}
+
+	public static class MiscellaneousConfig {
+
+		public final ForgeConfigSpec.BooleanValue sumShulkerBox;
+		public final ForgeConfigSpec.BooleanValue hideHudInGui;
+		public final ForgeConfigSpec.BooleanValue closeButton;
+		public final ForgeConfigSpec.IntValue closeButtonXOffset;
+		public final ForgeConfigSpec.IntValue closeButtonYOffset;
+
+		private MiscellaneousConfig(String name) {
+
+			BUILDER.push(name);
+
+			this.sumShulkerBox = ConfigBuildHandler.BUILDER.comment("Sum up stacks of equal items on the shulker box tooltip.").define("Sum Shulker Box Contents", true);
+			this.hideHudInGui = ConfigBuildHandler.BUILDER.comment("Hide hud elements when inside of a container.").define("Hide Hud In Container", true);
+			this.closeButton = ConfigBuildHandler.BUILDER.comment("Add a button for closing to every container.").define("Close Button", true);
+			this.closeButtonXOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from gui right.").defineInRange("Close Button X-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.closeButtonYOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from gui top.").defineInRange("Close Button Y-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
 			BUILDER.pop();
 

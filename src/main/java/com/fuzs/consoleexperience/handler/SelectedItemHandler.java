@@ -5,6 +5,7 @@ import com.fuzs.consoleexperience.helper.TooltipHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -137,19 +138,46 @@ public class SelectedItemHandler {
                 }
 
                 posY -= size > 1 ? (size - 1) * 10 + 2 : (size - 1) * 10;
+                FontRenderer fontRenderer = this.mc.fontRenderer;
+                boolean flag = false;
 
                 for (int i = 0; i < size; i++) {
 
                     ITextComponent component = this.tooltipCache.get(i);
-                    int width = this.mc.fontRenderer.getStringWidth(component.getString()) / 2;
+                    int width = fontRenderer.getStringWidth(component.getString()) / 2;
                     int accessibilityOpacity = this.mc.gameSettings.func_216839_a(0);
 
                     if (accessibilityOpacity != 0) {
-                        AbstractGui.fill(posX - width - 2, posY - 2, posX + width + 2, posY + 7 + 2, accessibilityOpacity);
+
+                        // can't fade anyways when there is a background, so just disable alpha
                         alpha = 255;
+                        int top = 2;
+                        int bottom = 2;
+
+                        // prevent accessibility background from overlapping from adjacent lines
+                        if (i > 0 && i < size - 1) {
+
+                            if (flag) {
+                                top--;
+                            }
+
+                            int nextWidth = fontRenderer.getStringWidth(this.tooltipCache.get(i + 1).getString()) / 2;
+
+                            if (width < nextWidth) {
+                                bottom--;
+                                flag = false;
+                            } else {
+                                flag = true;
+                            }
+
+                        }
+
+                        AbstractGui.fill(posX - width - 2, posY - top, posX + width + 2,
+                                posY + bottom + 7, accessibilityOpacity);
+
                     }
 
-                    this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - width, posY, 16777215 + (alpha << 24));
+                    fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - width, posY, 16777215 + (alpha << 24));
                     posY += i == 0 ? 12 : 10;
 
                 }

@@ -60,7 +60,7 @@ public class PaperDollHandler {
 
             boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode() && !this.mc.gameSettings.hideGUI;
             boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !ConfigBuildHandler.PAPER_DOLL_CONFIG.firstPerson.get();
-            boolean hideGui = ConfigBuildHandler.GENERAL_CONFIG.hideHudInGui.get() && this.mc.currentScreen instanceof ContainerScreen;
+            boolean hideGui = ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && this.mc.currentScreen instanceof ContainerScreen;
 
             if (flag && firstPerson && !hideGui && this.remainingDisplayTicks > 0) {
 

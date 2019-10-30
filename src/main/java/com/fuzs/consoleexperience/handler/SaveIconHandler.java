@@ -73,7 +73,7 @@ public class SaveIconHandler {
 
     }
 
-    private void drawIcon(int width, int height) {
+    private void drawIcon(int windowWidth, int windowHeight) {
 
         if (this.remainingDisplayTicks > 0 || ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) {
 
@@ -83,8 +83,8 @@ public class SaveIconHandler {
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
 
-            int k = position.getX(this.width, width, ConfigBuildHandler.SAVE_ICON_CONFIG.xOffset.get());
-            int l = position.getY(this.height, height, ConfigBuildHandler.SAVE_ICON_CONFIG.yOffset.get());
+            int k = position.getX(this.width, windowWidth, ConfigBuildHandler.SAVE_ICON_CONFIG.xOffset.get());
+            int l = position.getY(this.height, windowHeight, ConfigBuildHandler.SAVE_ICON_CONFIG.yOffset.get());
 
             if (ConfigBuildHandler.SAVE_ICON_CONFIG.potionShift.get() && position.shouldShift()) {
                 l += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());

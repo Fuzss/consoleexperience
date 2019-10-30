@@ -1,6 +1,8 @@
 package com.fuzs.consoleexperience.handler;
 
+import com.fuzs.consoleexperience.util.PositionPreset;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.text.ITextComponent;
@@ -38,13 +40,17 @@ public class CoordinateDisplayHandler {
             component = new TranslationTextComponent("screen.coordinates", posX, posY, posZ);
         }
 
+        MainWindow window = evt.getWindow();
         int f = (int) ((this.mc.gameSettings.chatOpacity * 0.9f + 0.1f) * 255.0f);
-        int width = this.mc.fontRenderer.getStringWidth(component.getString());
-        int x = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get();
-        int y = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get();
+        int k = this.mc.fontRenderer.getStringWidth(component.getString()) + 3;
+        int l = 7 + 4;
+
+        PositionPreset position = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.position.get();
+        int x = position.getX(k, window.getScaledWidth(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get());
+        int y = position.getY(l, window.getScaledHeight(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get());
 
         if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
-            AbstractGui.fill(x, y, x + width + 3, y + 7 + 4, f / 2 << 24);
+            AbstractGui.fill(x, y, x + k, y + l, f / 2 << 24);
         }
 
         this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), x + 2, y + 2, 16777215 + (f << 24));
