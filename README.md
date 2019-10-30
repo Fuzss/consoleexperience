@@ -1,7 +1,5 @@
-# Console HUD
-Bringing over HUD features from Console Edition.
+# Console Experience
 
-![ConsoleHUD](https://i.imgur.com/UYUZHFD.png)
+A Minecraft mod. Downloads can be found on CurseForge.
 
-## Downloads
-Check this project out on [Curse](https://www.curseforge.com/minecraft/mc-mods/console-hud).
+![ConsoleExperience](https://i.imgur.com/UYUZHFD.png)

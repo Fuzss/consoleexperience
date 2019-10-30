@@ -1,4 +1,4 @@
-package com.fuzs.consolehud.helper;
+package com.fuzs.consoleexperience.helper;
 
 import com.google.common.collect.Lists;
 import net.minecraft.inventory.ItemStackHelper;
@@ -12,7 +12,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 
-public class TooltipShulkerBoxHelper {
+public class ShulkerBoxTooltipHelper {
 
     public static void getLootTableTooltip(List<ITextComponent> tooltip, ItemStack stack) {
 

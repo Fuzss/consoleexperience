@@ -1,6 +1,6 @@
-package com.fuzs.consolehud.helper;
+package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consolehud.ConsoleHud;
+import com.fuzs.consoleexperience.ConsoleExperience;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -18,7 +18,7 @@ public class ReflectionHelper {
 
         } catch (Exception e) {
 
-            ConsoleHud.LOGGER.error("setHighlightTicks() failed", e);
+            ConsoleExperience.LOGGER.error("setHighlightTicks() failed", e);
 
         }
 
@@ -32,7 +32,7 @@ public class ReflectionHelper {
 
         } catch (Exception e) {
 
-            ConsoleHud.LOGGER.error("setHighlightingItemStack() failed", e);
+            ConsoleExperience.LOGGER.error("setHighlightingItemStack() failed", e);
 
         }
 

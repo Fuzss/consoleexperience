@@ -1,6 +1,6 @@
-package com.fuzs.consolehud.helper;
+package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consolehud.handler.ConfigHandler;
+import com.fuzs.consoleexperience.handler.ConfigBuildHandler;
 import com.google.common.base.Strings;
 import com.google.gson.JsonParseException;
 import net.minecraft.block.Block;
@@ -50,7 +50,7 @@ public class TooltipElementsHelper {
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
-            TooltipShulkerBoxHelper.getContentsTooltip(information, this.itemstack, style, ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+            ShulkerBoxTooltipHelper.getContentsTooltip(information, this.itemstack, style, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
 
         } else {
 
@@ -174,7 +174,7 @@ public class TooltipElementsHelper {
 
     protected void getDurability(List<ITextComponent> list, Style style, boolean force) {
 
-        if ((!ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showDurability.get() || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.forceDurability.get()) && !force || !this.itemstack.isDamaged()) {
+        if ((!ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showDurability.get() || ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.forceDurability.get()) && !force || !this.itemstack.isDamaged()) {
             return;
         }
 
@@ -202,7 +202,7 @@ public class TooltipElementsHelper {
 
     protected void getForgeInformation(List<ITextComponent> list, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        if (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.moddedTooltips.get()) {
+        if (ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.moddedTooltips.get()) {
             net.minecraftforge.event.ForgeEventFactory.onItemTooltip(this.itemstack, null, list, tooltipflag);
         }
 

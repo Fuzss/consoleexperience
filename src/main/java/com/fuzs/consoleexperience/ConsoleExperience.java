@@ -1,6 +1,6 @@
-package com.fuzs.consolehud;
+package com.fuzs.consoleexperience;
 
-import com.fuzs.consolehud.handler.*;
+import com.fuzs.consoleexperience.handler.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -13,17 +13,17 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-@Mod(ConsoleHud.MODID)
-public class ConsoleHud {
+@Mod(ConsoleExperience.MODID)
+public class ConsoleExperience {
 
-    public static final String MODID = "consolehud";
-    public static final String NAME = "Console HUD";
-    public static final Logger LOGGER = LogManager.getLogger(ConsoleHud.NAME);
+    public static final String MODID = "consoleexperience";
+    public static final String NAME = "Console Experience";
+    public static final Logger LOGGER = LogManager.getLogger(ConsoleExperience.NAME);
 
-    public ConsoleHud() {
+    public ConsoleExperience() {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.SPEC, MODID + ".toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigBuildHandler.SPEC, MODID + ".toml");
         MinecraftForge.EVENT_BUS.register(this);
 
     }
@@ -36,7 +36,7 @@ public class ConsoleHud {
                 HoveringHotbarHandler.class,
                 SaveIconHandler.class,
                 CoordinateDisplayHandler.class,
-                MiscHandler.class
+                ClientEventHandler.class
         };
 
         Arrays.stream(handler).forEach(it -> {

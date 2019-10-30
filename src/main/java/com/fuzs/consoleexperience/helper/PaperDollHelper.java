@@ -1,7 +1,7 @@
-package com.fuzs.consolehud.helper;
+package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consolehud.handler.ConfigHandler;
-import com.fuzs.consolehud.util.HeadMovement;
+import com.fuzs.consoleexperience.handler.ConfigBuildHandler;
+import com.fuzs.consoleexperience.util.HeadMovement;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -30,20 +30,20 @@ public class PaperDollHelper {
 
         ClientPlayerEntity player = this.mc.player;
 
-        boolean sprinting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
-        boolean swimming = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
-        boolean crawling = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crawling.get() && player.getPose() == Pose.SWIMMING && !player.isSwimming();
-        boolean crouching = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && remainingRidingTicks == 0 && player.movementInput.sneak;
-        boolean flying = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.flying.get() && player.abilities.isFlying;
-        boolean elytra = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.elytraFlying.get() && player.isElytraFlying();
-        boolean mounting = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() && player.isPassenger();
-        boolean spinning = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.spinAttacking.get() && player.isSpinAttacking();
-        boolean moving = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.moving.get() && !player.movementInput.getMoveVector().equals(Vec2f.ZERO);
-        boolean jumping = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.jumping.get() && player.movementInput.jump;
-        boolean attacking = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.attacking.get() && player.isSwingInProgress;
-        boolean using = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.using.get() && player.isHandActive();
-        boolean hurt = ConfigHandler.PAPER_DOLL_CONFIG.displayActionsConfig.hurt.get() && player.hurtTime > 0;
-        boolean burning = ConfigHandler.PAPER_DOLL_CONFIG.burning.get() && player.isBurning();
+        boolean sprinting = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
+        boolean swimming = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
+        boolean crawling = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crawling.get() && player.getPose() == Pose.SWIMMING && !player.isSwimming();
+        boolean crouching = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && remainingRidingTicks == 0 && player.movementInput.sneak;
+        boolean flying = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.flying.get() && player.abilities.isFlying;
+        boolean elytra = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.elytraFlying.get() && player.isElytraFlying();
+        boolean mounting = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() && player.isPassenger();
+        boolean spinning = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.spinAttacking.get() && player.isSpinAttacking();
+        boolean moving = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.moving.get() && !player.movementInput.getMoveVector().equals(Vec2f.ZERO);
+        boolean jumping = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.jumping.get() && player.movementInput.jump;
+        boolean attacking = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.attacking.get() && player.isSwingInProgress;
+        boolean using = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.using.get() && player.isHandActive();
+        boolean hurt = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.hurt.get() && player.hurtTime > 0;
+        boolean burning = ConfigBuildHandler.PAPER_DOLL_CONFIG.burning.get() && player.isBurning();
 
         return sprinting || swimming || crawling || crouching || flying || elytra || mounting || spinning || moving || jumping || attacking || using || hurt || burning;
 
@@ -80,14 +80,14 @@ public class PaperDollHelper {
         float f5 = entity.prevRotationYawHead;
 
         // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
-        float defaultRotationYaw = ConfigHandler.PAPER_DOLL_CONFIG.position.get().getRotation(this.maxRotation / 2.0F);
-        if (ConfigHandler.PAPER_DOLL_CONFIG.headMovement.get() == HeadMovement.YAW || entity.isElytraFlying()) {
+        float defaultRotationYaw = ConfigBuildHandler.PAPER_DOLL_CONFIG.position.get().getRotation(this.maxRotation / 2.0F);
+        if (ConfigBuildHandler.PAPER_DOLL_CONFIG.headMovement.get() == HeadMovement.YAW || entity.isElytraFlying()) {
             entity.rotationPitch = 7.5F;
             entity.prevRotationPitch = 7.5F;
         }
         entity.renderYawOffset = defaultRotationYaw;
         entity.prevRenderYawOffset = defaultRotationYaw;
-        if (ConfigHandler.PAPER_DOLL_CONFIG.headMovement.get() == HeadMovement.PITCH) {
+        if (ConfigBuildHandler.PAPER_DOLL_CONFIG.headMovement.get() == HeadMovement.PITCH) {
             entity.prevRotationYawHead = defaultRotationYaw;
             entity.rotationYawHead = defaultRotationYaw;
         } else {

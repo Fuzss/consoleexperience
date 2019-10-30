@@ -1,4 +1,4 @@
-package com.fuzs.consolehud.util;
+package com.fuzs.consoleexperience.util;
 
 @SuppressWarnings("unused")
 public enum PositionPreset {

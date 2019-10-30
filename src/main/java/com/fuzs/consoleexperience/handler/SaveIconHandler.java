@@ -1,8 +1,8 @@
-package com.fuzs.consolehud.handler;
+package com.fuzs.consoleexperience.handler;
 
-import com.fuzs.consolehud.ConsoleHud;
-import com.fuzs.consolehud.helper.PaperDollHelper;
-import com.fuzs.consolehud.util.PositionPreset;
+import com.fuzs.consoleexperience.ConsoleExperience;
+import com.fuzs.consoleexperience.helper.PaperDollHelper;
+import com.fuzs.consoleexperience.util.PositionPreset;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -18,7 +18,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class SaveIconHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
-    private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleHud.MODID,"textures/gui/auto_save.png");
+    private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/auto_save.png");
     private final int width = 18;
     private final int height = 30;
     private int remainingDisplayTicks;
@@ -27,8 +27,8 @@ public class SaveIconHandler {
     @SubscribeEvent
     public void saveWorld(WorldEvent.Save evt) {
 
-        if (ConfigHandler.GENERAL_CONFIG.saveIcon.get()) {
-            this.remainingDisplayTicks = ConfigHandler.SAVE_ICON_CONFIG.displayTime.get();
+        if (ConfigBuildHandler.GENERAL_CONFIG.saveIcon.get()) {
+            this.remainingDisplayTicks = ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get();
         }
 
     }
@@ -75,24 +75,24 @@ public class SaveIconHandler {
 
     private void drawIcon(int width, int height) {
 
-        if (this.remainingDisplayTicks > 0 || ConfigHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) {
+        if (this.remainingDisplayTicks > 0 || ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) {
 
-            PositionPreset position = ConfigHandler.SAVE_ICON_CONFIG.position.get();
+            PositionPreset position = ConfigBuildHandler.SAVE_ICON_CONFIG.position.get();
 
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
 
-            int k = position.getX(this.width, width, ConfigHandler.SAVE_ICON_CONFIG.xOffset.get());
-            int l = position.getY(this.height, height, ConfigHandler.SAVE_ICON_CONFIG.yOffset.get());
+            int k = position.getX(this.width, width, ConfigBuildHandler.SAVE_ICON_CONFIG.xOffset.get());
+            int l = position.getY(this.height, height, ConfigBuildHandler.SAVE_ICON_CONFIG.yOffset.get());
 
-            if (ConfigHandler.SAVE_ICON_CONFIG.potionShift.get() && position.shouldShift()) {
+            if (ConfigBuildHandler.SAVE_ICON_CONFIG.potionShift.get() && position.shouldShift()) {
                 l += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
             }
 
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (ConfigHandler.SAVE_ICON_CONFIG.rotatingModel.get()) {
+            if (ConfigBuildHandler.SAVE_ICON_CONFIG.rotatingModel.get()) {
 
                 int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
                 int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
@@ -106,7 +106,7 @@ public class SaveIconHandler {
 
             }
 
-            if (ConfigHandler.SAVE_ICON_CONFIG.showArrow.get()) {
+            if (ConfigBuildHandler.SAVE_ICON_CONFIG.showArrow.get()) {
 
                 int x = (int) ((this.remainingDisplayTicks % 16) * 0.5F) * this.width;
                 AbstractGui.blit(k, l, x, 0, this.width, this.height, 256, 256);

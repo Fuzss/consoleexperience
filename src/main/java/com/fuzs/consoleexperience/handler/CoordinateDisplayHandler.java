@@ -1,4 +1,4 @@
-package com.fuzs.consolehud.handler;
+package com.fuzs.consoleexperience.handler;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -16,7 +16,7 @@ public class CoordinateDisplayHandler {
     @SubscribeEvent
     public void renderGameOverlayPre(RenderGameOverlayEvent.Text evt) {
 
-        if (!ConfigHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo) {
+        if (!ConfigBuildHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo) {
             return;
         }
 
@@ -26,12 +26,12 @@ public class CoordinateDisplayHandler {
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
         ITextComponent component;
-        double d = Math.pow(10, ConfigHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get());
+        double d = Math.pow(10, ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get());
         double posX = Math.round(this.mc.player.posX * d) / d;
         double posY = Math.round(this.mc.player.getBoundingBox().minY * d) / d;
         double posZ = Math.round(this.mc.player.posZ * d) / d;
 
-        if (ConfigHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get() == 0) {
+        if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get() == 0) {
             // no empty decimal place added like this
             component = new TranslationTextComponent("screen.coordinates", (int) posX, (int) posY, (int) posZ);
         } else {
@@ -40,10 +40,10 @@ public class CoordinateDisplayHandler {
 
         int f = (int) ((this.mc.gameSettings.chatOpacity * 0.9f + 0.1f) * 255.0f);
         int width = this.mc.fontRenderer.getStringWidth(component.getString());
-        int x = ConfigHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get();
-        int y = ConfigHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get();
+        int x = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get();
+        int y = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get();
 
-        if (ConfigHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
+        if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
             AbstractGui.fill(x, y, x + width + 3, y + 7 + 4, f / 2 << 24);
         }
 

@@ -1,6 +1,6 @@
-package com.fuzs.consolehud.helper;
+package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consolehud.handler.ConfigHandler;
+import com.fuzs.consoleexperience.handler.ConfigBuildHandler;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.item.ItemStack;
@@ -43,18 +42,18 @@ public class TooltipHelper extends TooltipElementsHelper {
             return tooltip;
         }
 
-        this.getInformation(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
+        this.getInformation(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
 
-        if (Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock && tooltip.size() == ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
+        if (Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock && tooltip.size() == ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
             return tooltip;
         }
 
-        this.getEnchantments(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()));
-        this.getColorTag(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
+        this.getEnchantments(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()));
+        this.getColorTag(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
         this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
         //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
         //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
-        this.getDurability(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), false);
+        this.getDurability(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), false);
         //this.getNameID(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
         //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
         this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
@@ -67,36 +66,36 @@ public class TooltipHelper extends TooltipElementsHelper {
 
     private void applyLastLine(List<ITextComponent> tooltip) {
 
-        boolean flag = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showDurability.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.forceDurability.get() && this.itemstack.isDamaged();
+        boolean flag = ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showDurability.get() && ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.forceDurability.get() && this.itemstack.isDamaged();
         int i = 0, j = 0; // i counts the lines to be added afterwards, j is for counting how many lines to remove
 
         if (flag) {
             i++;
         }
 
-        if (tooltip.size() + i > ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
+        if (tooltip.size() + i > ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
 
-            if (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
+            if (ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
                 i++;
             }
 
-            j = tooltip.size() - ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() + i;
+            j = tooltip.size() - ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() + i;
 
             if (j == tooltip.size()) {
                 i--; // prevent item name from being removed
                 j = this.itemstack.isDamaged() ? 0 : j; // prioritise durability over last line
             }
 
-            tooltip.subList(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - i, tooltip.size()).clear();
+            tooltip.subList(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - i, tooltip.size()).clear();
 
         }
 
         if (flag) {
-            this.getDurability(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), true);
+            this.getDurability(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), true);
         }
 
-        if (j > 0 && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
-            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), j);
+        if (j > 0 && ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
+            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), j);
         }
 
     }

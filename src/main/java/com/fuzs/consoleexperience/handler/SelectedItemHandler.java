@@ -1,7 +1,7 @@
-package com.fuzs.consolehud.handler;
+package com.fuzs.consoleexperience.handler;
 
-import com.fuzs.consolehud.helper.ReflectionHelper;
-import com.fuzs.consolehud.helper.TooltipHelper;
+import com.fuzs.consoleexperience.helper.ReflectionHelper;
+import com.fuzs.consoleexperience.helper.TooltipHelper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -56,7 +56,8 @@ public class SelectedItemHandler {
 
                 } else {
 
-                    this.remainingHighlightTicks = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
+                    int j = ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
+                    this.remainingHighlightTicks = ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() ? j : 40;
                     this.tooltipCache = null;
 
                     // used to disable vanilla held item tooltips completely without modifying the game option,
@@ -86,16 +87,16 @@ public class SelectedItemHandler {
             return;
         }
 
-        boolean always = ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() == 0;
+        boolean always = ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get() == 0;
 
         if ((this.remainingHighlightTicks > 0 || always) && !this.highlightingItemStack.isEmpty()) {
 
             int posX = evt.getWindow().getScaledWidth() / 2;
             int posY = evt.getWindow().getScaledHeight();
 
-            if (ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get()) {
-                posX += ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.xOffset.get();
-                posY -= ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.yOffset.get();
+            if (ConfigBuildHandler.GENERAL_CONFIG.heldItemTooltips.get()) {
+                posX += ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.xOffset.get();
+                posY -= ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.yOffset.get();
             } else {
                 posY -= 59;
             }
@@ -104,9 +105,9 @@ public class SelectedItemHandler {
                 posY += 14;
             }
 
-            if (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get() && ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.tied.get()) {
-                posX += ConfigHandler.HOVERING_HOTBAR_CONFIG.xOffset.get();
-                posY -= ConfigHandler.HOVERING_HOTBAR_CONFIG.yOffset.get();
+            if (ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() && ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.tied.get()) {
+                posX += ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get();
+                posY -= ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get();
             }
 
             int alpha = always ? 255 : (int) Math.min(255.0F, (float) this.remainingHighlightTicks * 256.0F / 10.0F);
@@ -119,19 +120,19 @@ public class SelectedItemHandler {
                         GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
                 ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.highlightingItemStack.getItem());
-                boolean blacklisted = resourcelocation != null && (ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.toString())
-                        || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.getNamespace()));
+                boolean blacklisted = resourcelocation != null && (ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.toString())
+                        || ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.getNamespace()));
 
                 // update cache
-                if (this.tooltipCache == null || !ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.cacheTooltip.get() || always) {
-                    boolean flag = !ConfigHandler.GENERAL_CONFIG.heldItemTooltips.get() || blacklisted || ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() == 1;
+                if (this.tooltipCache == null || !ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.cacheTooltip.get() || always) {
+                    boolean flag = !ConfigBuildHandler.GENERAL_CONFIG.heldItemTooltips.get() || blacklisted || ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() == 1;
                     this.tooltipCache = this.tooltipHelper.createTooltip(this.highlightingItemStack, flag);
                 }
 
                 int size = this.tooltipCache.size();
 
                 // clears the action bar so it won't overlap with the tooltip
-                if (ConfigHandler.GENERAL_CONFIG.hoveringHotbar.get() || size > 1) {
+                if (ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() || size > 1) {
                     this.mc.player.sendStatusMessage(new StringTextComponent(""), true);
                 }
 
