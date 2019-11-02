@@ -50,7 +50,7 @@ public class TooltipElementsHelper {
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
-            ShulkerBoxTooltipHelper.getContentsTooltip(information, this.itemstack, style, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+            ShulkerTooltipHelper.getContentsTooltip(information, this.itemstack, style, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
 
         } else {
 

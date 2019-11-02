@@ -12,7 +12,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 
-public class ShulkerBoxTooltipHelper {
+public class ShulkerTooltipHelper {
 
     public static void getLootTableTooltip(List<ITextComponent> tooltip, ItemStack stack) {
 

@@ -16,16 +16,11 @@ public class CoordinateDisplayHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void renderGameOverlayPre(RenderGameOverlayEvent.Text evt) {
+    public void onRenderGameOverlayPre(RenderGameOverlayEvent.Text evt) {
 
         if (!ConfigBuildHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo) {
             return;
         }
-
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
         ITextComponent component;
         double d = Math.pow(10, ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get());
@@ -46,8 +41,15 @@ public class CoordinateDisplayHandler {
         int l = 7 + 4;
 
         PositionPreset position = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.position.get();
-        int x = position.getX(k, window.getScaledWidth(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get());
-        int y = position.getY(l, window.getScaledHeight(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get());
+        float scale = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.scale.get() / 6.0F;
+        int x = (int) (position.getX(k, window.getScaledWidth(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get()) / scale);
+        int y = (int) (position.getY(l, window.getScaledHeight(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get()) / scale);
+
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.scalef(scale, scale, 1.0F);
 
         if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
             AbstractGui.fill(x, y, x + k, y + l, f / 2 << 24);
@@ -55,9 +57,9 @@ public class CoordinateDisplayHandler {
 
         this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), x + 2, y + 2, 16777215 + (f << 24));
 
+        GlStateManager.scalef(1.0F / scale, 1.0F / scale, 1.0F);
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
     }
 

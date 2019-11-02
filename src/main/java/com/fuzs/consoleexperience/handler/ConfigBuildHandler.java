@@ -3,9 +3,9 @@ package com.fuzs.consoleexperience.handler;
 import com.fuzs.consoleexperience.util.HeadMovement;
 import com.fuzs.consoleexperience.util.PositionPreset;
 import com.fuzs.consoleexperience.util.TextColor;
+import com.google.common.collect.Lists;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
@@ -50,6 +50,7 @@ public class ConfigBuildHandler {
 		public final AppearanceConfig appearanceConfig;
 		public final ForgeConfigSpec.ConfigValue<List<String>> blacklist;
 		public final ForgeConfigSpec.IntValue rows;
+		public final ForgeConfigSpec.IntValue scale;
 		public final ForgeConfigSpec.IntValue displayTime;
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
@@ -60,12 +61,13 @@ public class ConfigBuildHandler {
 
 			BUILDER.push(name);
 
-			this.blacklist = ConfigBuildHandler.BUILDER.comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping. Enter as either \"modid:item\" or \"modid\" respectively.").define("Blacklist", new ArrayList<>());
+			this.blacklist = ConfigBuildHandler.BUILDER.comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping. Enter as either \"modid:item\" or \"modid\" respectively.").define("Blacklist", Lists.newArrayList("examplemod", "examplemod:exampleitem"));
 			this.rows = ConfigBuildHandler.BUILDER.comment("Maximum amount of rows to be displayed for held item tooltips.").defineInRange("Rows", 4, 1, 9);
+			this.scale = ConfigBuildHandler.BUILDER.comment("Scale of held item tooltips. Works in tandem with \"GUI Scale\" option in \"Video Settings\". A lower scale might make room for setting more rows.").defineInRange("Scale", 6, 1, 24);
 			this.displayTime = ConfigBuildHandler.BUILDER.comment("Amount of ticks the held item tooltip will be displayed for. Set to 0 to always display the tooltip as long as an item is being held.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
 			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 59, 0, Integer.MAX_VALUE);
-			this.cacheTooltip = ConfigBuildHandler.BUILDER.comment("Cache the tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed. Ineffective when the tooltip is always displayed by setting \"Display Time\" to 0.").define("Cache Tooltip", true);
+			this.cacheTooltip = ConfigBuildHandler.BUILDER.comment("Cache tooltip so it doesn't have to be remade every tick. This will prevent it from updating stats like durability while it is displayed. Ineffective when the tooltip is always displayed by setting \"Display Time\" to 0.").define("Cache Tooltip", true);
 			this.tied = ConfigBuildHandler.BUILDER.comment("Tie held item tooltips position to the hovering hotbar feature.").define("Tie To Hotbar", true);
 
 			BUILDER.pop();
@@ -117,7 +119,7 @@ public class ConfigBuildHandler {
 
 			BUILDER.push(name);
 
-			this.scale = ConfigBuildHandler.BUILDER.comment("Scale of the paper doll. This is additionally adjusted by the GUI Scale option in Video Settings.").defineInRange("Scale", 4, 1, 24);
+			this.scale = ConfigBuildHandler.BUILDER.comment("Scale of paper doll. Works in tandem with \"GUI Scale\" option in \"Video Settings\".").defineInRange("Scale", 4, 1, 24);
 			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.displayTime = ConfigBuildHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
@@ -126,7 +128,7 @@ public class ConfigBuildHandler {
 			this.potionShift = ConfigBuildHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
 			this.burning = ConfigBuildHandler.BUILDER.comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.").define("Burning Doll", false);
 			this.firstPerson = ConfigBuildHandler.BUILDER.comment("Only show the paper doll when in first person mode.").define("First Person Only", true);
-			
+
 			BUILDER.pop();
 
 			this.displayActionsConfig = new DisplayActionsConfig(name + "_displayactions");
@@ -179,7 +181,6 @@ public class ConfigBuildHandler {
 
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
-		public final ForgeConfigSpec.BooleanValue modCompat;
 
 		private HoveringHotbarConfig(String name) {
 
@@ -187,7 +188,6 @@ public class ConfigBuildHandler {
 
 			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE);
-			this.modCompat = ConfigBuildHandler.BUILDER.comment("Attempt to be compatible with dysfunctional mods. Only enable this when modded hud elements aren't shifted together with the hotbar when they should be.").define("Mod Compatibility", false);
 
 			BUILDER.pop();
 
@@ -225,6 +225,7 @@ public class ConfigBuildHandler {
 
 	public static class CoordinateDisplayConfig {
 
+		public final ForgeConfigSpec.IntValue scale;
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
 		public final ForgeConfigSpec.EnumValue<PositionPreset> position;
@@ -235,6 +236,7 @@ public class ConfigBuildHandler {
 
 			BUILDER.push(name);
 
+			this.scale = ConfigBuildHandler.BUILDER.comment("Scale of coordinate display. Works in tandem with \"GUI Scale\" option in \"Video Settings\".").defineInRange("Scale", 6, 1, 24);
 			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 0, 0, Integer.MAX_VALUE);
 			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 60, 0, Integer.MAX_VALUE);
 			this.position = ConfigBuildHandler.BUILDER.comment("Define a screen corner to show the coordinate display in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT);

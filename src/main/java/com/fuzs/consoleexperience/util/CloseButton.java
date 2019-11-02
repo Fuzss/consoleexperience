@@ -1,31 +1,45 @@
 package com.fuzs.consoleexperience.util;
 
+import com.fuzs.consoleexperience.ConsoleExperience;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.ResourceLocation;
 
 public class CloseButton extends Button {
 
-    public CloseButton(int posX, int posY, IPressable onPress) {
-        super(posX, posY, 15, 15, "x", onPress);
+    private static final ResourceLocation CLOSE_BUTTON = new ResourceLocation(ConsoleExperience.MODID, "textures/gui/close_button.png");
+
+    private final int posX;
+    private final int posY;
+    private final ContainerScreen parent;
+    // mainly for chests
+    private final boolean isScreenSmall;
+
+    public CloseButton(int posX, int posY, IPressable onPress, ContainerScreen screen) {
+        super(0, 0, 15, 15, "", onPress);
+        this.parent = screen;
+        this.isScreenSmall = this.parent.getYSize() != 166;
+        this.posX = posX;
+        this.posY = this.isScreenSmall ? posY - 3 : posY;
     }
 
     @Override
     public void renderButton(int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, this.alpha);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        this.x = this.parent.getGuiLeft() + this.parent.getXSize() - this.posX - this.width;
+        this.y = this.parent.getGuiTop() + this.posY;
 
-        if (this.isHovered) {
-            fill(this.x, this.y, this.x + this.width, this.y + this.height, 11382189 + (255 << 24));
+        Minecraft.getInstance().getTextureManager().bindTexture(CLOSE_BUTTON);
+
+        GlStateManager.disableDepthTest();
+        if (this.isScreenSmall) {
+            blit(this.x + 1, this.y + 1, 1, this.isHovered() ? this.height + 1 : 1, this.width - 2, this.height - 2);
+        } else {
+            blit(this.x, this.y, 0, this.isHovered() ? this.height : 0, this.width, this.height);
         }
-
-        Minecraft.getInstance().fontRenderer.drawString(this.getMessage(), this.x + 5, this.y + 3,
-                this.isHovered ? 16777215 : 4210752 | MathHelper.ceil(this.alpha * 255.0F) << 24);
+        GlStateManager.enableDepthTest();
 
     }
 

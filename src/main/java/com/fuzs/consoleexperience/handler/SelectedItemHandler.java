@@ -24,12 +24,11 @@ public class SelectedItemHandler {
 
     private List<ITextComponent> tooltipCache;
     private int remainingHighlightTicks;
-    private int highlightingItemSlot = 9;
     private ItemStack highlightingItemStack = ItemStack.EMPTY;
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void clientTick(TickEvent.ClientTickEvent evt) {
+    public void onClientTick(TickEvent.ClientTickEvent evt) {
 
         if (this.mc.isGamePaused() || evt.phase != TickEvent.Phase.END) {
             return;
@@ -37,9 +36,9 @@ public class SelectedItemHandler {
 
         if (this.mc.player != null) {
 
-            int i = this.mc.player.inventory.currentItem;
+            ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
 
-            if (this.highlightingItemSlot == i) {
+            if (this.highlightingItemStack.equals(itemstack)) {
 
                 if (this.remainingHighlightTicks > 0) {
 
@@ -49,7 +48,7 @@ public class SelectedItemHandler {
 
             } else {
 
-                this.highlightingItemStack = this.mc.player.inventory.getCurrentItem();
+                this.highlightingItemStack = itemstack;
 
                 if (this.highlightingItemStack.isEmpty()) {
 
@@ -74,17 +73,15 @@ public class SelectedItemHandler {
 
             }
 
-            this.highlightingItemSlot = i;
-
         }
 
     }
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void renderGameOverlayText(RenderGameOverlayEvent.Text evt) {
+    public void onRenderGameOverlayText(RenderGameOverlayEvent.Text evt) {
 
-        if (this.mc.playerController.isSpectatorMode() || this.mc.gameSettings.hideGUI) {
+        if (this.mc.playerController.isSpectatorMode()) {
             return;
         }
 
@@ -92,14 +89,15 @@ public class SelectedItemHandler {
 
         if ((this.remainingHighlightTicks > 0 || always) && !this.highlightingItemStack.isEmpty()) {
 
-            int posX = evt.getWindow().getScaledWidth() / 2;
-            int posY = evt.getWindow().getScaledHeight();
+            float scale = ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.scale.get() / 6.0F;
+            int posX = (int) (evt.getWindow().getScaledWidth() / (2.0F * scale));
+            int posY = (int) (evt.getWindow().getScaledHeight() / scale);
 
             if (ConfigBuildHandler.GENERAL_CONFIG.heldItemTooltips.get()) {
                 posX += ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.xOffset.get();
-                posY -= ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.yOffset.get();
+                posY -= ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.yOffset.get() / scale;
             } else {
-                posY -= 59;
+                posY -= 59 / scale;
             }
 
             if (!this.mc.playerController.shouldDrawHUD()) {
@@ -114,11 +112,6 @@ public class SelectedItemHandler {
             int alpha = always ? 255 : (int) Math.min(255.0F, (float) this.remainingHighlightTicks * 256.0F / 10.0F);
 
             if (alpha > 0) {
-
-                GlStateManager.pushMatrix();
-                GlStateManager.enableBlend();
-                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
                 ResourceLocation resourcelocation = ForgeRegistries.ITEMS.getKey(this.highlightingItemStack.getItem());
                 boolean blacklisted = resourcelocation != null && (ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.blacklist.get().contains(resourcelocation.toString())
@@ -139,52 +132,63 @@ public class SelectedItemHandler {
 
                 posY -= size > 1 ? (size - 1) * 10 + 2 : (size - 1) * 10;
                 FontRenderer fontRenderer = this.mc.fontRenderer;
-                boolean flag = false;
+                boolean cutTop = false;
+                int margin = 0;
+                int border = 2;
+
+                GlStateManager.pushMatrix();
+                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                GlStateManager.scalef(scale, scale, 1.0F);
 
                 for (int i = 0; i < size; i++) {
 
                     ITextComponent component = this.tooltipCache.get(i);
-                    int width = fontRenderer.getStringWidth(component.getString()) / 2;
-                    int accessibilityOpacity = this.mc.gameSettings.func_216839_a(0);
+                    int width = (int) (fontRenderer.getStringWidth(component.getString()) / 2.0F);
+                    int cellHeight = i == 0 ? fontRenderer.FONT_HEIGHT + 3 : fontRenderer.FONT_HEIGHT + 1;
 
-                    if (accessibilityOpacity != 0) {
+                    if (!this.mc.gameSettings.accessibilityTextBackground) {
 
-                        // can't fade anyways when there is a background, so just disable alpha
-                        alpha = 255;
-                        int top = 2;
-                        int bottom = 2;
+                        int top = border;
+                        int bottom = border;
+                        int j = fontRenderer.FONT_HEIGHT + border * 2 - margin;
+
+                        if (cutTop) {
+                            top -= j;
+                        }
+
+                        margin = cellHeight;
+                        j = fontRenderer.FONT_HEIGHT + border * 2 - margin;
 
                         // prevent accessibility background from overlapping from adjacent lines
-                        if (i > 0 && i < size - 1) {
-
-                            if (flag) {
-                                top--;
-                            }
+                        if (i < size - 1) {
 
                             int nextWidth = fontRenderer.getStringWidth(this.tooltipCache.get(i + 1).getString()) / 2;
 
                             if (width < nextWidth) {
-                                bottom--;
-                                flag = false;
+                                bottom -= j;
+                                cutTop = false;
                             } else {
-                                flag = true;
+                                cutTop = true;
                             }
 
                         }
 
-                        AbstractGui.fill(posX - width - 2, posY - top, posX + width + 2,
-                                posY + bottom + 7, accessibilityOpacity);
+                        int k = (int) (alpha * this.mc.gameSettings.accessibilityTextBackgroundOpacity);
+                        AbstractGui.fill(posX - width - border, posY - top, posX + width + border,
+                                posY + fontRenderer.FONT_HEIGHT + bottom, k << 24);
 
                     }
 
+                    GlStateManager.enableBlend();
                     fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - width, posY, 16777215 + (alpha << 24));
-                    posY += i == 0 ? 12 : 10;
+                    GlStateManager.disableBlend();
+                    posY += cellHeight;
 
                 }
 
-                GlStateManager.disableBlend();
+                GlStateManager.scalef(1.0F / scale, 1.0F / scale, 1.0F);
                 GlStateManager.popMatrix();
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             }
 

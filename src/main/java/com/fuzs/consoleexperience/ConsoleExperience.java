@@ -36,7 +36,10 @@ public class ConsoleExperience {
                 HoveringHotbarHandler.class,
                 SaveIconHandler.class,
                 CoordinateDisplayHandler.class,
-                ClientEventHandler.class
+//                ControlHintHandler.class,
+                ShulkerTooltipHandler.class,
+                HideHudHandler.class,
+                CloseButtonHandler.class
         };
 
         Arrays.stream(handler).forEach(it -> {

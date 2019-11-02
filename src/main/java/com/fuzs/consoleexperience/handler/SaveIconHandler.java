@@ -25,7 +25,7 @@ public class SaveIconHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void saveWorld(WorldEvent.Save evt) {
+    public void onSaveWorld(WorldEvent.Save evt) {
 
         if (ConfigBuildHandler.GENERAL_CONFIG.saveIcon.get()) {
             this.remainingDisplayTicks = ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get();
@@ -35,7 +35,7 @@ public class SaveIconHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void clientTick(TickEvent.ClientTickEvent evt) {
+    public void onClientTick(TickEvent.ClientTickEvent evt) {
 
         if (evt.phase != TickEvent.Phase.END) {
             return;
@@ -49,12 +49,12 @@ public class SaveIconHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
+    public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
-        if (this.mc.currentScreen == null && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+        if (!HideHudHandler.hasBackground && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 
             MainWindow window = evt.getWindow();
-            this.drawIcon(window.getScaledWidth(), window.getScaledHeight());
+            this.drawIcon(window.getScaledWidth(), window.getScaledHeight(), true);
 
         }
 
@@ -62,43 +62,42 @@ public class SaveIconHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void drawScreen(GuiScreenEvent.BackgroundDrawnEvent evt) {
+    public void onBackgroundDrawn(GuiScreenEvent.BackgroundDrawnEvent evt) {
 
         if (this.mc.world != null) {
 
             MainWindow window = this.mc.mainWindow;
-            this.drawIcon(window.getScaledWidth(), window.getScaledHeight());
+            this.drawIcon(window.getScaledWidth(), window.getScaledHeight(), false);
 
         }
 
     }
 
-    private void drawIcon(int windowWidth, int windowHeight) {
+    private void drawIcon(int windowWidth, int windowHeight, boolean shift) {
 
         if (this.remainingDisplayTicks > 0 || ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) {
 
             PositionPreset position = ConfigBuildHandler.SAVE_ICON_CONFIG.position.get();
+            int k = position.getX(this.width, windowWidth, ConfigBuildHandler.SAVE_ICON_CONFIG.xOffset.get());
+            int l = position.getY(this.height, windowHeight, ConfigBuildHandler.SAVE_ICON_CONFIG.yOffset.get());
+
+            if (shift && ConfigBuildHandler.SAVE_ICON_CONFIG.potionShift.get() && position.shouldShift()) {
+                l += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
+            }
 
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
-
-            int k = position.getX(this.width, windowWidth, ConfigBuildHandler.SAVE_ICON_CONFIG.xOffset.get());
-            int l = position.getY(this.height, windowHeight, ConfigBuildHandler.SAVE_ICON_CONFIG.yOffset.get());
-
-            if (ConfigBuildHandler.SAVE_ICON_CONFIG.potionShift.get() && position.shouldShift()) {
-                l += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
-            }
-
             GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             if (ConfigBuildHandler.SAVE_ICON_CONFIG.rotatingModel.get()) {
 
                 int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
                 int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
-                GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-                AbstractGui.blit(k * 2, (l + 14) * 2, textureX, textureY, 36, 36, 256, 256);
-                GlStateManager.scalef(2.0F, 2.0F, 2.0F);
+                float f = 0.5F;
+                GlStateManager.scalef(f, f, 1.0F);
+                AbstractGui.blit((int) (k / f), (int) ((l + 14) / f), textureX, textureY, 36, 36, 256, 256);
+                GlStateManager.scalef(1.0F / f, 1.0F / f, 1.0F);
 
             } else {
 

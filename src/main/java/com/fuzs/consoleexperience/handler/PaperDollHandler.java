@@ -3,7 +3,6 @@ package com.fuzs.consoleexperience.handler;
 import com.fuzs.consoleexperience.helper.PaperDollHelper;
 import com.fuzs.consoleexperience.util.PositionPreset;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
@@ -20,7 +19,7 @@ public class PaperDollHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void clientTick(TickEvent.ClientTickEvent evt) {
+    public void onClientTick(TickEvent.ClientTickEvent evt) {
 
         if (this.mc.isGamePaused() || evt.phase != TickEvent.Phase.END) {
             return;
@@ -50,7 +49,7 @@ public class PaperDollHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void renderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
+    public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
         if (evt.getType() != RenderGameOverlayEvent.ElementType.ALL) {
             return;
@@ -58,11 +57,10 @@ public class PaperDollHandler {
 
         if (this.mc.player != null) {
 
-            boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode() && !this.mc.gameSettings.hideGUI;
+            boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode();
             boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !ConfigBuildHandler.PAPER_DOLL_CONFIG.firstPerson.get();
-            boolean hideGui = ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && this.mc.currentScreen instanceof ContainerScreen;
 
-            if (flag && firstPerson && !hideGui && this.remainingDisplayTicks > 0) {
+            if (flag && firstPerson && !HideHudHandler.isActive && this.remainingDisplayTicks > 0) {
 
                 int scale = ConfigBuildHandler.PAPER_DOLL_CONFIG.scale.get() * 5;
                 PositionPreset position = ConfigBuildHandler.PAPER_DOLL_CONFIG.position.get();
@@ -88,7 +86,7 @@ public class PaperDollHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void renderBlockOverlay(RenderBlockOverlayEvent evt) {
+    public void onRenderBlockOverlay(RenderBlockOverlayEvent evt) {
 
         if (ConfigBuildHandler.GENERAL_CONFIG.paperDoll.get() && ConfigBuildHandler.PAPER_DOLL_CONFIG.burning.get() && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
             evt.setCanceled(true);
