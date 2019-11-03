@@ -11,15 +11,16 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
+@SuppressWarnings("WeakerAccess")
 public class HideHudHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
     // list of hud elements allowed to be hidden
     private final List<RenderGameOverlayEvent.ElementType> elements = Lists.newArrayList(
             ElementType.CROSSHAIRS, ElementType.BOSSHEALTH, ElementType.BOSSINFO, ElementType.ARMOR, ElementType.HEALTH,
-            ElementType.FOOD, ElementType.AIR, ElementType.HOTBAR, ElementType.EXPERIENCE, ElementType.HEALTHMOUNT,
-            ElementType.JUMPBAR, ElementType.PLAYER_LIST, ElementType.DEBUG, ElementType.POTION_ICONS,
-            ElementType.SUBTITLES, ElementType.FPS_GRAPH
+            ElementType.FOOD, ElementType.AIR, ElementType.HOTBAR, ElementType.EXPERIENCE, ElementType.TEXT,
+            ElementType.HEALTHMOUNT, ElementType.JUMPBAR, ElementType.CHAT, ElementType.PLAYER_LIST, ElementType.DEBUG,
+            ElementType.POTION_ICONS, ElementType.SUBTITLES, ElementType.FPS_GRAPH
     );
 
     public static boolean hasBackground;
@@ -50,26 +51,6 @@ public class HideHudHandler {
 
         isActive = ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && hasBackground;
         if (isActive && this.elements.contains(evt.getType())) {
-            evt.setCanceled(true);
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onRenderGameOverlayText(RenderGameOverlayEvent.Text evt) {
-
-        if (ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && hasBackground) {
-            evt.setCanceled(true);
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onRenderGameOverlayChat(RenderGameOverlayEvent.Chat evt) {
-
-        if (ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && hasBackground) {
             evt.setCanceled(true);
         }
 

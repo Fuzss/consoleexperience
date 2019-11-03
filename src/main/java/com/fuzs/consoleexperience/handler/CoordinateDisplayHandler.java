@@ -1,24 +1,91 @@
 package com.fuzs.consoleexperience.handler;
 
+import com.fuzs.consoleexperience.util.ItemPlace;
 import com.fuzs.consoleexperience.util.PositionPreset;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CoordinateDisplayHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
+    private boolean enabled = true;
+    private int updateTicks;
+
+    @SuppressWarnings("unused")
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent evt) {
+
+        if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.requiresItem.get() == ItemPlace.NONE || this.mc.isGamePaused() || evt.phase != TickEvent.Phase.END) {
+            return;
+        }
+
+        if (this.mc.player != null) {
+
+            this.updateTicks--;
+
+            if (this.updateTicks < 0) {
+
+                this.updateTicks = 40;
+
+                List<ResourceLocation> allowedKeys = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.items.get().stream()
+                        .map(it -> it.split(":")).filter(it -> it.length > 1).map(it -> new ResourceLocation(it[0], it[1])).collect(Collectors.toList());
+
+                if (allowedKeys.isEmpty()) {
+                    return;
+                }
+
+                List<ItemStack> inventoryStacks = Lists.newArrayList(this.mc.player.getHeldItemOffhand());
+                ItemPlace place = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.requiresItem.get();
+
+                if (place == ItemPlace.HELD) {
+
+                    inventoryStacks.add(this.mc.player.getHeldItemMainhand());
+
+                } else if (place == ItemPlace.HOTBAR) {
+
+                    inventoryStacks.addAll(this.mc.player.inventory.mainInventory.subList(0, PlayerInventory.getHotbarSize()));
+
+                } else {
+
+                    inventoryStacks.addAll(this.mc.player.inventory.mainInventory);
+
+                }
+
+                if (inventoryStacks.isEmpty()) {
+                    return;
+                }
+
+                List<ResourceLocation> inventoryKeys = inventoryStacks.stream().map(it -> ForgeRegistries.ITEMS.getKey(it.getItem())).collect(Collectors.toList());
+                this.enabled = !Collections.disjoint(allowedKeys, inventoryKeys);
+
+            }
+
+        }
+
+    }
 
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void onRenderGameOverlayPre(RenderGameOverlayEvent.Text evt) {
 
-        if (!ConfigBuildHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo) {
+        boolean flag = ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.requiresItem.get() != ItemPlace.NONE && !this.enabled;
+        if (!ConfigBuildHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo || flag) {
             return;
         }
 

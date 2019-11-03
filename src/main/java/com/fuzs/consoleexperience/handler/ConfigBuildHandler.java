@@ -1,6 +1,7 @@
 package com.fuzs.consoleexperience.handler;
 
 import com.fuzs.consoleexperience.util.HeadMovement;
+import com.fuzs.consoleexperience.util.ItemPlace;
 import com.fuzs.consoleexperience.util.PositionPreset;
 import com.fuzs.consoleexperience.util.TextColor;
 import com.google.common.collect.Lists;
@@ -231,6 +232,8 @@ public class ConfigBuildHandler {
 		public final ForgeConfigSpec.EnumValue<PositionPreset> position;
 		public final ForgeConfigSpec.BooleanValue background;
 		public final ForgeConfigSpec.IntValue decimalPlaces;
+		public final ForgeConfigSpec.EnumValue<ItemPlace> requiresItem;
+		public final ForgeConfigSpec.ConfigValue<List<String>> items;
 
 		private CoordinateDisplayConfig(String name) {
 
@@ -242,6 +245,8 @@ public class ConfigBuildHandler {
 			this.position = ConfigBuildHandler.BUILDER.comment("Define a screen corner to show the coordinate display in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT);
 			this.background = ConfigBuildHandler.BUILDER.comment("Show black chat background behind coordinate display for better visibility.").define("Draw Background", true);
 			this.decimalPlaces = ConfigBuildHandler.BUILDER.comment("Amount of decimal places for the three coordinates.").defineInRange("Decimal Places", 0, 0, Integer.MAX_VALUE);
+			this.requiresItem = ConfigBuildHandler.BUILDER.comment("Is the coordinate display only shown when there is a certain item available.").defineEnum("Requires Item", ItemPlace.NONE);
+			this.items = ConfigBuildHandler.BUILDER.comment("Item or item from mod required in player inventory for coordinate display to be shown. Enter as either \"modid:item\" or \"modid\" respectively.").define("Required Item", Lists.newArrayList("minecraft:compass", "minecraft:filled_map"));
 
 			BUILDER.pop();
 
@@ -252,6 +257,10 @@ public class ConfigBuildHandler {
 	public static class MiscellaneousConfig {
 
 		public final ForgeConfigSpec.BooleanValue sumShulkerBox;
+		public final ForgeConfigSpec.IntValue shulkerBoxRows;
+		public final ForgeConfigSpec.BooleanValue clockTime;
+		public final ForgeConfigSpec.BooleanValue clockSeconds;
+		public final ForgeConfigSpec.BooleanValue clockTwelve;
 		public final ForgeConfigSpec.BooleanValue hideHudInGui;
 		public final ForgeConfigSpec.BooleanValue closeButton;
 		public final ForgeConfigSpec.IntValue closeButtonXOffset;
@@ -262,6 +271,10 @@ public class ConfigBuildHandler {
 			BUILDER.push(name);
 
 			this.sumShulkerBox = ConfigBuildHandler.BUILDER.comment("Sum up stacks of equal items on the shulker box tooltip.").define("Sum Shulker Box Contents", true);
+			this.shulkerBoxRows = ConfigBuildHandler.BUILDER.comment("Maximum amount of rows on the shulker box tooltip.").defineInRange("Shulker Box Rows", 6, 0, 27);
+			this.clockTime = ConfigBuildHandler.BUILDER.comment("Add current time to the clock tooltip.").define("Clock Time", true);
+			this.clockSeconds = ConfigBuildHandler.BUILDER.comment("Show seconds on the clock time tooltip.").define("Clock Time Seconds", false);
+			this.clockTwelve = ConfigBuildHandler.BUILDER.comment("Use 12h on the clock time tooltip.").define("Clock Time 12h", false);
 			this.hideHudInGui = ConfigBuildHandler.BUILDER.comment("Hide hud elements when inside of a container.").define("Hide Hud In Container", true);
 			this.closeButton = ConfigBuildHandler.BUILDER.comment("Add a button for closing to every container.").define("Close Button", true);
 			this.closeButtonXOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from gui right.").defineInRange("Close Button X-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);

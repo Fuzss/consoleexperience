@@ -1,9 +1,11 @@
 package com.fuzs.consoleexperience.handler;
 
-import com.fuzs.consoleexperience.helper.ShulkerTooltipHelper;
+import com.fuzs.consoleexperience.helper.ItemTooltipHelper;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.client.Minecraft;
+import net.minecraft.item.ClockItem;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -13,7 +15,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
-public class ShulkerTooltipHandler {
+public class ItemTooltipHandler {
+
+    private final Minecraft mc = Minecraft.getInstance();
+    private final ItemTooltipHelper itemHelper = new ItemTooltipHelper();
 
     @SuppressWarnings("unused")
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -33,13 +38,17 @@ public class ShulkerTooltipHandler {
                 if (i != -1 && tooltip.removeAll(contents)) {
 
                     List<ITextComponent> list = Lists.newArrayList();
-                    ShulkerTooltipHelper.getLootTableTooltip(list, evt.getItemStack());
-                    ShulkerTooltipHelper.getContentsTooltip(list, evt.getItemStack(), new Style().setColor(TextFormatting.GRAY), 6);
+                    this.itemHelper.getLootTableTooltip(list, evt.getItemStack());
+                    this.itemHelper.getContentsTooltip(list, evt.getItemStack(), new Style().setColor(TextFormatting.GRAY), ConfigBuildHandler.MISCELLANEOUS_CONFIG.shulkerBoxRows.get());
                     tooltip.addAll(i, list);
 
                 }
 
             }
+
+        } else if (this.mc.currentScreen != null && evt.getItemStack().getItem() instanceof ClockItem) {
+
+            this.itemHelper.getTimeTooltip(this.mc.world.getDayTime(), evt.getToolTip());
 
         }
 

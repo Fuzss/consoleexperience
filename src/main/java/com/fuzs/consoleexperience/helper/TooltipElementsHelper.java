@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.item.ClockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue", "unused"})
 public class TooltipElementsHelper {
 
+    private final ItemTooltipHelper itemHelper = new ItemTooltipHelper();
     protected ItemStack itemstack = ItemStack.EMPTY;
 
     protected void getName(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
@@ -50,12 +52,15 @@ public class TooltipElementsHelper {
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
-            ShulkerTooltipHelper.getContentsTooltip(information, this.itemstack, style, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+            this.itemHelper.getContentsTooltip(information, this.itemstack, style, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+
+        } else if (this.itemstack.getItem() instanceof ClockItem) {
+
+            this.itemHelper.getTimeTooltip(world.getDayTime(), information);
 
         } else {
 
-            this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
-
+                this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
         }
 
         // remove empty lines from a list of strings

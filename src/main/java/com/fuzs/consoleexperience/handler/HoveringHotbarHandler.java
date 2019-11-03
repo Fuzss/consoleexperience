@@ -18,7 +18,7 @@ public class HoveringHotbarHandler {
     );
 
     @SuppressWarnings("unused")
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
     public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
         if (!ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
@@ -32,7 +32,21 @@ public class HoveringHotbarHandler {
     }
 
     @SuppressWarnings("unused")
-    @SubscribeEvent(priority = EventPriority.LOW)
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public void onRenderGameOverlayPost(RenderGameOverlayEvent.Pre evt) {
+
+        if (!ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
+            return;
+        }
+
+        if (evt.isCanceled() && this.elements.contains(evt.getType())) {
+            GlStateManager.translatef((float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRenderGameOverlayPost(RenderGameOverlayEvent.Post evt) {
 
         if (!ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get()) {

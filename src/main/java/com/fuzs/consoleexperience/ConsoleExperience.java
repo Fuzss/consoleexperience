@@ -37,7 +37,7 @@ public class ConsoleExperience {
                 SaveIconHandler.class,
                 CoordinateDisplayHandler.class,
 //                ControlHintHandler.class,
-                ShulkerTooltipHandler.class,
+                ItemTooltipHandler.class,
                 HideHudHandler.class,
                 CloseButtonHandler.class
         };

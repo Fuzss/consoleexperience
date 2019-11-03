@@ -1,10 +1,11 @@
 package com.fuzs.consoleexperience.util;
 
 @SuppressWarnings("unused")
-public enum HeadMovement {
+public enum ItemPlace {
 
-    YAW,
-    PITCH,
-    BOTH;
+    NONE,
+    HELD,
+    HOTBAR,
+    INVENTORY
 
 }

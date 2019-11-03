@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.item.ClockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -42,7 +43,7 @@ public class SelectedItemHandler {
 
                 if (this.remainingHighlightTicks > 0) {
 
-                    --this.remainingHighlightTicks;
+                    this.remainingHighlightTicks--;
 
                 }
 
