@@ -24,7 +24,6 @@ public class ConsoleExperience {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigBuildHandler.SPEC, MODID + ".toml");
-        MinecraftForge.EVENT_BUS.register(this);
 
     }
 
@@ -39,7 +38,8 @@ public class ConsoleExperience {
 //                ControlHintHandler.class,
                 ItemTooltipHandler.class,
                 HideHudHandler.class,
-                CloseButtonHandler.class
+                CloseButtonHandler.class,
+                ElytraTiltHandler.class
         };
 
         Arrays.stream(handler).forEach(it -> {

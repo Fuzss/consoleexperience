@@ -1,14 +1,10 @@
 package com.fuzs.consoleexperience.handler;
 
-import com.fuzs.consoleexperience.helper.ReflectionHelper;
 import com.fuzs.consoleexperience.util.CloseButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class CloseButtonHandler {
 
@@ -31,20 +27,8 @@ public class CloseButtonHandler {
 
         int x = ConfigBuildHandler.MISCELLANEOUS_CONFIG.closeButtonXOffset.get();
         int y = ConfigBuildHandler.MISCELLANEOUS_CONFIG.closeButtonYOffset.get();
-        CloseButton button = new CloseButton(x, y, p_213076_1_ -> this.mc.player.closeScreen(), screen);
-
-        try {
-
-            Method method = ReflectionHelper.getAddButton();
-            if (method != null) {
-                method.invoke(evt.getGui(), button);
-            }
-
-        } catch (IllegalAccessException | InvocationTargetException e) {
-
-            e.printStackTrace();
-
-        }
+        CloseButton button = new CloseButton(x, y, button1 -> this.mc.player.closeScreen(), screen);
+        evt.getGui().addButton(button);
 
     }
 

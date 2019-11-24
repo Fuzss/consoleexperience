@@ -4,11 +4,10 @@ import com.fuzs.consoleexperience.helper.ItemTooltipHelper;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.client.Minecraft;
-import net.minecraft.item.ClockItem;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,7 +16,6 @@ import java.util.List;
 
 public class ItemTooltipHandler {
 
-    private final Minecraft mc = Minecraft.getInstance();
     private final ItemTooltipHelper itemHelper = new ItemTooltipHelper();
 
     @SuppressWarnings("unused")
@@ -46,9 +44,19 @@ public class ItemTooltipHandler {
 
             }
 
-        } else if (this.mc.currentScreen != null && evt.getItemStack().getItem() instanceof ClockItem) {
+        }
 
-            this.itemHelper.getTimeTooltip(this.mc.world.getDayTime(), evt.getToolTip());
+    }
+
+    @SuppressWarnings("unused")
+    @SubscribeEvent
+    public void onRenderTooltipColor(RenderTooltipEvent.Color evt) {
+
+        if (ConfigBuildHandler.MISCELLANEOUS_CONFIG.tintedTooltip.get()) {
+
+            evt.setBorderStart(0xEBFFFFFF);
+            evt.setBorderEnd(0xE6FFFFFF);
+            evt.setBackground(0xAA09202A);
 
         }
 

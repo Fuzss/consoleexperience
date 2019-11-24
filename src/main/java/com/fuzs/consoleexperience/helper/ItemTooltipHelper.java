@@ -1,20 +1,18 @@
 package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consoleexperience.handler.ConfigBuildHandler;
 import com.google.common.collect.Lists;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ItemTooltipHelper {
-
-    private final String[] TIME_FORMATS = new String[]{"H:mm", "H:mm:ss", "h:mm a", "h:mm:ss a"};
 
     public void getLootTableTooltip(List<ITextComponent> tooltip, ItemStack stack) {
 
@@ -102,27 +100,6 @@ public class ItemTooltipHelper {
         }
 
         return contents;
-
-    }
-
-    public void getTimeTooltip(long worldTime, List<ITextComponent> tooltip) {
-
-        if (!ConfigBuildHandler.MISCELLANEOUS_CONFIG.clockTime.get()) {
-            return;
-        }
-
-        long l = (worldTime + 6000L) % 24000L;
-        int hours = (int) l / 1000;
-        float minutes = ((int) l % 1000) * 3 / 50.0F;
-        int seconds = (int) ((minutes - (int) minutes) * 60.0F);
-
-        int i = ConfigBuildHandler.MISCELLANEOUS_CONFIG.clockTwelve.get() ? 2 : 0;
-        i += ConfigBuildHandler.MISCELLANEOUS_CONFIG.clockSeconds.get() ? 1 : 0;
-        String s = TIME_FORMATS[i];
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(s);
-        String time = LocalTime.of(hours, (int) minutes, seconds, 0).format(formatter);
-        tooltip.add(1, new StringTextComponent(time).setStyle(new Style().setColor(TextFormatting.GRAY)));
 
     }
 

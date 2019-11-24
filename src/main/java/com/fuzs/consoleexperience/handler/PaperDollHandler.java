@@ -55,6 +55,8 @@ public class PaperDollHandler {
             return;
         }
 
+        this.mc.getProfiler().startSection("paperDoll");
+
         if (this.mc.player != null) {
 
             boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode();
@@ -81,6 +83,8 @@ public class PaperDollHandler {
             }
 
         }
+
+        this.mc.getProfiler().endSection();
 
     }
 
