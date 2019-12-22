@@ -51,11 +51,9 @@ public class SaveIconHandler {
     @SubscribeEvent
     public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
-        if (!HideHudHandler.hasBackground && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-
+        if (HideHudHandler.background == 0 && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
             MainWindow window = evt.getWindow();
             this.drawIcon(window.getScaledWidth(), window.getScaledHeight(), true);
-
         }
 
     }
@@ -65,10 +63,8 @@ public class SaveIconHandler {
     public void onBackgroundDrawn(GuiScreenEvent.BackgroundDrawnEvent evt) {
 
         if (this.mc.world != null) {
-
             MainWindow window = this.mc.mainWindow;
             this.drawIcon(window.getScaledWidth(), window.getScaledHeight(), false);
-
         }
 
     }

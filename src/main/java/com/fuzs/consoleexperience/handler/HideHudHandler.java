@@ -23,25 +23,16 @@ public class HideHudHandler {
             ElementType.POTION_ICONS, ElementType.SUBTITLES, ElementType.FPS_GRAPH
     );
 
-    public static boolean hasBackground;
-    public static boolean isActive;
+    public static int background;
+    public static boolean active;
 
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void onBackgroundDrawn(GuiScreenEvent.BackgroundDrawnEvent evt) {
 
         if (this.mc.world != null) {
-            hasBackground = true;
+            background = 2;
         }
-
-    }
-
-    @SuppressWarnings("unused")
-    @SubscribeEvent
-    public void onGuiOpen(GuiOpenEvent evt) {
-
-        // reset every time a new gui is opened
-        hasBackground = false;
 
     }
 
@@ -49,9 +40,13 @@ public class HideHudHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
-        isActive = ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && hasBackground;
-        if (isActive && this.elements.contains(evt.getType())) {
-            evt.setCanceled(true);
+        active = ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && background > 0;
+        if (active) {
+            if (evt.getType() == ElementType.ALL) {
+                background--;
+            } else if (this.elements.contains(evt.getType())) {
+                evt.setCanceled(true);
+            }
         }
 
     }

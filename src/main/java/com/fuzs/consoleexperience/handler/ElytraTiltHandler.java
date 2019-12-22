@@ -3,22 +3,14 @@ package com.fuzs.consoleexperience.handler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ElytraTiltHandler {
 
-    // accessed by the asm transformer bundled with this mod
-    @SuppressWarnings("WeakerAccess")
-    public static float roll;
-
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent evt) {
-
-        if (evt.phase != TickEvent.Phase.START) {
-            return;
-        }
+    public void onCameraSetup(EntityViewRenderEvent.CameraSetup evt) {
 
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
@@ -27,22 +19,16 @@ public class ElytraTiltHandler {
             // code from PlayerRenderer#applyRotations which is used there for rotating the player model
             Vec3d motion = player.getMotion();
             double d0 = motion.getX() * motion.getX() + motion.getZ() * motion.getZ();
-            Vec3d look = player.getLook(evt.renderTickTime);
+            Vec3d look = player.getLook((float) evt.getRenderPartialTicks());
             double d1 = look.getX() * look.getX() + look.getZ() * look.getZ();
 
             if (d0 > 0.0 && d1 > 0.0) {
-
                 double d2 = (motion.getX() * look.getX() + motion.getZ() * look.getZ()) / (Math.sqrt(d0) * Math.sqrt(d1));
                 double d3 = motion.getX() * look.getZ() - motion.getZ() * look.getX();
                 // fixed Math#acos returning NaN when d2 > 1.0
                 double d = Math.signum(d3) * Math.acos(Math.min(d2, 1.0)) * 180.0 / (Math.PI * (1.0F / ConfigBuildHandler.MISCELLANEOUS_CONFIG.elytraMultiplier.get()));
-                roll = (roll * 3.0F + (float) d * 2.0F) / 5.0F;
-
+                evt.setRoll((evt.getRoll() * 3.0F + (float) d * 2.0F) / 5.0F);
             }
-
-        } else {
-
-            roll = 0.0F;
 
         }
 

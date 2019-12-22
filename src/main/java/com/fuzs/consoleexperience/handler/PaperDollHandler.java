@@ -62,7 +62,7 @@ public class PaperDollHandler {
             boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode();
             boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !ConfigBuildHandler.PAPER_DOLL_CONFIG.firstPerson.get();
 
-            if (flag && firstPerson && !HideHudHandler.isActive && this.remainingDisplayTicks > 0) {
+            if (flag && firstPerson && !HideHudHandler.active && this.remainingDisplayTicks > 0) {
 
                 int scale = ConfigBuildHandler.PAPER_DOLL_CONFIG.scale.get() * 5;
                 PositionPreset position = ConfigBuildHandler.PAPER_DOLL_CONFIG.position.get();
