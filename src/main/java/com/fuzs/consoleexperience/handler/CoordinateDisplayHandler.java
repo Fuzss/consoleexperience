@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience.handler;
 
 import com.fuzs.consoleexperience.util.PositionPreset;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -18,15 +18,15 @@ public class CoordinateDisplayHandler {
     @SubscribeEvent
     public void onRenderGameOverlayPre(RenderGameOverlayEvent.Chat evt) {
 
-        if (!ConfigBuildHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo) {
+        if (!ConfigBuildHandler.GENERAL_CONFIG.coordinateDisplay.get() || this.mc.gameSettings.showDebugInfo || this.mc.player == null) {
             return;
         }
 
         ITextComponent component;
         double d = Math.pow(10, ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get());
-        double posX = Math.round(this.mc.player.posX * d) / d;
+        double posX = Math.round(this.mc.player.func_226277_ct_() * d) / d;
         double posY = Math.round(this.mc.player.getBoundingBox().minY * d) / d;
-        double posZ = Math.round(this.mc.player.posZ * d) / d;
+        double posZ = Math.round(this.mc.player.func_226281_cx_() * d) / d;
 
         if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get() == 0) {
             // no empty decimal place added like this
@@ -45,8 +45,8 @@ public class CoordinateDisplayHandler {
         int x = (int) (position.getX(k, window.getScaledWidth(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.xOffset.get()) / scale);
         int y = (int) (position.getY(l, window.getScaledHeight(), ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.yOffset.get()) / scale);
 
-        GlStateManager.pushMatrix();
-        GlStateManager.scalef(scale, scale, 1.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef(scale, scale, 1.0F);
 
         if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
             AbstractGui.fill(x, y, x + k, y + l, f / 2 << 24);
@@ -54,8 +54,8 @@ public class CoordinateDisplayHandler {
 
         this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), x + 2, y + 2, 16777215 + (f << 24));
 
-        GlStateManager.scalef(1.0F / scale, 1.0F / scale, 1.0F);
-        GlStateManager.popMatrix();
+        RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
+        RenderSystem.popMatrix();
 
     }
 

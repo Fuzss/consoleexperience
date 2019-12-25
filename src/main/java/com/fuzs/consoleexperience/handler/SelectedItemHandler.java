@@ -2,7 +2,7 @@ package com.fuzs.consoleexperience.handler;
 
 import com.fuzs.consoleexperience.helper.TooltipHelper;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
@@ -90,7 +90,7 @@ public class SelectedItemHandler {
 
         this.catchOverlayMessage();
 
-        if (this.mc.playerController.isSpectatorMode()) {
+        if (this.mc.playerController != null && this.mc.playerController.isSpectatorMode()) {
             return;
         }
 
@@ -117,7 +117,7 @@ public class SelectedItemHandler {
             } else {
                 posY -= 59 / scale;
             }
-            if (!this.mc.playerController.shouldDrawHUD()) {
+            if (this.mc.playerController != null && !this.mc.playerController.shouldDrawHUD()) {
                 posY += 14;
             }
             if (ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() && ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.tied.get()) {
@@ -153,10 +153,9 @@ public class SelectedItemHandler {
                 int margin = 0;
                 int border = 2;
 
-                GlStateManager.pushMatrix();
-                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                GlStateManager.scalef(scale, scale, 1.0F);
+                RenderSystem.pushMatrix();
+                RenderSystem.defaultBlendFunc();
+                RenderSystem.scalef(scale, scale, 1.0F);
 
                 for (int i = 0; i < size; i++) {
 
@@ -195,15 +194,15 @@ public class SelectedItemHandler {
 
                     }
 
-                    GlStateManager.enableBlend();
+                    RenderSystem.enableBlend();
                     fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - textWidth, posY, 16777215 + (alpha << 24));
-                    GlStateManager.disableBlend();
+                    RenderSystem.disableBlend();
                     posY += cellHeight;
 
                 }
 
-                GlStateManager.scalef(1.0F / scale, 1.0F / scale, 1.0F);
-                GlStateManager.popMatrix();
+                RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
+                RenderSystem.popMatrix();
 
             }
 
@@ -225,7 +224,7 @@ public class SelectedItemHandler {
             if (opacity > 8) {
 
                 FontRenderer fontRenderer = this.mc.fontRenderer;
-                GlStateManager.pushMatrix();
+                RenderSystem.pushMatrix();
 
                 width /= 2;
                 width -= fontRenderer.getStringWidth(this.overlayMessage) / 2;
@@ -245,12 +244,11 @@ public class SelectedItemHandler {
                             height + fontRenderer.FONT_HEIGHT + 2, background << 24);
                 }
 
-                GlStateManager.enableBlend();
-                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
                 fontRenderer.drawString(this.overlayMessage, width, height, k1 | j);
-                GlStateManager.disableBlend();
-                GlStateManager.popMatrix();
+                RenderSystem.disableBlend();
+                RenderSystem.popMatrix();
 
             }
 

@@ -27,7 +27,7 @@ public class ItemTooltipHandler {
             List<ITextComponent> tooltip = evt.getToolTip();
             List<ITextComponent> contents = Lists.newArrayList();
 
-            evt.getItemStack().getItem().addInformation(evt.getItemStack(), evt.getEntityPlayer() == null ? null : evt.getEntityPlayer().world, contents, evt.getFlags());
+            evt.getItemStack().getItem().addInformation(evt.getItemStack(), evt.getPlayer() == null ? null : evt.getPlayer().world, contents, evt.getFlags());
 
             if (!tooltip.isEmpty() && !contents.isEmpty()) {
 

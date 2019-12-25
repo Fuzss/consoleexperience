@@ -27,7 +27,11 @@ public class CloseButtonHandler {
 
         int x = ConfigBuildHandler.MISCELLANEOUS_CONFIG.closeButtonXOffset.get();
         int y = ConfigBuildHandler.MISCELLANEOUS_CONFIG.closeButtonYOffset.get();
-        CloseButton button = new CloseButton(x, y, button1 -> this.mc.player.closeScreen(), screen);
+        CloseButton button = new CloseButton(x, y, button1 -> {
+            if (this.mc.player != null) {
+                this.mc.player.closeScreen();
+            }
+        }, screen);
         evt.getGui().addButton(button);
 
     }

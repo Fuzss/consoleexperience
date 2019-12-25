@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience.util;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -33,13 +33,13 @@ public class CloseButton extends Button {
 
         Minecraft.getInstance().getTextureManager().bindTexture(CLOSE_BUTTON);
 
-        GlStateManager.disableDepthTest();
+        RenderSystem.disableDepthTest();
         if (this.isScreenSmall) {
             blit(this.x + 1, this.y + 1, 1, this.isHovered() ? this.height + 1 : 1, this.width - 2, this.height - 2);
         } else {
             blit(this.x, this.y, 0, this.isHovered() ? this.height : 0, this.width, this.height);
         }
-        GlStateManager.enableDepthTest();
+        RenderSystem.enableDepthTest();
 
     }
 

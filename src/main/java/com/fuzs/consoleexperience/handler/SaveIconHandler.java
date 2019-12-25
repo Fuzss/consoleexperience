@@ -3,7 +3,7 @@ package com.fuzs.consoleexperience.handler;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.helper.PaperDollHelper;
 import com.fuzs.consoleexperience.util.PositionPreset;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -63,7 +63,7 @@ public class SaveIconHandler {
     public void onBackgroundDrawn(GuiScreenEvent.BackgroundDrawnEvent evt) {
 
         if (this.mc.world != null) {
-            MainWindow window = this.mc.mainWindow;
+            MainWindow window = this.mc.func_228018_at_();
             this.drawIcon(window.getScaledWidth(), window.getScaledHeight(), false);
         }
 
@@ -71,7 +71,7 @@ public class SaveIconHandler {
 
     private void drawIcon(int windowWidth, int windowHeight, boolean shift) {
 
-        if (this.remainingDisplayTicks > 0 || ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) {
+        if ((this.remainingDisplayTicks > 0 || ConfigBuildHandler.SAVE_ICON_CONFIG.displayTime.get() == 0) && this.mc.player != null) {
 
             PositionPreset position = ConfigBuildHandler.SAVE_ICON_CONFIG.position.get();
             int k = position.getX(this.width, windowWidth, ConfigBuildHandler.SAVE_ICON_CONFIG.xOffset.get());
@@ -82,18 +82,18 @@ public class SaveIconHandler {
             }
 
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
-            GlStateManager.pushMatrix();
-            GlStateManager.enableBlend();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.enableBlend();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             if (ConfigBuildHandler.SAVE_ICON_CONFIG.rotatingModel.get()) {
 
                 int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
                 int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
                 float f = 0.5F;
-                GlStateManager.scalef(f, f, 1.0F);
+                RenderSystem.scalef(f, f, 1.0F);
                 AbstractGui.blit((int) (k / f), (int) ((l + 14) / f), textureX, textureY, 36, 36, 256, 256);
-                GlStateManager.scalef(1.0F / f, 1.0F / f, 1.0F);
+                RenderSystem.scalef(1.0F / f, 1.0F / f, 1.0F);
 
             } else {
 
@@ -108,8 +108,8 @@ public class SaveIconHandler {
 
             }
 
-            GlStateManager.disableBlend();
-            GlStateManager.popMatrix();
+            RenderSystem.disableBlend();
+            RenderSystem.popMatrix();
 
         }
 

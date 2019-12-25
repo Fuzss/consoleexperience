@@ -21,10 +21,8 @@ public class ConsoleExperience {
     public static final Logger LOGGER = LogManager.getLogger(ConsoleExperience.NAME);
 
     public ConsoleExperience() {
-
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigBuildHandler.SPEC, MODID + ".toml");
-
     }
 
     private void clientSetup(final FMLClientSetupEvent evt) {

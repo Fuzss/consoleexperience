@@ -2,6 +2,7 @@ package com.fuzs.consoleexperience.util;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.settings.KeyBinding;
@@ -58,8 +59,8 @@ public class ControlHint {
 
     public void draw(int posX, int posY) {
 
-        GlStateManager.enableBlend();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(CONTROL_HINTS);
 
         if (this.isMouse()) {

@@ -2,7 +2,6 @@ package com.fuzs.consoleexperience.handler;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -24,7 +23,6 @@ public class HideHudHandler {
     );
 
     public static int background;
-    public static boolean active;
 
     @SuppressWarnings("unused")
     @SubscribeEvent
@@ -40,8 +38,7 @@ public class HideHudHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
 
-        active = ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && background > 0;
-        if (active) {
+        if (isActive()) {
             if (evt.getType() == ElementType.ALL) {
                 background--;
             } else if (this.elements.contains(evt.getType())) {
@@ -49,6 +46,10 @@ public class HideHudHandler {
             }
         }
 
+    }
+
+    public static boolean isActive() {
+        return ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && background > 0;
     }
 
 }

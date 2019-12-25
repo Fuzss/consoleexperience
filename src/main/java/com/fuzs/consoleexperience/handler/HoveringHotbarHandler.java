@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience.handler;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
@@ -32,7 +32,7 @@ public class HoveringHotbarHandler {
         }
 
         if (this.elements.contains(evt.getType())) {
-            GlStateManager.translatef((float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
+            RenderSystem.translatef((float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
     }
@@ -46,7 +46,7 @@ public class HoveringHotbarHandler {
         }
 
         if (evt.isCanceled() && this.elements.contains(evt.getType())) {
-            GlStateManager.translatef((float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
+            RenderSystem.translatef((float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
     }
@@ -60,7 +60,7 @@ public class HoveringHotbarHandler {
         }
 
         if (this.elements.contains(evt.getType())) {
-            GlStateManager.translatef((float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
+            RenderSystem.translatef((float) -ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get(), (float) ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.yOffset.get(), 0.0F);
         }
 
     }
@@ -69,7 +69,7 @@ public class HoveringHotbarHandler {
     @SubscribeEvent
     public void onRenderGameOverlayPostHotbar(RenderGameOverlayEvent.Post evt) {
 
-        if (!ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
+        if (!ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() || this.mc.player == null) {
             return;
         }
 
@@ -77,11 +77,11 @@ public class HoveringHotbarHandler {
 
             int width = evt.getWindow().getScaledWidth();
             int height = evt.getWindow().getScaledHeight();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.mc.getTextureManager().bindTexture(WIDGETS);
-            GlStateManager.enableBlend();
+            RenderSystem.enableBlend();
             AbstractGui.blit(width / 2 - 91 - 1 + this.mc.player.inventory.currentItem * 20, height - 1, 0, 44, 24, 2, 256, 256);
-            GlStateManager.disableBlend();
+            RenderSystem.disableBlend();
 
         }
 
