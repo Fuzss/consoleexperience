@@ -1,6 +1,7 @@
 package com.fuzs.consoleexperience;
 
 import com.fuzs.consoleexperience.handler.*;
+import com.google.common.collect.ImmutableList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -10,7 +11,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 @Mod(ConsoleExperience.MODID)
@@ -20,36 +22,26 @@ public class ConsoleExperience {
     public static final String NAME = "Console Experience";
     public static final Logger LOGGER = LogManager.getLogger(ConsoleExperience.NAME);
 
+    private final List<Supplier<Object>> handlers = ImmutableList.of(
+            SelectedItemHandler::new,
+            PaperDollHandler::new,
+            HoveringHotbarHandler::new,
+            SaveIconHandler::new,
+            CoordinateDisplayHandler::new,
+//                ControlHintHandler::new,
+            ItemTooltipHandler::new,
+            HideHudHandler::new,
+            CloseButtonHandler::new,
+            ElytraTiltHandler::new
+    );
+
     public ConsoleExperience() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigBuildHandler.SPEC, MODID + ".toml");
     }
 
     private void clientSetup(final FMLClientSetupEvent evt) {
-
-        Class<?>[] handler = new Class<?>[]{
-                SelectedItemHandler.class,
-                PaperDollHandler.class,
-                HoveringHotbarHandler.class,
-                SaveIconHandler.class,
-                CoordinateDisplayHandler.class,
-//                ControlHintHandler.class,
-                ItemTooltipHandler.class,
-                HideHudHandler.class,
-                CloseButtonHandler.class,
-                ElytraTiltHandler.class
-        };
-
-        Arrays.stream(handler).forEach(it -> {
-
-            try {
-                MinecraftForge.EVENT_BUS.register(it.newInstance());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        });
-
+        this.handlers.forEach(handler -> MinecraftForge.EVENT_BUS.register(handler.get()));
     }
 
 }

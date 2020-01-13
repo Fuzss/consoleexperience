@@ -121,7 +121,7 @@ jar {
         ])
     }
 
-    archiveName "${project.ext.name.replaceAll("\\s", "")}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
+    archiveName "${project.ext.name.replaceAll("[^a-zA-Z[\\s]]", "")}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
 
 }
 
