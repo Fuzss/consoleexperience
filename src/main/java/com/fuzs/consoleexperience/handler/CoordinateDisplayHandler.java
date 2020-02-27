@@ -24,9 +24,9 @@ public class CoordinateDisplayHandler {
 
         ITextComponent component;
         double d = Math.pow(10, ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get());
-        double posX = Math.round(this.mc.player.func_226277_ct_() * d) / d;
+        double posX = Math.round(this.mc.player.getPosX() * d) / d;
         double posY = Math.round(this.mc.player.getBoundingBox().minY * d) / d;
-        double posZ = Math.round(this.mc.player.func_226281_cx_() * d) / d;
+        double posZ = Math.round(this.mc.player.getPosZ() * d) / d;
 
         if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.decimalPlaces.get() == 0) {
             // no empty decimal place added like this

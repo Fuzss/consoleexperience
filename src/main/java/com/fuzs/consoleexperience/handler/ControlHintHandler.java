@@ -33,7 +33,7 @@ public class ControlHintHandler {
             this.hints.add(new ControlHint(this.mc.gameSettings.keyBindInventory, new TranslationTextComponent("hudScreen.tooltip.inventory"), ControlHint.Side.LEFT));
 
             if (this.mc.player.isPassenger()) {
-                this.hints.add(new ControlHint(this.mc.gameSettings.field_228046_af_, new TranslationTextComponent("hudScreen.tooltip.dismount"), ControlHint.Side.LEFT));
+                this.hints.add(new ControlHint(this.mc.gameSettings.keyBindSneak, new TranslationTextComponent("hudScreen.tooltip.dismount"), ControlHint.Side.LEFT));
             }
 
             if (this.mc.objectMouseOver != null) {
@@ -71,8 +71,8 @@ public class ControlHintHandler {
         if (!this.hints.isEmpty()) {
 
             int x = 1;
-            int y = this.mc.func_228018_at_().getScaledHeight() - 17;
-            int max = this.mc.func_228018_at_().getScaledWidth();
+            int y = this.mc.getMainWindow().getScaledHeight() - 17;
+            int max = this.mc.getMainWindow().getScaledWidth();
 
             for (ControlHint hint : this.hints) {
 

@@ -63,7 +63,7 @@ public class SaveIconHandler {
     public void onBackgroundDrawn(GuiScreenEvent.BackgroundDrawnEvent evt) {
 
         if (this.mc.world != null) {
-            MainWindow window = this.mc.func_228018_at_();
+            MainWindow window = this.mc.getMainWindow();
             this.drawIcon(window.getScaledWidth(), window.getScaledHeight(), false);
         }
 

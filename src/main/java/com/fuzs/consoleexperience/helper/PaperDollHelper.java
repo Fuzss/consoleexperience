@@ -64,17 +64,18 @@ public class PaperDollHelper {
 
         // prepare
         RenderSystem.pushMatrix();
+        RenderSystem.disableCull();
         RenderSystem.translatef((float) posX, (float) posY, 950.0F);
         RenderSystem.scalef(1.0F, 1.0F, -1.0F);
 
         // set angles and lighting
         MatrixStack stack = new MatrixStack();
-        stack.func_227861_a_(0.0D, 0.0D, 1000.0D);
-        stack.func_227862_a_((float) scale, (float) scale, (float) scale);
-        Quaternion quat1 = Vector3f.field_229183_f_.func_229187_a_(180.0F);
-        Quaternion quat2 = Vector3f.field_229179_b_.func_229187_a_(15.0F);
-        quat1.multiply(quat2);
-        stack.func_227863_a_(quat1);
+        stack.translate(0.0D, 0.0D, 1000.0D);
+        stack.scale((float) scale, (float) scale, (float) scale);
+        Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
+        Quaternion quaternion1 = Vector3f.XP.rotationDegrees(15.0F);
+        quaternion.multiply(quaternion1);
+        stack.rotate(quaternion);
 
         // save rotation as we don't want to change the actual entity
         float f = entity.rotationPitch;
@@ -102,14 +103,14 @@ public class PaperDollHelper {
         }
 
         // do render
-        EntityRendererManager manager = this.mc.getRenderManager();
-        quat2.conjugate();
-        manager.func_229089_a_(quat2);
-        manager.setRenderShadow(false);
-        IRenderTypeBuffer.Impl impl = Minecraft.getInstance().func_228019_au_().func_228487_b_();
-        manager.func_229084_a_(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880);
-        impl.func_228461_a_();
-        manager.setRenderShadow(true);
+        EntityRendererManager entityrenderermanager = this.mc.getRenderManager();
+        quaternion1.conjugate();
+        entityrenderermanager.setCameraOrientation(quaternion1);
+        entityrenderermanager.setRenderShadow(false);
+        IRenderTypeBuffer.Impl impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880);
+        impl.finish();
+        entityrenderermanager.setRenderShadow(true);
 
         // restore entity rotation
         entity.rotationPitch = f;
@@ -120,6 +121,7 @@ public class PaperDollHelper {
         entity.prevRotationYawHead = f5;
 
         // finish
+        RenderSystem.enableCull();
         RenderSystem.popMatrix();
 
         return prev;
@@ -175,7 +177,7 @@ public class PaperDollHelper {
         float standingHeight = player.getSize(Pose.STANDING).height;
         float relativeHeight = player.getHeight() / standingHeight;
 
-        if (player.getPose() == Pose.CROUCHING) {
+        if (player.isCrouching()) {
 
             if (player.isCrouching()) {
                 return player.getSize(Pose.CROUCHING).height / standingHeight;
@@ -192,7 +194,7 @@ public class PaperDollHelper {
 
             }
 
-        } else if (player.func_213314_bj()) {
+        } else if (player.isActualySwimming()) {
 
             if (player.getSwimAnimation(partialTicks) > 0) {
 
