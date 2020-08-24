@@ -2,7 +2,7 @@ package com.fuzs.consoleexperience.handler;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -17,9 +17,9 @@ public class ElytraTiltHandler {
         if (ConfigBuildHandler.MISCELLANEOUS_CONFIG.elytraTilt.get() && player != null && player.isElytraFlying()) {
 
             // code from PlayerRenderer#applyRotations which is used there for rotating the player model
-            Vec3d motion = player.getMotion();
+            Vector3d motion = player.getMotion();
             double d0 = motion.getX() * motion.getX() + motion.getZ() * motion.getZ();
-            Vec3d look = player.getLook((float) evt.getRenderPartialTicks());
+            Vector3d look = player.getLook((float) evt.getRenderPartialTicks());
             double d1 = look.getX() * look.getX() + look.getZ() * look.getZ();
 
             if (d0 > 0.0 && d1 > 0.0) {

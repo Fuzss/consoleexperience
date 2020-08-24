@@ -1,14 +1,18 @@
-
 buildscript {
+
     repositories {
+
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
     }
+
     dependencies {
+
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle'
 
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -32,7 +36,6 @@ ext {
     loader = "${loader_version.replaceAll("\\..*", "")}"
     forge = "${forge_version}"
     mc = "${mc_version}"
-
 }
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -41,23 +44,32 @@ minecraft {
 
     mappings channel: "${mcp_channel}", version: "${mcp_version}"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
     runs {
+
         client {
+
             workingDirectory project.file('run')
         }
-
         server {
+
             workingDirectory project.file('run')
         }
     }
+}
 
+// unofficial mcp mappings
+repositories {
+
+    maven {
+
+        name "gigaherz"
+        url "http://dogforce-games.com/maven/"
+    }
 }
 
 dependencies {
 
     minecraft "net.minecraftforge:forge:${project.ext.mc}-${loader_version}"
-
 }
 
 processResources {
@@ -89,23 +101,20 @@ processResources {
                 'loader_version': project.ext.loader,
                 'forge_version': project.ext.forge,
                 'mc_version': project.ext.mc
-
         )
-
     }
 
     // copy everything else except mods.toml and pack.mcmeta
     from(sourceSets.main.resources.srcDirs) {
 
         exclude 'META-INF/mods.toml', 'pack.mcmeta'
-
     }
-
 }
 
 jar {
 
     manifest {
+
         attributes([
 
                 "Specification-Title": project.name,
@@ -117,18 +126,17 @@ jar {
                 "Implementation-Vendor-Id" : project.group,
                 "Implementation-URL" : project.ext.url,
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-
         ])
     }
 
-    archiveName "${project.ext.name.replaceAll("[^a-zA-Z[\\s]]", "")}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
-
+    archiveName "${project.ext.name.replaceAll("\\s", "")}-v${mod_version}-${mc_version}.jar" // use archiveFileName in the future
 }
 
 // seems to work ok for now, but Forge currently doesn't use the key anyways
 task signJar(type: SignJar, dependsOn: jar) {
 
     onlyIf {
+
         project.hasProperty('keyStore')
     }
 
@@ -138,7 +146,6 @@ task signJar(type: SignJar, dependsOn: jar) {
     keyPass = project.findProperty('keyPass')
     inputFile = jar.archivePath
     outputFile = jar.archivePath
-
 }
 
 build.dependsOn signJar

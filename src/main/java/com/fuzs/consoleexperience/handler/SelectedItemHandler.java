@@ -2,6 +2,7 @@ package com.fuzs.consoleexperience.handler;
 
 import com.fuzs.consoleexperience.helper.TooltipHelper;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -23,7 +24,7 @@ public class SelectedItemHandler {
     private final TooltipHelper tooltipHelper = new TooltipHelper(this.mc);
     private final List<ITextComponent> tooltipCache = Lists.newArrayList();
 
-    private String overlayMessage = "";
+    private ITextComponent overlayMessage;
     private int overlayMessageTime;
     private boolean animateOverlayMessageColor;
     private int remainingHighlightTicks;
@@ -94,12 +95,12 @@ public class SelectedItemHandler {
             return;
         }
 
-        this.renderSelectedItem(evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight());
-        this.renderRecordOverlay(evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight(), evt.getPartialTicks());
+        this.renderSelectedItem(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight());
+        this.renderRecordOverlay(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight(), evt.getPartialTicks());
 
     }
 
-    private void renderSelectedItem(int width, int height) {
+    private void renderSelectedItem(MatrixStack matrixStack, int width, int height) {
 
         this.mc.getProfiler().startSection("selectedItemName");
 
@@ -189,13 +190,13 @@ public class SelectedItemHandler {
                         }
 
                         int k = (int) (alpha * this.mc.gameSettings.accessibilityTextBackgroundOpacity);
-                        AbstractGui.fill(posX - textWidth - border, posY - top, posX + textWidth + border,
+                        AbstractGui.fill(matrixStack, posX - textWidth - border, posY - top, posX + textWidth + border,
                                 posY + fontRenderer.FONT_HEIGHT + bottom, k << 24);
 
                     }
 
                     RenderSystem.enableBlend();
-                    fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - textWidth, posY, 16777215 + (alpha << 24));
+                    AbstractGui.drawString(matrixStack, fontRenderer, component, posX - textWidth, posY, 16777215 + (alpha << 24));
                     RenderSystem.disableBlend();
                     posY += cellHeight;
 
@@ -212,7 +213,7 @@ public class SelectedItemHandler {
 
     }
 
-    private void renderRecordOverlay(int width, int height, float partialTicks) {
+    private void renderRecordOverlay(MatrixStack matrixStack, int width, int height, float partialTicks) {
 
         if (this.overlayMessageTime > 0) {
 
@@ -227,7 +228,7 @@ public class SelectedItemHandler {
                 RenderSystem.pushMatrix();
 
                 width /= 2;
-                width -= fontRenderer.getStringWidth(this.overlayMessage) / 2;
+                width -= fontRenderer.func_238414_a_(this.overlayMessage) / 2;
                 height -= 72;
                 if (ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get()) {
                     width += ConfigBuildHandler.HOVERING_HOTBAR_CONFIG.xOffset.get();
@@ -240,13 +241,13 @@ public class SelectedItemHandler {
                 int j = opacity << 24 & -16777216;
                 int background = (int) (opacity * this.mc.gameSettings.accessibilityTextBackgroundOpacity);
                 if (!this.mc.gameSettings.accessibilityTextBackground) {
-                    AbstractGui.fill(width - 2, height - 2, width + fontRenderer.getStringWidth(this.overlayMessage) + 2,
+                    AbstractGui.fill(matrixStack, width - 2, height - 2, width + fontRenderer.func_238414_a_(this.overlayMessage) + 2,
                             height + fontRenderer.FONT_HEIGHT + 2, background << 24);
                 }
 
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
-                fontRenderer.drawString(this.overlayMessage, width, height, k1 | j);
+                AbstractGui.drawString(matrixStack, fontRenderer, this.overlayMessage, width, height, k1 | j);
                 RenderSystem.disableBlend();
                 RenderSystem.popMatrix();
 

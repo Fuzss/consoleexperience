@@ -32,7 +32,7 @@ public class TooltipElementsHelper {
 
     protected void getName(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
 
-        list.add(new StringTextComponent("").appendSibling(this.itemstack.getDisplayName()).setStyle(new Style().setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getRarity().color)));
+        list.add(new StringTextComponent("").append(this.itemstack.getDisplayName()).setStyle(Style.EMPTY.setItalic(this.itemstack.hasDisplayName()).setFormatting(this.itemstack.getRarity().color)));
 
 //        ITextComponent component = new StringTextComponent("").appendSibling(this.itemstack.getDisplayName()).setStyle(new Style().setItalic(this.itemstack.hasDisplayName()).setColor(this.itemstack.getRarity().color));
 //
@@ -118,9 +118,9 @@ public class TooltipElementsHelper {
                         String s = nbttaglist.getString(j);
 
                         try {
-                            ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s);
-                            if (itextcomponent != null) {
-                                list.add(TextComponentUtils.mergeStyles(itextcomponent, style));
+                            IFormattableTextComponent iformattabletextcomponent1 = ITextComponent.Serializer.func_240643_a_(s);
+                            if (iformattabletextcomponent1 != null) {
+                                list.add(TextComponentUtils.func_240648_a_(iformattabletextcomponent1, style));
                             }
                         } catch (JsonParseException var19) {
                             nbttagcompound.remove("Lore");

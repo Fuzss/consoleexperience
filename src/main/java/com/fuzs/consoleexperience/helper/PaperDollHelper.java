@@ -7,14 +7,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Quaternion;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.math.vector.Vector3f;
 
 import java.util.Collection;
 
@@ -37,12 +37,12 @@ public class PaperDollHelper {
             boolean sprinting = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.sprinting.get() && player.isSprinting() && !player.isSwimming();
             boolean swimming = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.swimming.get() && player.isSwimming();
             boolean crawling = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crawling.get() && player.getPose() == Pose.SWIMMING && !player.isSwimming();
-            boolean crouching = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && remainingRidingTicks == 0 && player.movementInput.field_228350_h_;
+            boolean crouching = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.crouching.get() && remainingRidingTicks == 0 && player.movementInput.sneaking;
             boolean flying = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.flying.get() && player.abilities.isFlying;
             boolean elytra = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.elytraFlying.get() && player.isElytraFlying();
             boolean mounting = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.riding.get() && player.isPassenger();
             boolean spinning = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.spinAttacking.get() && player.isSpinAttacking();
-            boolean moving = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.moving.get() && !player.movementInput.getMoveVector().equals(Vec2f.ZERO);
+            boolean moving = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.moving.get() && !player.movementInput.getMoveVector().equals(Vector2f.ZERO);
             boolean jumping = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.jumping.get() && player.movementInput.jump;
             boolean attacking = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.attacking.get() && player.isSwingInProgress;
             boolean using = ConfigBuildHandler.PAPER_DOLL_CONFIG.displayActionsConfig.using.get() && player.isHandActive();
@@ -60,6 +60,7 @@ public class PaperDollHelper {
     /**
      * Draws an entity on the screen looking toward the cursor.
      */
+    @SuppressWarnings("deprecation")
     public float drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prev) {
 
         // prepare

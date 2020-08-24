@@ -13,6 +13,7 @@ import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -36,26 +37,26 @@ public class TooltipHelper extends TooltipElementsHelper {
         this.itemstack = stack;
         List<ITextComponent> tooltip = Lists.newArrayList();
 
-        this.getName(tooltip, new Style().setColor(TextFormatting.WHITE), ITooltipFlag.TooltipFlags.NORMAL);
+        this.getName(tooltip, Style.EMPTY.setFormatting(TextFormatting.WHITE), ITooltipFlag.TooltipFlags.NORMAL);
 
         if (simple) {
             return tooltip;
         }
 
-        this.getInformation(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
+        this.getInformation(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
 
         if (Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock && tooltip.size() == ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
             return tooltip;
         }
 
-        this.getEnchantments(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()));
-        this.getColorTag(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
-        this.getLoreTag(tooltip, new Style().setItalic(true).setColor(TextFormatting.DARK_PURPLE));
-        //this.getUnbreakable(tooltip, new Style().setColor(TextFormatting.BLUE));
-        //this.getAdventureStats(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
-        this.getDurability(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), false);
-        //this.getNameID(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
-        //this.getNBTAmount(tooltip, new Style().setColor(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
+        this.getEnchantments(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()));
+        this.getColorTag(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
+        this.getLoreTag(tooltip, Style.EMPTY.setItalic(true).setFormatting(TextFormatting.DARK_PURPLE));
+        //this.getUnbreakable(tooltip, Style.EMPTY.setFormatting(TextFormatting.BLUE));
+        //this.getAdventureStats(tooltip, Style.EMPTY.setFormatting(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
+        this.getDurability(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), false);
+        //this.getNameID(tooltip, Style.EMPTY.setFormatting(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
+        //this.getNBTAmount(tooltip, Style.EMPTY.setFormatting(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
         this.getForgeInformation(tooltip, ITooltipFlag.TooltipFlags.NORMAL);
 
         this.applyLastLine(tooltip);
@@ -91,11 +92,11 @@ public class TooltipHelper extends TooltipElementsHelper {
         }
 
         if (flag) {
-            this.getDurability(tooltip, new Style().setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), true);
+            this.getDurability(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), true);
         }
 
         if (j > 0 && ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
-            this.getLastLine(tooltip, new Style().setItalic(true).setColor(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), j);
+            this.getLastLine(tooltip, Style.EMPTY.setItalic(true).setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), j);
         }
 
     }
@@ -116,14 +117,14 @@ public class TooltipHelper extends TooltipElementsHelper {
                 if (flag || flag1) {
 
                     if (flag) {
-                        list.addAll(Lists.newArrayList(blockstate.getBlock().getNameTextComponent().setStyle(style)));
+                        list.addAll(Lists.newArrayList(blockstate.getBlock().getTranslatedName().mergeStyle(style)));
                     }
 
-                    Tag<Block> tag = BlockTags.getCollection().get(resourcelocation);
+                    ITag<Block> tag = BlockTags.getCollection().get(resourcelocation);
                     if (tag != null) {
                         Collection<Block> collection = tag.getAllElements();
                         if (!collection.isEmpty()) {
-                            list.addAll(collection.stream().map(Block::getNameTextComponent).map(it -> it.setStyle(style)).collect(Collectors.toList()));
+                            list.addAll(collection.stream().map(Block::getTranslatedName).map(p_222119_0_ -> p_222119_0_.mergeStyle(style)).collect(Collectors.toList()));
                         }
                     }
 

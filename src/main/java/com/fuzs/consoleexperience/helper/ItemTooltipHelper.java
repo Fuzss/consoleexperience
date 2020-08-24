@@ -5,10 +5,7 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.*;
 
 import java.util.List;
 
@@ -40,7 +37,8 @@ public class ItemTooltipHelper {
 
             for (ItemStack itemstack : contents.subList(0, rows - 1)) {
 
-                tooltip.add(itemstack.getDisplayName().deepCopy().appendText(" x").appendText(String.valueOf(itemstack.getCount())).setStyle(style));
+                IFormattableTextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
+                tooltip.add(iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount())).setStyle(style));
 
             }
 
@@ -50,7 +48,8 @@ public class ItemTooltipHelper {
 
             for (ItemStack itemstack : contents) {
 
-                tooltip.add(itemstack.getDisplayName().deepCopy().appendText(" x").appendText(String.valueOf(itemstack.getCount())).setStyle(style));
+                IFormattableTextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
+                tooltip.add(iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount())).setStyle(style));
 
             }
 

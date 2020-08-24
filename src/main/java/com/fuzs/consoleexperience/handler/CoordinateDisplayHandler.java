@@ -49,10 +49,10 @@ public class CoordinateDisplayHandler {
         RenderSystem.scalef(scale, scale, 1.0F);
 
         if (ConfigBuildHandler.COORDINATE_DISPLAY_CONFIG.background.get()) {
-            AbstractGui.fill(x, y, x + k, y + l, f / 2 << 24);
+            AbstractGui.fill(evt.getMatrixStack(), x, y, x + k, y + l, f / 2 << 24);
         }
 
-        this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), x + 2, y + 2, 16777215 + (f << 24));
+        AbstractGui.drawString(evt.getMatrixStack(), this.mc.fontRenderer, component, x + 2, y + 2, 16777215 + (f << 24));
 
         RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
         RenderSystem.popMatrix();

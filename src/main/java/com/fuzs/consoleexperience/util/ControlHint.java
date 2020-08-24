@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience.util;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -30,11 +30,11 @@ public class ControlHint {
     }
 
     public String getKey() {
-        return this.key.getLocalizedName().toUpperCase(Locale.ROOT);
+        return new TranslationTextComponent(this.key.getKeyDescription()).getString().toUpperCase(Locale.ROOT);
     }
 
     public String getDescription() {
-        return this.text.getFormattedText();
+        return this.text.getString();
     }
 
     public Side getSide() {
@@ -57,7 +57,8 @@ public class ControlHint {
                 this.iconInset * 2 + Math.max(i, this.iconHeight - this.iconInset * 2) + j + 6;
     }
 
-    public void draw(int posX, int posY) {
+    @SuppressWarnings("deprecation")
+    public void draw(MatrixStack matrixStack, int posX, int posY) {
 
         RenderSystem.enableBlend();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -65,21 +66,21 @@ public class ControlHint {
 
         if (this.isMouse()) {
 
-            AbstractGui.blit(posX, posY, 200 + this.iconWidth * this.getIcon(), 0, this.iconWidth, this.iconHeight, 256, 256);
+            AbstractGui.blit(matrixStack, posX, posY, 200 + this.iconWidth * this.getIcon(), 0, this.iconWidth, this.iconHeight, 256, 256);
             posX += this.iconWidth + 3;
 
         } else {
 
             int i = this.mc.fontRenderer.getStringWidth(this.getKey());
             int length = Math.max(i, this.iconHeight - this.iconInset * 2) / 2;
-            AbstractGui.blit(posX, posY, 0, 0, this.iconInset + length, this.iconHeight, 256, 256);
-            AbstractGui.blit(posX + this.iconInset + length, posY, 200 - this.iconInset - length, 0, this.iconInset + length, this.iconHeight, 256, 256);
-            this.mc.fontRenderer.drawStringWithShadow(this.getKey(), posX + this.iconInset + Math.max(0, length - i / 2.0F), posY + 4, -1);
+            AbstractGui.blit(matrixStack, posX, posY, 0, 0, this.iconInset + length, this.iconHeight, 256, 256);
+            AbstractGui.blit(matrixStack, posX + this.iconInset + length, posY, 200 - this.iconInset - length, 0, this.iconInset + length, this.iconHeight, 256, 256);
+            AbstractGui.drawString(matrixStack, this.mc.fontRenderer, this.getKey(), posX + this.iconInset + (int) Math.max(0, length - i / 2.0F), posY + 4, -1);
             posX += this.iconInset * 2 + length * 2 + 3;
 
         }
 
-        this.mc.fontRenderer.drawStringWithShadow(this.getDescription(), posX, posY + 4, -1);
+        AbstractGui.drawString(matrixStack, this.mc.fontRenderer, this.getDescription(), posX, posY + 4, -1);
 
     }
 

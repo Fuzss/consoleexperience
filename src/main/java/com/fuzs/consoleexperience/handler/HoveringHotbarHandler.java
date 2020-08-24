@@ -12,6 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class HoveringHotbarHandler {
 
     private static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
@@ -80,7 +81,7 @@ public class HoveringHotbarHandler {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.mc.getTextureManager().bindTexture(WIDGETS);
             RenderSystem.enableBlend();
-            AbstractGui.blit(width / 2 - 91 - 1 + this.mc.player.inventory.currentItem * 20, height - 1, 0, 44, 24, 2, 256, 256);
+            AbstractGui.blit(evt.getMatrixStack(), width / 2 - 91 - 1 + this.mc.player.inventory.currentItem * 20, height - 1, 0, 44, 24, 2, 256, 256);
             RenderSystem.disableBlend();
 
         }

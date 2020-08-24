@@ -1,11 +1,14 @@
 package com.fuzs.consoleexperience.util;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 
 public class CloseButton extends Button {
 
@@ -13,12 +16,12 @@ public class CloseButton extends Button {
 
     private final int posX;
     private final int posY;
-    private final ContainerScreen parent;
+    private final ContainerScreen<Container> parent;
     // mainly for chests
     private final boolean isScreenSmall;
 
-    public CloseButton(int posX, int posY, IPressable onPress, ContainerScreen screen) {
-        super(0, 0, 15, 15, "", onPress);
+    public CloseButton(int posX, int posY, IPressable onPress, ContainerScreen<Container> screen) {
+        super(0, 0, 15, 15, StringTextComponent.EMPTY, onPress);
         this.parent = screen;
         this.isScreenSmall = this.parent.getYSize() != 166;
         this.posX = posX;
@@ -26,7 +29,7 @@ public class CloseButton extends Button {
     }
 
     @Override
-    public void renderButton(int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
+    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 
         this.x = this.parent.getGuiLeft() + this.parent.getXSize() - this.posX - this.width;
         this.y = this.parent.getGuiTop() + this.posY;
@@ -35,9 +38,9 @@ public class CloseButton extends Button {
 
         RenderSystem.disableDepthTest();
         if (this.isScreenSmall) {
-            blit(this.x + 1, this.y + 1, 1, this.isHovered() ? this.height + 1 : 1, this.width - 2, this.height - 2);
+            this.blit(matrixStack, this.x + 1, this.y + 1, 1, this.isHovered() ? this.height + 1 : 1, this.width - 2, this.height - 2);
         } else {
-            blit(this.x, this.y, 0, this.isHovered() ? this.height : 0, this.width, this.height);
+            this.blit(matrixStack, this.x, this.y, 0, this.isHovered() ? this.height : 0, this.width, this.height);
         }
         RenderSystem.enableDepthTest();
 

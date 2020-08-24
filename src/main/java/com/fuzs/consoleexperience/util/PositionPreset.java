@@ -8,9 +8,9 @@ public enum PositionPreset {
     BOTTOM_LEFT("bottomleft", 0, 1, false),
     BOTTOM_RIGHT("bottomright", 1, 1, false);
 
-    private int x;
-    private int y;
-    private boolean shift;
+    private final int x;
+    private final int y;
+    private final boolean shift;
 
     PositionPreset(String unlocalizedNameIn, int x, int y, boolean potionShift) {
         this.x = x;

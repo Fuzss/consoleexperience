@@ -80,7 +80,7 @@ public class ControlHintHandler {
                     break;
                 }
 
-                hint.draw(x, y);
+                hint.draw(evt.getMatrixStack(), x, y);
                 x += hint.getWidth() + 5;
 
             }

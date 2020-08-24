@@ -60,7 +60,7 @@ public class PaperDollHandler {
         if (this.mc.player != null && this.mc.playerController != null) {
 
             boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode();
-            boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !ConfigBuildHandler.PAPER_DOLL_CONFIG.firstPerson.get();
+            boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !ConfigBuildHandler.PAPER_DOLL_CONFIG.firstPerson.get();
 
             if (flag && firstPerson && !HideHudHandler.isActive() && this.remainingDisplayTicks > 0) {
 

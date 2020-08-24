@@ -37,7 +37,7 @@ public class ItemTooltipHandler {
 
                     List<ITextComponent> list = Lists.newArrayList();
                     this.itemHelper.getLootTableTooltip(list, evt.getItemStack());
-                    this.itemHelper.getContentsTooltip(list, evt.getItemStack(), new Style().setColor(TextFormatting.GRAY), ConfigBuildHandler.MISCELLANEOUS_CONFIG.shulkerBoxRows.get());
+                    this.itemHelper.getContentsTooltip(list, evt.getItemStack(), Style.EMPTY.setFormatting(TextFormatting.GRAY), ConfigBuildHandler.MISCELLANEOUS_CONFIG.shulkerBoxRows.get());
                     tooltip.addAll(i, list);
 
                 }
