@@ -1,8 +1,5 @@
-package com.fuzs.consoleexperience.handler;
+package com.fuzs.consoleexperience.client.config;
 
-import com.fuzs.consoleexperience.util.HeadMovement;
-import com.fuzs.consoleexperience.util.PositionPreset;
-import com.fuzs.consoleexperience.util.TextColor;
 import com.google.common.collect.Lists;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -92,7 +89,7 @@ public class ConfigBuildHandler {
 				this.showDurability = ConfigBuildHandler.BUILDER.comment("Displays the item's durability as part of its held item tooltip.").define("Show Durability", true);
 				this.forceDurability = ConfigBuildHandler.BUILDER.comment("Force the durability to always be on the tooltip. \"Show Durability\" has to be enabled for this to have any effect.").define("Force Durability", true);
 				this.showLastLine = ConfigBuildHandler.BUILDER.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Show Last Line", true);
-				this.textColor = ConfigBuildHandler.BUILDER.comment("Default text color. Only applied when the text doesn't already have a color assigned internally.").defineEnum("Text Color", TextColor.SILVER);
+				this.textColor = ConfigBuildHandler.BUILDER.comment("Default text color. Only applied when the text doesn't already have a color assigned internally.").defineEnum("Text Color", TextColor.LIGHT_GRAY);
 
 				BUILDER.pop();
 
@@ -142,7 +139,7 @@ public class ConfigBuildHandler {
 			public final ForgeConfigSpec.BooleanValue crawling;
 			public final ForgeConfigSpec.BooleanValue crouching;
 			public final ForgeConfigSpec.BooleanValue flying;
-			public final ForgeConfigSpec.BooleanValue elytraFlying;
+			public final ForgeConfigSpec.BooleanValue gliding;
 			public final ForgeConfigSpec.BooleanValue riding;
 			public final ForgeConfigSpec.BooleanValue spinAttacking;
 			public final ForgeConfigSpec.BooleanValue moving;
@@ -160,7 +157,7 @@ public class ConfigBuildHandler {
 				this.crawling = ConfigBuildHandler.BUILDER.comment("Display the paper doll when the player is crawling in a tight space.").define("Crawling", true);
 				this.crouching = ConfigBuildHandler.BUILDER.comment("Display the paper doll while the player is crouching.").define("Crouching", true);
 				this.flying = ConfigBuildHandler.BUILDER.comment("Display the paper doll while the player is using creative mode flight.").define("Flying", true);
-				this.elytraFlying = ConfigBuildHandler.BUILDER.comment("Display the paper doll while the player is flying with an elytra.").define("Elytra Flying", true);
+				this.gliding = ConfigBuildHandler.BUILDER.comment("Display the paper doll while the player is flying with an elytra.").define("Elytra Flying", true);
 				this.riding = ConfigBuildHandler.BUILDER.comment("Show the paper doll when the player is riding any entity.").define("Riding", false);
 				this.spinAttacking = ConfigBuildHandler.BUILDER.comment("Show the paper doll when the player is spin attacking using a riptide enchanted trident.").define("Spin Attacking", false);
 				this.moving = ConfigBuildHandler.BUILDER.comment("Show the paper doll when the player is moving.").define("Moving", false);

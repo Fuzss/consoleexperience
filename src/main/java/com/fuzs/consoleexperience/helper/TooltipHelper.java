@@ -1,6 +1,6 @@
 package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consoleexperience.handler.ConfigBuildHandler;
+import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -14,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -26,11 +25,7 @@ import java.util.stream.Collectors;
 
 public class TooltipHelper extends TooltipElementsHelper {
 
-    private final Minecraft mc;
-
-    public TooltipHelper(Minecraft mc) {
-        this.mc = mc;
-    }
+    private final Minecraft mc = Minecraft.getInstance();
 
     public List<ITextComponent> createTooltip(ItemStack stack, boolean simple) {
 
@@ -43,7 +38,7 @@ public class TooltipHelper extends TooltipElementsHelper {
             return tooltip;
         }
 
-        this.getInformation(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
+        this.getInformation(tooltip, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor(), ITooltipFlag.TooltipFlags.ADVANCED, this.mc.player.world);
 
         if (Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock && tooltip.size() == ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get()) {
             return tooltip;

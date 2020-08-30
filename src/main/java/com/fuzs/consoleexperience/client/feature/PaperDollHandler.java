@@ -1,7 +1,8 @@
-package com.fuzs.consoleexperience.handler;
+package com.fuzs.consoleexperience.client.feature;
 
+import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
 import com.fuzs.consoleexperience.helper.PaperDollHelper;
-import com.fuzs.consoleexperience.util.PositionPreset;
+import com.fuzs.consoleexperience.client.config.PositionPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -11,7 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class PaperDollHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
-    private final PaperDollHelper helper = new PaperDollHelper(this.mc);
+    private final PaperDollHelper helper = new PaperDollHelper();
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
@@ -62,7 +63,7 @@ public class PaperDollHandler {
             boolean flag = !this.mc.player.isInvisible() && !this.mc.playerController.isSpectatorMode();
             boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !ConfigBuildHandler.PAPER_DOLL_CONFIG.firstPerson.get();
 
-            if (flag && firstPerson && !HideHudHandler.isActive() && this.remainingDisplayTicks > 0) {
+            if (flag && firstPerson && !Features.HIDE_HUD.isActive() && this.remainingDisplayTicks > 0) {
 
                 int scale = ConfigBuildHandler.PAPER_DOLL_CONFIG.scale.get() * 5;
                 PositionPreset position = ConfigBuildHandler.PAPER_DOLL_CONFIG.position.get();
@@ -92,7 +93,9 @@ public class PaperDollHandler {
     @SubscribeEvent
     public void onRenderBlockOverlay(RenderBlockOverlayEvent evt) {
 
+        // hide flame overlay and only show on paper doll
         if (ConfigBuildHandler.GENERAL_CONFIG.paperDoll.get() && ConfigBuildHandler.PAPER_DOLL_CONFIG.burning.get() && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
+
             evt.setCanceled(true);
         }
 

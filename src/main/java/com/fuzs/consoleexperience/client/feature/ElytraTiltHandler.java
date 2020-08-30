@@ -1,5 +1,6 @@
-package com.fuzs.consoleexperience.handler;
+package com.fuzs.consoleexperience.client.feature;
 
+import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
@@ -10,7 +11,7 @@ public class ElytraTiltHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onCameraSetup(EntityViewRenderEvent.CameraSetup evt) {
+    public void onCameraSetup(final EntityViewRenderEvent.CameraSetup evt) {
 
         ClientPlayerEntity player = Minecraft.getInstance().player;
 

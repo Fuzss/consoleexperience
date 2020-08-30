@@ -1,6 +1,6 @@
 package com.fuzs.consoleexperience.helper;
 
-import com.fuzs.consoleexperience.handler.ConfigBuildHandler;
+import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
 import com.google.common.base.Strings;
 import com.google.gson.JsonParseException;
 import net.minecraft.block.Block;
@@ -24,10 +24,9 @@ import java.util.stream.Collectors;
 /**
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
-@SuppressWarnings({"WeakerAccess", "ConstantConditions", "SameParameterValue", "unused"})
-public class TooltipElementsHelper {
+@SuppressWarnings({"unused", "SameParameterValue", "ConstantConditions"})
+public class TooltipElementsHelper implements IShulkerTooltip {
 
-    private final ItemTooltipHelper itemHelper = new ItemTooltipHelper();
     protected ItemStack itemstack = ItemStack.EMPTY;
 
     protected void getName(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag) {
@@ -44,14 +43,14 @@ public class TooltipElementsHelper {
 
     }
 
-    protected void getInformation(List<ITextComponent> list, Style style, ITooltipFlag.TooltipFlags tooltipflag, World world) {
+    protected void getInformation(List<ITextComponent> list, TextFormatting color, ITooltipFlag.TooltipFlags tooltipflag, World world) {
 
         // create list with single element that'll be removed later anyways as some mods apparently expect the list to not be empty
         List<ITextComponent> information = new ArrayList<>(Collections.singletonList(new StringTextComponent("")));
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
-            this.itemHelper.getContentsTooltip(information, this.itemstack, style, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+            this.addInformation(information, this.itemstack, color, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
 
         } else {
 

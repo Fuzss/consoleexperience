@@ -1,19 +1,16 @@
-package com.fuzs.consoleexperience.handler;
+package com.fuzs.consoleexperience.client.feature;
 
+import com.fuzs.consoleexperience.helper.BackgroundState;
 import com.google.common.collect.Lists;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
-@SuppressWarnings("WeakerAccess")
-public class HideHudHandler {
+public class HideHudFeature extends Feature {
 
-    private final Minecraft mc = Minecraft.getInstance();
+    private final BackgroundState state = new BackgroundState();
     // list of hud elements allowed to be hidden
     private final List<RenderGameOverlayEvent.ElementType> elements = Lists.newArrayList(
             ElementType.CROSSHAIRS, ElementType.BOSSHEALTH, ElementType.BOSSINFO, ElementType.ARMOR, ElementType.HEALTH,
@@ -22,34 +19,49 @@ public class HideHudHandler {
             ElementType.POTION_ICONS, ElementType.SUBTITLES, ElementType.FPS_GRAPH
     );
 
-    public static int background;
+    @Override
+    public void setupFeature() {
 
-    @SuppressWarnings("unused")
-    @SubscribeEvent
-    public void onBackgroundDrawn(GuiScreenEvent.BackgroundDrawnEvent evt) {
-
-        if (this.mc.world != null) {
-            background = 2;
-        }
-
+        this.addListener(this.state::onBackgroundDrawn);
+        this.addListener(EventPriority.HIGHEST, this::onRenderGameOverlayPre);
     }
 
-    @SuppressWarnings("unused")
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre evt) {
+    @Override
+    protected boolean getDefaultState() {
 
-        if (isActive()) {
+        return true;
+    }
+
+    @Override
+    protected String getDisplayName() {
+
+        return "Hide Hud In Containers";
+    }
+
+    @Override
+    protected String getDescription() {
+
+        return "Hide hud elements when inside of a container.";
+    }
+
+    @Override
+    public boolean isActive() {
+
+        return this.state.isActive();
+    }
+
+    private void onRenderGameOverlayPre(final RenderGameOverlayEvent.Pre evt) {
+
+        if (this.isActive()) {
+
             if (evt.getType() == ElementType.ALL) {
-                background--;
+
+                this.state.tick();
             } else if (this.elements.contains(evt.getType())) {
+
                 evt.setCanceled(true);
             }
         }
-
-    }
-
-    public static boolean isActive() {
-        return ConfigBuildHandler.MISCELLANEOUS_CONFIG.hideHudInGui.get() && background > 0;
     }
 
 }

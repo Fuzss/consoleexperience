@@ -1,5 +1,6 @@
-package com.fuzs.consoleexperience.handler;
+package com.fuzs.consoleexperience.client.feature;
 
+import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
 import com.fuzs.consoleexperience.helper.TooltipHelper;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -21,7 +22,7 @@ import java.util.List;
 public class SelectedItemHandler {
 
     private final Minecraft mc = Minecraft.getInstance();
-    private final TooltipHelper tooltipHelper = new TooltipHelper(this.mc);
+    private final TooltipHelper tooltipHelper = new TooltipHelper();
     private final List<ITextComponent> tooltipCache = Lists.newArrayList();
 
     private ITextComponent overlayMessage;
