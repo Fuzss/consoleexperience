@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.client.config;
+package com.fuzs.consoleexperience.client.tooltip;
 
 import net.minecraft.util.text.TextFormatting;
 

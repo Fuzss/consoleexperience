@@ -1,6 +1,6 @@
-package com.fuzs.consoleexperience.helper;
+package com.fuzs.consoleexperience.client.tooltip;
 
-import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
+import com.fuzs.consoleexperience.client.util.ConfigBuildHandler;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -48,7 +48,6 @@ public class TooltipHelper extends TooltipElementsHelper {
         this.getColorTag(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), ITooltipFlag.TooltipFlags.ADVANCED);
         this.getLoreTag(tooltip, Style.EMPTY.setItalic(true).setFormatting(TextFormatting.DARK_PURPLE));
         //this.getUnbreakable(tooltip, Style.EMPTY.setFormatting(TextFormatting.BLUE));
-        //this.getAdventureStats(tooltip, Style.EMPTY.setFormatting(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
         this.getDurability(tooltip, Style.EMPTY.setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), false);
         //this.getNameID(tooltip, Style.EMPTY.setFormatting(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
         //this.getNBTAmount(tooltip, Style.EMPTY.setFormatting(ConfigHandler.HELD_ITEM_TOOLTIPS_CONFIG.textColor.getChatColor()));
@@ -92,43 +91,6 @@ public class TooltipHelper extends TooltipElementsHelper {
 
         if (j > 0 && ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.showLastLine.get()) {
             this.getLastLine(tooltip, Style.EMPTY.setItalic(true).setFormatting(ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.appearanceConfig.textColor.get().getChatColor()), j);
-        }
-
-    }
-
-    @SuppressWarnings({"WeakerAccess", "ConstantConditions"})
-    protected static void getAdventureBlockInfo(List<ITextComponent> list, Style style, ListNBT nbttaglist) {
-
-        for (int i = 0; i < nbttaglist.size(); i++) {
-
-            try {
-
-                BlockStateParser blockstateparser = new BlockStateParser(new StringReader(nbttaglist.getString(i)), true).parse(true);
-                BlockState blockstate = blockstateparser.getState();
-                ResourceLocation resourcelocation = blockstateparser.getTag();
-                boolean flag = blockstate != null;
-                boolean flag1 = resourcelocation != null;
-
-                if (flag || flag1) {
-
-                    if (flag) {
-                        list.addAll(Lists.newArrayList(blockstate.getBlock().getTranslatedName().mergeStyle(style)));
-                    }
-
-                    ITag<Block> tag = BlockTags.getCollection().get(resourcelocation);
-                    if (tag != null) {
-                        Collection<Block> collection = tag.getAllElements();
-                        if (!collection.isEmpty()) {
-                            list.addAll(collection.stream().map(Block::getTranslatedName).map(p_222119_0_ -> p_222119_0_.mergeStyle(style)).collect(Collectors.toList()));
-                        }
-                    }
-
-                }
-
-            } catch (CommandSyntaxException ignored) {
-
-            }
-
         }
 
     }

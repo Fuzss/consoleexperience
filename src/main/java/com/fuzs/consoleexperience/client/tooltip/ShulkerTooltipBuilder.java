@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.helper;
+package com.fuzs.consoleexperience.client.tooltip;
 
 import com.google.common.collect.Lists;
 import net.minecraft.inventory.ItemStackHelper;
@@ -9,9 +9,9 @@ import net.minecraft.util.text.*;
 
 import java.util.List;
 
-public interface IShulkerTooltip {
+public class ShulkerTooltipBuilder {
 
-    default void addInformation(List<ITextComponent> tooltip, ItemStack stack, TextFormatting color, int rows) {
+    public static void addInformation(List<ITextComponent> tooltip, ItemStack stack, TextFormatting color, int rows) {
 
         CompoundNBT compoundnbt = stack.getChildTag("BlockEntityTag");
         if (compoundnbt == null || rows == 0) {
@@ -19,8 +19,8 @@ public interface IShulkerTooltip {
             return;
         }
 
-        this.getLootTableTooltip(tooltip, compoundnbt, color);
-        List<ItemStack> contents = this.contentsToList(compoundnbt);
+        getLootTableTooltip(tooltip, compoundnbt, color);
+        List<ItemStack> contents = contentsToList(compoundnbt);
         if (contents.size() > rows) {
 
             for (ItemStack itemstack : contents.subList(0, rows - 1)) {
@@ -41,7 +41,7 @@ public interface IShulkerTooltip {
         }
     }
 
-    default void getLootTableTooltip(List<ITextComponent> tooltip, CompoundNBT compoundnbt, TextFormatting color) {
+    private static void getLootTableTooltip(List<ITextComponent> tooltip, CompoundNBT compoundnbt, TextFormatting color) {
 
         if (compoundnbt.contains("LootTable", 8)) {
 
@@ -49,19 +49,19 @@ public interface IShulkerTooltip {
         }
     }
 
-    default List<ItemStack> contentsToList(CompoundNBT compoundnbt) {
+    private static List<ItemStack> contentsToList(CompoundNBT compoundnbt) {
 
         if (compoundnbt.contains("Items", 9)) {
 
             NonNullList<ItemStack> nonnulllist = NonNullList.withSize(27, ItemStack.EMPTY);
             ItemStackHelper.loadAllItems(compoundnbt, nonnulllist);
-            return this.mergeInventory(nonnulllist);
+            return mergeInventory(nonnulllist);
         }
 
         return Lists.newArrayList();
     }
 
-    default List<ItemStack> mergeInventory(List<ItemStack> list) {
+    private static List<ItemStack> mergeInventory(List<ItemStack> list) {
 
         List<ItemStack> contents = Lists.newArrayList();
         for (ItemStack itemstack : list) {

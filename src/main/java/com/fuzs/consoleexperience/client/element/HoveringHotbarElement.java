@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -9,12 +9,11 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class HoveringHotbarHandler extends Feature {
+public class HoveringHotbarElement extends GameplayElement {
 
     private static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
     
@@ -28,7 +27,7 @@ public class HoveringHotbarHandler extends Feature {
     );
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(EventPriority.HIGHEST, true, this::onRenderGameOverlayPre1);
         this.addListener(EventPriority.LOWEST, true, this::onRenderGameOverlayPre2);

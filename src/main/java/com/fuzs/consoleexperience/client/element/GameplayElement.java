@@ -1,5 +1,6 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
+import com.fuzs.consoleexperience.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
@@ -8,25 +9,25 @@ import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.function.Consumer;
 
-public abstract class Feature {
+public abstract class GameplayElement {
 
     protected final Minecraft mc = Minecraft.getInstance();
 
-    private ForgeConfigSpec.BooleanValue enabled;
+    private boolean enabled;
 
     public final void init() {
 
         if (this.isEnabled()) {
 
-            this.setupFeature();
+            this.setupElement();
         }
     }
 
-    protected abstract void setupFeature();
+    protected abstract void setupElement();
 
     public final void setupGeneralConfig(ForgeConfigSpec.Builder builder) {
 
-        this.enabled = builder.comment(this.getDescription()).define(this.getDisplayName(), this.getDefaultState());
+        ConfigManager.registerClientEntry(builder.comment(this.getDescription()).define(this.getDisplayName(), this.getDefaultState()), v -> this.enabled = v);
     }
 
     public void setupConfig(ForgeConfigSpec.Builder builder) {
@@ -41,7 +42,7 @@ public abstract class Feature {
 
     public final boolean isEnabled() {
 
-        return this.enabled.get();
+        return this.enabled;
     }
 
     public boolean isActive() {
@@ -56,12 +57,12 @@ public abstract class Feature {
 
     protected final <T extends Event> void addListener(EventPriority priority, Consumer<T> consumer) {
 
-        MinecraftForge.EVENT_BUS.addListener(consumer);
+        MinecraftForge.EVENT_BUS.addListener(priority, consumer);
     }
 
     protected final <T extends Event> void addListener(EventPriority priority, boolean receiveCancelled, Consumer<T> consumer) {
 
-        MinecraftForge.EVENT_BUS.addListener(consumer);
+        MinecraftForge.EVENT_BUS.addListener(priority, receiveCancelled, consumer);
     }
 
 }

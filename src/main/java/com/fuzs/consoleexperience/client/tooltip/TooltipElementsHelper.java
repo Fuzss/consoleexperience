@@ -1,6 +1,6 @@
-package com.fuzs.consoleexperience.helper;
+package com.fuzs.consoleexperience.client.tooltip;
 
-import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
+import com.fuzs.consoleexperience.client.util.ConfigBuildHandler;
 import com.google.common.base.Strings;
 import com.google.gson.JsonParseException;
 import net.minecraft.block.Block;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * This is basically ItemStack#getTooltip split into separate functions to be modular (and completely customisable in the future)
  */
 @SuppressWarnings({"unused", "SameParameterValue", "ConstantConditions"})
-public class TooltipElementsHelper implements IShulkerTooltip {
+public class TooltipElementsHelper {
 
     protected ItemStack itemstack = ItemStack.EMPTY;
 
@@ -50,7 +50,7 @@ public class TooltipElementsHelper implements IShulkerTooltip {
 
         if (Block.getBlockFromItem(this.itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
-            this.addInformation(information, this.itemstack, color, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
+            ShulkerTooltipBuilder.addInformation(information, this.itemstack, color, ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.rows.get() - 1);
 
         } else {
 
@@ -135,38 +135,6 @@ public class TooltipElementsHelper implements IShulkerTooltip {
 
         if (this.itemstack.hasTag() && this.itemstack.getTag().getBoolean("Unbreakable")) {
             list.add(new TranslationTextComponent("item.unbreakable").setStyle(style));
-        }
-
-    }
-
-    protected void getAdventureStats(List<ITextComponent> list, Style style) {
-
-        if (this.itemstack.hasTag()) {
-
-            if (this.itemstack.getTag().contains("CanDestroy", 9)) {
-
-                ListNBT nbttaglist1 = this.itemstack.getTag().getList("CanDestroy", 8);
-
-                if (!nbttaglist1.isEmpty()) {
-
-                    list.add(new TranslationTextComponent("item.canBreak").setStyle(style));
-
-                    TooltipHelper.getAdventureBlockInfo(list, style, nbttaglist1);
-                }
-            }
-
-            if (this.itemstack.getTag().contains("CanPlaceOn", 9)) {
-
-                ListNBT nbttaglist2 = this.itemstack.getTag().getList("CanPlaceOn", 8);
-
-                if (!nbttaglist2.isEmpty()) {
-
-                    list.add(new TranslationTextComponent("item.canPlace").setStyle(style));
-
-                    TooltipHelper.getAdventureBlockInfo(list, style, nbttaglist2);
-                }
-            }
-
         }
 
     }

@@ -1,11 +1,11 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
 import net.minecraftforge.client.event.RenderTooltipEvent;
 
-public class TintedTooltipFeature extends Feature {
+public class TintedTooltipElement extends GameplayElement {
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(this::onRenderTooltipColor);
     }

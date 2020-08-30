@@ -1,7 +1,7 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.client.config.ConfigBuildHandler;
-import com.fuzs.consoleexperience.helper.TooltipHelper;
+import com.fuzs.consoleexperience.client.util.ConfigBuildHandler;
+import com.fuzs.consoleexperience.client.tooltip.TooltipHelper;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;

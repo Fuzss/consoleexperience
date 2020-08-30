@@ -1,6 +1,6 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.helper.BackgroundState;
+import com.fuzs.consoleexperience.client.util.BackgroundState;
 import com.google.common.collect.Lists;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.List;
 
-public class HideHudFeature extends Feature {
+public class HideHudElement extends GameplayElement {
 
     private final BackgroundState state = new BackgroundState();
     // list of hud elements allowed to be hidden
@@ -20,7 +20,7 @@ public class HideHudFeature extends Feature {
     );
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(this.state::onBackgroundDrawn);
         this.addListener(EventPriority.HIGHEST, this::onRenderGameOverlayPre);

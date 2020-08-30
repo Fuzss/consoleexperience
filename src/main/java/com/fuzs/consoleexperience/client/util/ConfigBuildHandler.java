@@ -1,5 +1,7 @@
-package com.fuzs.consoleexperience.client.config;
+package com.fuzs.consoleexperience.client.util;
 
+import com.fuzs.consoleexperience.client.gui.PositionPreset;
+import com.fuzs.consoleexperience.client.tooltip.TextColor;
 import com.google.common.collect.Lists;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -107,7 +109,7 @@ public class ConfigBuildHandler {
 		public final ForgeConfigSpec.IntValue xOffset;
 		public final ForgeConfigSpec.IntValue yOffset;
 		public final ForgeConfigSpec.IntValue displayTime;
-        public final ForgeConfigSpec.EnumValue<HeadMovement> headMovement;
+        //public final ForgeConfigSpec.EnumValue<HeadMovement> headMovement;
 		public final ForgeConfigSpec.BooleanValue potionShift;
 		public final ForgeConfigSpec.BooleanValue burning;
 		public final ForgeConfigSpec.BooleanValue firstPerson;
@@ -121,7 +123,7 @@ public class ConfigBuildHandler {
 			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.displayTime = ConfigBuildHandler.BUILDER.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
 			this.position = ConfigBuildHandler.BUILDER.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT);
-            this.headMovement = ConfigBuildHandler.BUILDER.comment("Set the axis the player head can move on.").defineEnum("Head Movement", HeadMovement.YAW);
+            //this.headMovement = ConfigBuildHandler.BUILDER.comment("Set the axis the player head can move on.").defineEnum("Head Movement", HeadMovement.YAW);
 			this.potionShift = ConfigBuildHandler.BUILDER.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
 			this.burning = ConfigBuildHandler.BUILDER.comment("Disable flame overlay on the hud when on fire and display the burning paper doll instead.").define("Burning Doll", false);
 			this.firstPerson = ConfigBuildHandler.BUILDER.comment("Only show the paper doll when in first person mode.").define("First Person Only", true);

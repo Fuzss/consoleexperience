@@ -1,6 +1,6 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.helper.IShulkerTooltip;
+import com.fuzs.consoleexperience.client.tooltip.ShulkerTooltipBuilder;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
@@ -12,12 +12,12 @@ import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.List;
 
-public class ShulkerTooltipFeature extends Feature implements IShulkerTooltip {
+public class ShulkerTooltipElement extends GameplayElement {
 
     private ForgeConfigSpec.IntValue rows;
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(EventPriority.LOW, this::onMakeTooltip);
     }
@@ -61,7 +61,7 @@ public class ShulkerTooltipFeature extends Feature implements IShulkerTooltip {
                 if (index != -1 && tooltip.removeAll(oldContents)) {
 
                     List<ITextComponent> newContents = Lists.newArrayList();
-                    this.addInformation(newContents, evt.getItemStack(), TextFormatting.GRAY, this.rows.get());
+                    ShulkerTooltipBuilder.addInformation(newContents, evt.getItemStack(), TextFormatting.GRAY, this.rows.get());
                     tooltip.addAll(index, newContents);
                 }
             }

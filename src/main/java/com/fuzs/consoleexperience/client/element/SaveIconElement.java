@@ -1,9 +1,8 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
-import com.fuzs.consoleexperience.client.config.PositionPreset;
-import com.fuzs.consoleexperience.helper.BackgroundState;
-import com.fuzs.consoleexperience.helper.PaperDollHelper;
+import com.fuzs.consoleexperience.client.gui.PositionPreset;
+import com.fuzs.consoleexperience.client.util.BackgroundState;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
@@ -15,7 +14,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
 @SuppressWarnings({"FieldCanBeLocal", "deprecation"})
-public class SaveIconFeature extends Feature {
+public class SaveIconElement extends GameplayElement {
 
     private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/auto_save.png");
 
@@ -33,7 +32,7 @@ public class SaveIconFeature extends Feature {
     private int remainingDisplayTicks;
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(this.state::onBackgroundDrawn);
         this.addListener(this::onSaveWorld);
@@ -123,10 +122,10 @@ public class SaveIconFeature extends Feature {
             int posX = position.getX(this.width, windowWidth, this.xOffset.get());
             int posY = position.getY(this.height, windowHeight, this.yOffset.get());
 
-            if (shift && this.potionShift.get() && position.shouldShift()) {
+            if (shift && this.potionShift.get()) {
 
                 assert this.mc.player != null;
-                posY += PaperDollHelper.getPotionShift(this.mc.player.getActivePotionEffects());
+                posY += position.getPotionShift(this.mc.player.getActivePotionEffects());
             }
 
             RenderSystem.pushMatrix();

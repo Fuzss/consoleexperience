@@ -1,6 +1,6 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.client.config.PositionPreset;
+import com.fuzs.consoleexperience.client.gui.PositionPreset;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.gui.AbstractGui;
@@ -9,7 +9,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class CoordinateDisplayFeature extends Feature {
+public class CoordinateDisplayElement extends GameplayElement {
     
     private ForgeConfigSpec.IntValue scale;
     private ForgeConfigSpec.IntValue xOffset;
@@ -19,7 +19,7 @@ public class CoordinateDisplayFeature extends Feature {
     private ForgeConfigSpec.IntValue decimalPlaces;
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(this::onRenderGameOverlayPre);
     }

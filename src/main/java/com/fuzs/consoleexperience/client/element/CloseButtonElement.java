@@ -1,18 +1,18 @@
-package com.fuzs.consoleexperience.client.feature;
+package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.util.CloseButton;
+import com.fuzs.consoleexperience.client.gui.button.CloseButton;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.inventory.container.Container;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class CloseButtonFeature extends Feature {
+public class CloseButtonElement extends GameplayElement {
 
     private ForgeConfigSpec.IntValue offsetX;
     private ForgeConfigSpec.IntValue offsetY;
 
     @Override
-    public void setupFeature() {
+    public void setupElement() {
 
         this.addListener(this::onInitGui);
     }
@@ -38,8 +38,8 @@ public class CloseButtonFeature extends Feature {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.offsetX = builder.comment("Offset on x-axis from gui right.").defineInRange("Close Button X-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        this.offsetY = builder.comment("Offset on y-axis from gui top.").defineInRange("Close Button Y-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        this.offsetX = builder.comment("Offset on x-axis from gui right.").defineInRange("X-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        this.offsetY = builder.comment("Offset on y-axis from gui top.").defineInRange("Y-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     private void onInitGui(final GuiScreenEvent.InitGuiEvent.Post evt) {

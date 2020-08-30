@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.util;
+package com.fuzs.consoleexperience.client.gui.button;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.mojang.blaze3d.matrix.MatrixStack;
