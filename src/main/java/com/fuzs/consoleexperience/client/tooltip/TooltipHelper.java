@@ -1,27 +1,17 @@
 package com.fuzs.consoleexperience.client.tooltip;
 
-import com.fuzs.consoleexperience.client.util.ConfigBuildHandler;
+import com.fuzs.consoleexperience.config.ConfigBuildHandler;
 import com.google.common.collect.Lists;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TooltipHelper extends TooltipElementsHelper {
 

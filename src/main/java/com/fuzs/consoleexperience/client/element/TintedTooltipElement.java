@@ -5,7 +5,7 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 public class TintedTooltipElement extends GameplayElement {
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(this::onRenderTooltipColor);
     }

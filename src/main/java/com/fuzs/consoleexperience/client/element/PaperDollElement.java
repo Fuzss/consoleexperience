@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.client.gui.PositionPreset;
 import com.fuzs.consoleexperience.client.gui.PaperDollRenderer;
+import com.fuzs.consoleexperience.client.gui.PositionPreset;
 import com.google.common.collect.Sets;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -20,14 +20,14 @@ import java.util.function.Predicate;
 
 public class PaperDollElement extends GameplayElement {
     
-    private ForgeConfigSpec.EnumValue<PositionPreset> position;
-    private ForgeConfigSpec.IntValue scale;
-    private ForgeConfigSpec.IntValue xOffset;
-    private ForgeConfigSpec.IntValue yOffset;
-    private ForgeConfigSpec.IntValue displayTime;
-    private ForgeConfigSpec.BooleanValue potionShift;
-    private ForgeConfigSpec.BooleanValue burning;
-    private ForgeConfigSpec.BooleanValue firstPerson;
+    private PositionPreset position;
+    private int scale;
+    private int xOffset;
+    private int yOffset;
+    private int displayTime;
+    private boolean potionShift;
+    private boolean burning;
+    private boolean firstPerson;
 
     private static final Set<PaperDollCondition> DOLL_CONDITIONS = Sets.newHashSet();
     private final PaperDollRenderer dollRenderer = new PaperDollRenderer();
@@ -38,12 +38,11 @@ public class PaperDollElement extends GameplayElement {
     private float lastSwimAnimation = 1.0F;
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayPre);
         this.addListener(this::onRenderBlockOverlay);
-        this.dollRenderer.setPositionPreset(this.position);
     }
 
     @Override
@@ -67,13 +66,17 @@ public class PaperDollElement extends GameplayElement {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.scale = builder.comment("Scale of paper doll. Works in tandem with \"GUI Scale\" option in \"Video Settings\".").defineInRange("Scale", 4, 1, 24);
-        this.xOffset = builder.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        this.yOffset = builder.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        this.displayTime = builder.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE);
-        this.position = builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT);
-        this.potionShift = builder.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
-        this.firstPerson = builder.comment("Only show the paper doll when in first person mode.").define("First Person Only", true);
+        registerClientEntry(builder.comment("Scale of paper doll. Works in tandem with \"GUI Scale\" option in \"Video Settings\".").defineInRange("Scale", 4, 1, 24), v -> this.scale = v);
+        registerClientEntry(builder.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
+        registerClientEntry(builder.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.yOffset = v);
+        registerClientEntry(builder.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
+        registerClientEntry(builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT), v -> {
+
+            this.position = v;
+            this.dollRenderer.setPositionPreset(v);
+        });
+        registerClientEntry(builder.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
+        registerClientEntry(builder.comment("Only show the paper doll when in first person mode.").define("First Person Only", true), v -> this.firstPerson = v);
         
         this.setupConditions(builder);
         this.dollRenderer.setupConfig(builder);
@@ -83,6 +86,7 @@ public class PaperDollElement extends GameplayElement {
         
         builder.push("conditions");
         String s = "Display paper doll while ";
+
         registerCondition(builder.comment(s + "sprinting.").define("Sprinting", true), player -> player.isSprinting() && !player.isSwimming());
         registerCondition(builder.comment(s + "swimming.").define("Swimming", true), PlayerEntity::isSwimming);
         registerCondition(builder.comment(s + "crawling in a tight space.").define("Crawling", true), player -> player.getPose() == Pose.SWIMMING && !player.isSwimming());
@@ -96,12 +100,20 @@ public class PaperDollElement extends GameplayElement {
         registerCondition(builder.comment(s + "interacting with the world.").define("Interacting", false), player -> player.isSwingInProgress);
         registerCondition(builder.comment(s + "using an item like food or a bow.").define("Using", false), ClientPlayerEntity::isHandActive);
         registerCondition(builder.comment("Display paper doll when being hurt.").define("Hurt", false), player -> player.hurtTime > 0);
-        this.burning = registerCondition(builder.comment("Disable flame overlay on the hud when on fire and only display burning paper doll instead.").define("Burning", false), Entity::isBurning);
+
+        PaperDollCondition condition = new PaperDollCondition(Entity::isBurning);
+        registerClientEntry(builder.comment("Disable flame overlay on the hud when on fire and only display burning paper doll instead.").define("Burning", false), v -> {
+
+            condition.setActive(v);
+            this.burning = v;
+        });
+        DOLL_CONDITIONS.add(condition);
+
         builder.pop();
     }
 
     @Override
-    public boolean isActive() {
+    public boolean isVisible() {
 
         return this.remainingDisplayTicks > 0;
     }
@@ -116,9 +128,9 @@ public class PaperDollElement extends GameplayElement {
 
         assert player.movementInput != null;
         // update display ticks
-        if (this.displayTime.get() == 0 || DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player))) {
+        if (this.displayTime == 0 || DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player))) {
 
-            this.remainingDisplayTicks = this.displayTime.get() == 0 ? 1 : this.displayTime.get();
+            this.remainingDisplayTicks = this.displayTime == 0 ? 1 : this.displayTime;
         } else if (this.remainingDisplayTicks > 0) {
 
             this.remainingDisplayTicks--;
@@ -141,7 +153,7 @@ public class PaperDollElement extends GameplayElement {
     private void onRenderBlockOverlay(final RenderBlockOverlayEvent evt) {
 
         // hide flame overlay and only show on paper doll
-        if (this.burning.get() && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
+        if (this.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
 
             evt.setCanceled(true);
         }
@@ -155,21 +167,20 @@ public class PaperDollElement extends GameplayElement {
         }
 
         this.mc.getProfiler().startSection("paperDoll");
-
         ClientPlayerEntity player = this.mc.player;
         assert player != null && this.mc.playerController != null;
         boolean isVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
-        boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !this.firstPerson.get();
-        if (isVisible && firstPerson && !GameplayElements.HIDE_HUD.isActive() && this.remainingDisplayTicks > 0) {
+        boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !this.firstPerson;
+        if (isVisible && firstPerson && !GameplayElements.HIDE_HUD.isVisible() && this.isVisible()) {
 
-            int scale = this.scale.get() * 5;
-            PositionPreset position = this.position.get();
-            int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset.get());
+            int scale = this.scale * 5;
+            PositionPreset position = this.position;
+            int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
             // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
-            int yOffset = this.yOffset.get();
+            int yOffset = this.yOffset;
             int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - yOffset : (int) (scale * 2.5F) + yOffset;
             y -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
-            if (this.potionShift.get()) {
+            if (this.potionShift) {
 
                 y += position.getPotionShift(player.getActivePotionEffects());
             }
@@ -221,26 +232,31 @@ public class PaperDollElement extends GameplayElement {
         return 1.0F;
     }
     
-    private static ForgeConfigSpec.BooleanValue registerCondition(ForgeConfigSpec.BooleanValue active, Predicate<ClientPlayerEntity> action) {
-        
-        DOLL_CONDITIONS.add(new PaperDollCondition(active, action));
-        return active;
+    private static void registerCondition(ForgeConfigSpec.BooleanValue active, Predicate<ClientPlayerEntity> action) {
+
+        PaperDollCondition condition = new PaperDollCondition(action);
+        registerClientEntry(active, condition::setActive);
+        DOLL_CONDITIONS.add(condition);
     }
 
     private static class PaperDollCondition {
 
-        final ForgeConfigSpec.BooleanValue active;
+        boolean active;
         final Predicate<ClientPlayerEntity> action;
 
-        PaperDollCondition(ForgeConfigSpec.BooleanValue active, Predicate<ClientPlayerEntity> action) {
+        PaperDollCondition(Predicate<ClientPlayerEntity> action) {
+
+            this.action = action;
+        }
+
+        void setActive(boolean active) {
 
             this.active = active;
-            this.action = action;
         }
 
         boolean isActive(ClientPlayerEntity player) {
 
-            return this.active.get() && this.action.test(player);
+            return this.active && this.action.test(player);
         }
     }
 

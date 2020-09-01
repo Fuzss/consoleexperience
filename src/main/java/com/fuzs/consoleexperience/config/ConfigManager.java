@@ -34,14 +34,9 @@ public class ConfigManager {
         CONFIG_ENTRIES.stream().filter(configValue -> configValue.getType() == type).forEach(ConfigEntry::sync);
     }
 
-    public static <S extends ForgeConfigSpec.ConfigValue<T>, T> void registerEntry(S entry, Consumer<T> action) {
+    public static <S extends ForgeConfigSpec.ConfigValue<T>, T> void registerEntry(ModConfig.Type type, S entry, Consumer<T> action) {
 
-        CONFIG_ENTRIES.add(new ConfigEntry<>(ModConfig.Type.COMMON, entry, action));
-    }
-
-    public static <S extends ForgeConfigSpec.ConfigValue<T>, T> void registerClientEntry(S entry, Consumer<T> action) {
-
-        CONFIG_ENTRIES.add(new ConfigEntry<>(ModConfig.Type.CLIENT, entry, action));
+        CONFIG_ENTRIES.add(new ConfigEntry<>(type, entry, action));
     }
 
     private static class ConfigEntry<S extends ForgeConfigSpec.ConfigValue<T>, T> {

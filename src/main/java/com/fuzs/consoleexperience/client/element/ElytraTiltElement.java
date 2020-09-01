@@ -1,16 +1,20 @@
 package com.fuzs.consoleexperience.client.element;
 
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ElytraTiltElement extends GameplayElement {
 
-    private ForgeConfigSpec.DoubleValue tiltMultiplier;
+    private double tiltMultiplier;
+
+    private float prevElytraRotation;
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(this::onCameraSetup);
     }
@@ -18,7 +22,7 @@ public class ElytraTiltElement extends GameplayElement {
     @Override
     protected boolean getDefaultState() {
 
-        return true;
+        return false;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class ElytraTiltElement extends GameplayElement {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.tiltMultiplier = builder.comment("Multiplier for the camera tilt when gliding.").defineInRange("Tilt Multiplier", 0.5, 0.1, 1.0);
+        registerClientEntry(builder.comment("Multiplier for the camera tilt when gliding.").defineInRange("Tilt Multiplier", 0.5, 0.1, 1.0), v -> this.tiltMultiplier = v);
     }
 
     private void onCameraSetup(final EntityViewRenderEvent.CameraSetup evt) {
@@ -46,18 +50,20 @@ public class ElytraTiltElement extends GameplayElement {
         if (player.isElytraFlying()) {
 
             // code from PlayerRenderer#applyRotations which is used there for rotating the player model
-            Vector3d motion = player.getMotion();
-            double d0 = motion.getX() * motion.getX() + motion.getZ() * motion.getZ();
-            Vector3d look = player.getLook((float) evt.getRenderPartialTicks());
-            double d1 = look.getX() * look.getX() + look.getZ() * look.getZ();
+            float partialTicks = (float) evt.getRenderPartialTicks();
+            Vector3d vector3d = player.getLook(partialTicks);
+            Vector3d vector3d1 = player.getMotion();
+            double d0 = Entity.horizontalMag(vector3d1);
+            double d1 = Entity.horizontalMag(vector3d);
+            if (d0 > 0.0D && d1 > 0.0D) {
 
-            if (d0 > 0.0 && d1 > 0.0) {
-
-                double d2 = (motion.getX() * look.getX() + motion.getZ() * look.getZ()) / (Math.sqrt(d0) * Math.sqrt(d1));
-                double d3 = motion.getX() * look.getZ() - motion.getZ() * look.getX();
-                // fixed Math#acos returning NaN when d2 > 1.0
-                double d4 = Math.signum(d3) * Math.acos(Math.min(d2, 1.0)) * 180.0 / (Math.PI * (1.0F / this.tiltMultiplier.get()));
-                evt.setRoll((evt.getRoll() * 3.0F + (float) d4 * 2.0F) / 5.0F);
+                double d2 = (vector3d1.x * vector3d.x + vector3d1.z * vector3d.z) / Math.sqrt(d0 * d1);
+                double d3 = vector3d1.x * vector3d.z - vector3d1.z * vector3d.x;
+                // fix Math#acos returning NaN when d2 > 1.0
+                float rotationDelta = (float) (Math.signum(d3) * Math.acos(Math.min(d2, 1.0)) / Math.PI) - this.prevElytraRotation;
+                partialTicks *= (0.04F + Math.abs(rotationDelta) * 0.05F) / this.tiltMultiplier;
+                this.prevElytraRotation += MathHelper.clamp(rotationDelta, -partialTicks, partialTicks);
+                evt.setRoll(this.prevElytraRotation * (float) (25.0 / this.tiltMultiplier));
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.fuzs.consoleexperience.client.gui;
 
+import com.fuzs.consoleexperience.config.ConfigManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -10,11 +11,12 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
 
 public class PaperDollRenderer {
     
-    private ForgeConfigSpec.EnumValue<PositionPreset> position;
-    private ForgeConfigSpec.EnumValue<HeadMovement> headMovement;
+    private PositionPreset position;
+    private HeadMovement headMovement;
 
     private final float maxRotation = 30.0F;
 
@@ -78,8 +80,8 @@ public class PaperDollRenderer {
     private float updateRotation(LivingEntity entity, float partialTicks, float prevRotationYaw, float rotationYawHead, float prevRotationYawHead) {
 
         // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
-        float defaultRotationYaw = 180.0F + this.position.get().getRotation(this.maxRotation / 2.0F);
-        if (this.headMovement.get() == HeadMovement.YAW || entity.isElytraFlying()) {
+        float defaultRotationYaw = 180.0F + this.position.getRotation(this.maxRotation / 2.0F);
+        if (this.headMovement == HeadMovement.YAW || entity.isElytraFlying()) {
 
             entity.rotationPitch = 7.5F;
             entity.prevRotationPitch = 7.5F;
@@ -87,7 +89,7 @@ public class PaperDollRenderer {
 
         entity.renderYawOffset = defaultRotationYaw;
         entity.prevRenderYawOffset = defaultRotationYaw;
-        if (this.headMovement.get() == HeadMovement.PITCH) {
+        if (this.headMovement == HeadMovement.PITCH) {
 
             entity.prevRotationYawHead = defaultRotationYaw;
             entity.rotationYawHead = defaultRotationYaw;
@@ -126,14 +128,14 @@ public class PaperDollRenderer {
         return rotationYaw;
     }
 
-    public void setPositionPreset(ForgeConfigSpec.EnumValue<PositionPreset> position) {
+    public void setPositionPreset(PositionPreset position) {
 
         this.position = position;
     }
 
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.headMovement = builder.comment("Set the axis the player head can move on.").defineEnum("Head Movement", HeadMovement.YAW);
+        ConfigManager.registerEntry(ModConfig.Type.CLIENT, builder.comment("Set the axis the player head can move on.").defineEnum("Head Movement", HeadMovement.YAW), v -> this.headMovement = v);
     }
 
     @SuppressWarnings("unused")

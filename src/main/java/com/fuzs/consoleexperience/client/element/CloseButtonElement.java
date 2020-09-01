@@ -8,11 +8,11 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public class CloseButtonElement extends GameplayElement {
 
-    private ForgeConfigSpec.IntValue offsetX;
-    private ForgeConfigSpec.IntValue offsetY;
+    private int offsetX;
+    private int offsetY;
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(this::onInitGui);
     }
@@ -38,8 +38,8 @@ public class CloseButtonElement extends GameplayElement {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.offsetX = builder.comment("Offset on x-axis from gui right.").defineInRange("X-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        this.offsetY = builder.comment("Offset on y-axis from gui top.").defineInRange("Y-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        registerClientEntry(builder.comment("Offset on x-axis from gui right.").defineInRange("X-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.offsetX = v);
+        registerClientEntry(builder.comment("Offset on y-axis from gui top.").defineInRange("Y-Offset", 5, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.offsetY = v);
     }
 
     private void onInitGui(final GuiScreenEvent.InitGuiEvent.Post evt) {
@@ -58,7 +58,7 @@ public class CloseButtonElement extends GameplayElement {
             return;
         }
 
-        evt.getGui().addButton(new CloseButton(this.offsetX.get(), this.offsetY.get(), button -> {
+        evt.getGui().addButton(new CloseButton(this.offsetX, this.offsetY, button -> {
 
             assert (this.mc.player != null);
             this.mc.player.closeScreen();

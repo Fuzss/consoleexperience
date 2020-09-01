@@ -1,6 +1,6 @@
 package com.fuzs.consoleexperience.client.tooltip;
 
-import com.fuzs.consoleexperience.client.util.ConfigBuildHandler;
+import com.fuzs.consoleexperience.config.ConfigBuildHandler;
 import com.google.common.base.Strings;
 import com.google.gson.JsonParseException;
 import net.minecraft.block.Block;

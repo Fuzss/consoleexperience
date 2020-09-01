@@ -3,7 +3,7 @@ package com.fuzs.consoleexperience.client.element;
 public class EatingAnimationElement extends GameplayElement {
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
     }
 

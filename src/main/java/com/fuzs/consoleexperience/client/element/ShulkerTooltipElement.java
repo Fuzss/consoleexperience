@@ -14,10 +14,10 @@ import java.util.List;
 
 public class ShulkerTooltipElement extends GameplayElement {
 
-    private ForgeConfigSpec.IntValue rows;
+    private int rows;
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(EventPriority.LOW, this::onMakeTooltip);
     }
@@ -43,7 +43,7 @@ public class ShulkerTooltipElement extends GameplayElement {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.rows = builder.comment("Maximum amount of rows on the shulker box tooltip.").defineInRange("Shulker Box Rows", 6, 0, Integer.MAX_VALUE);
+        registerClientEntry(builder.comment("Maximum amount of rows on the shulker box tooltip.").defineInRange("Shulker Box Rows", 6, 0, Integer.MAX_VALUE), v -> this.rows = v);
     }
 
     private void onMakeTooltip(final ItemTooltipEvent evt) {
@@ -61,7 +61,7 @@ public class ShulkerTooltipElement extends GameplayElement {
                 if (index != -1 && tooltip.removeAll(oldContents)) {
 
                     List<ITextComponent> newContents = Lists.newArrayList();
-                    ShulkerTooltipBuilder.addInformation(newContents, evt.getItemStack(), TextFormatting.GRAY, this.rows.get());
+                    ShulkerTooltipBuilder.addInformation(newContents, evt.getItemStack(), TextFormatting.GRAY, this.rows);
                     tooltip.addAll(index, newContents);
                 }
             }

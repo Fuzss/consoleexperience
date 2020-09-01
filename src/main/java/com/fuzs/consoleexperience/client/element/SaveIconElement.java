@@ -18,23 +18,24 @@ public class SaveIconElement extends GameplayElement {
 
     private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/auto_save.png");
 
-    private ForgeConfigSpec.IntValue xOffset;
-    private ForgeConfigSpec.IntValue yOffset;
-    private ForgeConfigSpec.EnumValue<PositionPreset> position;
-    private ForgeConfigSpec.IntValue displayTime;
-    private ForgeConfigSpec.BooleanValue potionShift;
-    private ForgeConfigSpec.BooleanValue showArrow;
-    private ForgeConfigSpec.BooleanValue rotatingModel;
+    private int xOffset;
+    private int yOffset;
+    private PositionPreset position;
+    private int displayTime;
+    private boolean potionShift;
+    private boolean showArrow;
+    private boolean rotatingModel;
 
-    private final BackgroundState state = new BackgroundState();
+    private final BackgroundState state = new BackgroundState(1);
     private final int width = 18;
     private final int height = 30;
     private int remainingDisplayTicks;
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(this.state::onBackgroundDrawn);
+        this.addListener(this.state::onRenderGameOverlayPost);
         this.addListener(this::onSaveWorld);
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayPre);
@@ -62,24 +63,24 @@ public class SaveIconElement extends GameplayElement {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        this.xOffset = builder.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 17, 0, Integer.MAX_VALUE);
-        this.yOffset = builder.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, 0, Integer.MAX_VALUE);
-        this.position = builder.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", PositionPreset.TOP_RIGHT);
-        this.displayTime = builder.comment("Amount of ticks the save icon will be displayed for. Set to 0 to always display the icon.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
-        this.potionShift = builder.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true);
-        this.showArrow = builder.comment("Show a downwards pointing, animated arrow above the save icon.").define("Show Arrow", true);
-        this.rotatingModel = builder.comment("Use an animated chest model instead of the static texture.").define("Fancy Model", true);
+        registerClientEntry(builder.comment("Offset on x-axis from screen border.").defineInRange("X-Offset", 17, 0, Integer.MAX_VALUE), v -> this.xOffset = v);
+        registerClientEntry(builder.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
+        registerClientEntry(builder.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", PositionPreset.TOP_RIGHT), v -> this.position = v);
+        registerClientEntry(builder.comment("Amount of ticks the save icon will be displayed for. Set to 0 to always display the icon.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
+        registerClientEntry(builder.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
+        registerClientEntry(builder.comment("Show a downwards pointing, animated arrow above the save icon.").define("Show Arrow", true), v -> this.showArrow = v);
+        registerClientEntry(builder.comment("Use an animated chest model instead of the static texture.").define("Fancy Model", true), v -> this.rotatingModel = v);
     }
 
     @Override
-    public boolean isActive() {
+    public boolean isVisible() {
 
-        return this.remainingDisplayTicks > 0 || this.displayTime.get() == 0;
+        return this.remainingDisplayTicks > 0 || this.displayTime == 0;
     }
 
     private void onSaveWorld(final WorldEvent.Save evt) {
 
-        this.remainingDisplayTicks = this.displayTime.get();
+        this.remainingDisplayTicks = this.displayTime;
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent evt) {
@@ -115,14 +116,14 @@ public class SaveIconElement extends GameplayElement {
 
     private void drawIcon(MatrixStack matrixStack, int windowWidth, int windowHeight, boolean shift) {
 
-        if (this.isActive()) {
+        if (this.isVisible()) {
 
+            this.mc.getProfiler().startSection("saveIcon");
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
-            PositionPreset position = this.position.get();
-            int posX = position.getX(this.width, windowWidth, this.xOffset.get());
-            int posY = position.getY(this.height, windowHeight, this.yOffset.get());
-
-            if (shift && this.potionShift.get()) {
+            PositionPreset position = this.position;
+            int posX = position.getX(this.width, windowWidth, this.xOffset);
+            int posY = position.getY(this.height, windowHeight, this.yOffset);
+            if (shift && this.potionShift) {
 
                 assert this.mc.player != null;
                 posY += position.getPotionShift(this.mc.player.getActivePotionEffects());
@@ -135,12 +136,13 @@ public class SaveIconElement extends GameplayElement {
             this.drawArrow(matrixStack, posX, posY);
             RenderSystem.disableBlend();
             RenderSystem.popMatrix();
+            this.mc.getProfiler().endSection();
         }
     }
 
     private void drawModel(MatrixStack matrixStack, PositionPreset position, int posX, int posY) {
 
-        if (this.rotatingModel.get()) {
+        if (this.rotatingModel) {
 
             int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
             int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
@@ -156,7 +158,7 @@ public class SaveIconElement extends GameplayElement {
 
     private void drawArrow(MatrixStack matrixStack, int posX, int posY) {
 
-        if (this.showArrow.get()) {
+        if (this.showArrow) {
 
             int offsetX = (int) ((this.remainingDisplayTicks % 16) * 0.5F) * this.width;
             AbstractGui.blit(matrixStack, posX, posY, offsetX, 0, this.width, this.height, 256, 256);

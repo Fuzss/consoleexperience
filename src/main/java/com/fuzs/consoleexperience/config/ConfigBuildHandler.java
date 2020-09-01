@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.client.util;
+package com.fuzs.consoleexperience.config;
 
 import com.fuzs.consoleexperience.client.gui.PositionPreset;
 import com.fuzs.consoleexperience.client.tooltip.TextColor;

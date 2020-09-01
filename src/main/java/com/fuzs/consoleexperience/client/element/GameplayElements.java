@@ -28,26 +28,26 @@ public class GameplayElements {
         return gameplayElement;
     }
 
+    public static void setup(ForgeConfigSpec.Builder builder) {
+
+        ELEMENTS.values().forEach(element -> {
+
+            builder.push("general");
+            element.setup(builder);
+            builder.pop();
+        });
+
+        ELEMENTS.forEach((key, element) -> {
+
+            builder.push(key.getPath());
+            element.setupConfig(builder);
+            builder.pop();
+        });
+    }
+
     public static void init() {
 
         ELEMENTS.values().forEach(GameplayElement::init);
-    }
-
-    public static void setupConfig(ForgeConfigSpec.Builder builder) {
-
-        ELEMENTS.values().forEach(feature -> {
-
-            builder.push("general");
-            feature.setupGeneralConfig(builder);
-            builder.pop();
-        });
-
-        ELEMENTS.forEach((key, feature) -> {
-
-            builder.push(key.getPath());
-            feature.setupConfig(builder);
-            builder.pop();
-        });
     }
 
 }

@@ -16,18 +16,17 @@ import java.util.List;
 public class HoveringHotbarElement extends GameplayElement {
 
     private static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
-    
-    private ForgeConfigSpec.IntValue xOffset;
-    private ForgeConfigSpec.IntValue yOffset;
-
     // list of gui elements to be moved, idea is to basically wrap around them and whatever other mods would be doing
-    private final List<RenderGameOverlayEvent.ElementType> elements = Lists.newArrayList(
+    private static final List<RenderGameOverlayEvent.ElementType> SHIFTED_ELEMENTS = Lists.newArrayList(
             ElementType.ARMOR, ElementType.HEALTH, ElementType.FOOD, ElementType.AIR, ElementType.HOTBAR,
-            ElementType.EXPERIENCE, ElementType.HEALTHMOUNT, ElementType.JUMPBAR
+            ElementType.EXPERIENCE, ElementType.HEALTHMOUNT, ElementType.JUMPBAR, ElementType.CHAT
     );
+    
+    private int xOffset;
+    private int yOffset;
 
     @Override
-    public void setupElement() {
+    public void setup() {
 
         this.addListener(EventPriority.HIGHEST, true, this::onRenderGameOverlayPre1);
         this.addListener(EventPriority.LOWEST, true, this::onRenderGameOverlayPre2);
@@ -55,32 +54,32 @@ public class HoveringHotbarElement extends GameplayElement {
 
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
-        
-        this.xOffset = builder.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        this.yOffset = builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE);
+
+        registerClientEntry(builder.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
+        registerClientEntry(builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
     }
 
     private void onRenderGameOverlayPre1(final RenderGameOverlayEvent.Pre evt) {
 
-        if (this.elements.contains(evt.getType())) {
+        if (SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(this.xOffset.get(), -this.yOffset.get(), 0.0F);
+            RenderSystem.translatef(this.xOffset, -this.yOffset, 0.0F);
         }
     }
 
     private void onRenderGameOverlayPre2(final RenderGameOverlayEvent.Pre evt) {
 
-        if (evt.isCanceled() && this.elements.contains(evt.getType())) {
+        if (evt.isCanceled() && SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(-this.xOffset.get(), this.yOffset.get(), 0.0F);
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
         }
     }
 
     private void onRenderGameOverlayPost(final RenderGameOverlayEvent.Post evt) {
 
-        if (this.elements.contains(evt.getType())) {
+        if (SHIFTED_ELEMENTS.contains(evt.getType())) {
             
-            RenderSystem.translatef(-this.xOffset.get(), this.yOffset.get(), 0.0F);
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
         }
     }
 
