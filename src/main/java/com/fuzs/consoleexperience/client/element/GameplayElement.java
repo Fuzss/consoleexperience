@@ -67,11 +67,6 @@ public abstract class GameplayElement {
         }
     }
 
-    public boolean isVisible() {
-
-        return false;
-    }
-
     protected static <S extends ForgeConfigSpec.ConfigValue<T>, T> void registerCommonEntry(S entry, Consumer<T> action) {
 
         ConfigManager.registerEntry(ModConfig.Type.COMMON, entry, action);

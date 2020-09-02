@@ -18,7 +18,7 @@ import net.minecraftforge.event.TickEvent;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class PaperDollElement extends GameplayElement {
+public class PaperDollElement extends GameplayElement implements IHasDisplayTime {
     
     private PositionPreset position;
     private int scale;
@@ -60,7 +60,7 @@ public class PaperDollElement extends GameplayElement {
     @Override
     protected String getDescription() {
 
-        return "Show a small player model in a configurable corner of the screen while the player is performing certain actions like sprinting, sneaking, or flying.";
+        return "Show a small player model in a configurable corner of the screen while the player is performing certain actions such as sprinting, sneaking, flying and gliding.";
     }
 
     @Override
@@ -102,7 +102,7 @@ public class PaperDollElement extends GameplayElement {
         registerCondition(builder.comment("Display paper doll when being hurt.").define("Hurt", false), player -> player.hurtTime > 0);
 
         PaperDollCondition condition = new PaperDollCondition(Entity::isBurning);
-        registerClientEntry(builder.comment("Disable flame overlay on the hud when on fire and only display burning paper doll instead.").define("Burning", false), v -> {
+        registerClientEntry(builder.comment("Disable flame overlay on hud when on fire and display burning paper doll instead.").define("Burning", false), v -> {
 
             condition.setActive(v);
             this.burning = v;
@@ -115,7 +115,7 @@ public class PaperDollElement extends GameplayElement {
     @Override
     public boolean isVisible() {
 
-        return this.remainingDisplayTicks > 0;
+        return this.remainingDisplayTicks > 0 || this.displayTime == 0;
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent evt) {
@@ -126,15 +126,17 @@ public class PaperDollElement extends GameplayElement {
             return;
         }
 
-        assert player.movementInput != null;
         // update display ticks
-        if (this.displayTime == 0 || DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player))) {
+        if (DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player))) {
 
-            this.remainingDisplayTicks = this.displayTime == 0 ? 1 : this.displayTime;
+            this.remainingDisplayTicks = this.displayTime;
         } else if (this.remainingDisplayTicks > 0) {
 
             this.remainingDisplayTicks--;
-        } else {
+        }
+
+        // reset rotation when no longer shown
+        if (!this.isVisible()) {
 
             this.prevRotationYaw = 0;
         }
@@ -171,7 +173,7 @@ public class PaperDollElement extends GameplayElement {
         assert player != null && this.mc.playerController != null;
         boolean isVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
         boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !this.firstPerson;
-        if (isVisible && firstPerson && !GameplayElements.HIDE_HUD.isVisible() && this.isVisible()) {
+        if (isVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
 
             int scale = this.scale * 5;
             PositionPreset position = this.position;

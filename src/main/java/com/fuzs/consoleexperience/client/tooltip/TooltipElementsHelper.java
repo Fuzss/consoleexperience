@@ -54,7 +54,7 @@ public class TooltipElementsHelper {
 
         } else {
 
-                this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
+            this.itemstack.getItem().addInformation(this.itemstack, world, information, tooltipflag);
         }
 
         // remove empty lines from a list of strings

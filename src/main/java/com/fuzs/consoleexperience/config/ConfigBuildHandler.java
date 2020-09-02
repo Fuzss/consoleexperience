@@ -62,7 +62,7 @@ public class ConfigBuildHandler {
 
 			this.blacklist = ConfigBuildHandler.BUILDER.comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping. Enter as either \"modid:item\" or \"modid\" respectively.").define("Blacklist", Lists.newArrayList("examplemod", "examplemod:exampleitem"));
 			this.rows = ConfigBuildHandler.BUILDER.comment("Maximum amount of rows to be displayed for held item tooltips.").defineInRange("Rows", 4, 1, 9);
-			this.scale = ConfigBuildHandler.BUILDER.comment("Scale of held item tooltips. Works in tandem with \"GUI Scale\" option in \"Video Settings\". A lower scale might make room for setting more rows.").defineInRange("Scale", 6, 1, 24);
+			this.scale = ConfigBuildHandler.BUILDER.comment("Scale of held item tooltips. Works together with \"GUI Scale\" option in \"Video Settings\". A smaller scale might make room for setting more rows.").defineInRange("Scale", 6, 1, 24);
 			this.displayTime = ConfigBuildHandler.BUILDER.comment("Amount of ticks the held item tooltip will be displayed for. Set to 0 to always display the tooltip as long as an item is being held.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE);
 			this.xOffset = ConfigBuildHandler.BUILDER.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			this.yOffset = ConfigBuildHandler.BUILDER.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 59, 0, Integer.MAX_VALUE);

@@ -33,54 +33,47 @@ public class SelectedItemHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent evt) {
+    public void onClientTick(final TickEvent.ClientTickEvent evt) {
 
-        if (this.mc.isGamePaused() || evt.phase != TickEvent.Phase.END) {
+        if (evt.phase != TickEvent.Phase.END || this.mc.player == null || this.mc.isGamePaused()) {
+
             return;
         }
 
-        if (this.mc.player != null) {
+        ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
+        if (!this.highlightingItemStack.isEmpty() && itemstack.getItem() == this.highlightingItemStack.getItem() && itemstack.getDisplayName().equals(this.highlightingItemStack.getDisplayName())) {
 
-            ItemStack itemstack = this.mc.player.inventory.getCurrentItem();
+            if (this.remainingHighlightTicks > 0) {
 
-            if (!this.highlightingItemStack.isEmpty() && itemstack.getItem() == this.highlightingItemStack.getItem() && itemstack.getDisplayName().equals(this.highlightingItemStack.getDisplayName())) {
+                this.remainingHighlightTicks--;
+            }
 
-                if (this.remainingHighlightTicks > 0) {
+        } else {
 
-                    this.remainingHighlightTicks--;
+            this.highlightingItemStack = itemstack;
+            if (this.highlightingItemStack.isEmpty()) {
 
-                }
-
+                this.remainingHighlightTicks = 0;
             } else {
 
-                this.highlightingItemStack = itemstack;
-
-                if (this.highlightingItemStack.isEmpty()) {
-
-                    this.remainingHighlightTicks = 0;
-
-                } else {
-
-                    int j = ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
-                    this.remainingHighlightTicks = ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() ? j : 40;
-                    this.tooltipCache.clear();
-
-                    // used to disable vanilla held item tooltips completely without modifying the game option,
-                    // as otherwise the game option might still be deactivated after the mod is removed
-                    // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
-                    this.mc.ingameGUI.highlightingItemStack = this.highlightingItemStack;
-                    // this is only here to fix a really weird bug where the vanilla tooltip wouldn't be deactivated
-                    // once when joining a world for the first time after the game has been started
-                    // so it's only required once, but now it's running every time
-                    this.mc.ingameGUI.remainingHighlightTicks = 0;
-
-                }
+                int j = ConfigBuildHandler.HELD_ITEM_TOOLTIPS_CONFIG.displayTime.get();
+                this.remainingHighlightTicks = ConfigBuildHandler.GENERAL_CONFIG.hoveringHotbar.get() ? j : 40;
+                this.tooltipCache.clear();
+                // used to disable vanilla held item tooltips completely without modifying the game option,
+                // as otherwise the game option might still be deactivated after the mod is removed
+                // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
+                this.mc.ingameGUI.highlightingItemStack = this.highlightingItemStack;
+                // this is only here to fix a really weird bug where the vanilla tooltip wouldn't be deactivated
+                // once when joining a world for the first time after the game has been started
+                // so it's only required once, but now it's running every time
+                this.mc.ingameGUI.remainingHighlightTicks = 0;
 
             }
 
         }
 
         if (this.overlayMessageTime > 0) {
+
             --this.overlayMessageTime;
         }
 
@@ -88,11 +81,11 @@ public class SelectedItemHandler {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onRenderGameOverlayText(RenderGameOverlayEvent.Text evt) {
+    public void onRenderGameOverlayText(final RenderGameOverlayEvent.Text evt) {
 
         this.catchOverlayMessage();
-
         if (this.mc.playerController != null && this.mc.playerController.isSpectatorMode()) {
+
             return;
         }
 

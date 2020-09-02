@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.List;
 
-public class HideHudElement extends GameplayElement {
+public class HideHudElement extends GameplayElement implements IHasDisplayTime {
 
     // list of hud elements allowed to be hidden
     private static final List<RenderGameOverlayEvent.ElementType> VISIBLE_ELEMENTS = Lists.newArrayList(

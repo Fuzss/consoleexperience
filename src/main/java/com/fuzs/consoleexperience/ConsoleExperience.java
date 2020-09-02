@@ -24,11 +24,11 @@ public class ConsoleExperience {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onLoadComplete);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(ConfigManager::onModConfigReloading);
 
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         GameplayElements.setup(builder);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, builder.build());
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ConfigManager::onModConfigReloading);
     }
 
     private void onClientSetup(final FMLClientSetupEvent evt) {

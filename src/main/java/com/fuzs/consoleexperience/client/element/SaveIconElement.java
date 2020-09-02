@@ -14,7 +14,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
 @SuppressWarnings({"FieldCanBeLocal", "deprecation"})
-public class SaveIconElement extends GameplayElement {
+public class SaveIconElement extends GameplayElement implements IHasDisplayTime {
 
     private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/auto_save.png");
 
@@ -23,8 +23,8 @@ public class SaveIconElement extends GameplayElement {
     private PositionPreset position;
     private int displayTime;
     private boolean potionShift;
-    private boolean showArrow;
-    private boolean rotatingModel;
+    private ModelState modelState;
+    private ArrowState arrowState;
 
     private final BackgroundState state = new BackgroundState(1);
     private final int width = 18;
@@ -68,8 +68,8 @@ public class SaveIconElement extends GameplayElement {
         registerClientEntry(builder.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", PositionPreset.TOP_RIGHT), v -> this.position = v);
         registerClientEntry(builder.comment("Amount of ticks the save icon will be displayed for. Set to 0 to always display the icon.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
         registerClientEntry(builder.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
-        registerClientEntry(builder.comment("Show a downwards pointing, animated arrow above the save icon.").define("Show Arrow", true), v -> this.showArrow = v);
-        registerClientEntry(builder.comment("Use an animated chest model instead of the static texture.").define("Fancy Model", true), v -> this.rotatingModel = v);
+        registerClientEntry(builder.comment("Use an animated chest model instead of the static texture.").defineEnum("Model Mode", ModelState.SPINNING), v -> this.modelState = v);
+        registerClientEntry(builder.comment("Show a downwards pointing, animated arrow above the save icon.").defineEnum("Arrow Mode", ArrowState.MOVING), v -> this.arrowState = v);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class SaveIconElement extends GameplayElement {
 
     private void onBackgroundDrawn(final GuiScreenEvent.BackgroundDrawnEvent evt) {
 
-        // only try rendering while in-game
+        // only render while in-game
         if (this.mc.world != null) {
 
             this.drawIcon(evt.getMatrixStack(), this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight(), false);
@@ -142,26 +142,74 @@ public class SaveIconElement extends GameplayElement {
 
     private void drawModel(MatrixStack matrixStack, PositionPreset position, int posX, int posY) {
 
-        if (this.rotatingModel) {
+        float scale = 0.5F;
+        switch (this.modelState) {
 
-            int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
-            int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
-            float scale = 0.5F;
-            RenderSystem.scalef(scale, scale, 1.0F);
-            AbstractGui.blit(matrixStack, (int) (posX / scale), (int) ((posY + 14) / scale), textureX, textureY, 36, 36, 256, 256);
-            RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
-        } else {
+            case BASIC:
 
-            AbstractGui.blit(matrixStack, posX, posY, position.isMirrored() ? 162 : 144, 0, this.width, this.height, 256, 256);
+                AbstractGui.blit(matrixStack, posX, posY, position.isMirrored() ? 162 : 144, 0, this.width, this.height, 256, 256);
+                break;
+            case FANCY:
+
+                RenderSystem.scalef(scale, scale, 1.0F);
+                AbstractGui.blit(matrixStack, (int) (posX / scale), (int) ((posY + 14) / scale), 0, position.isMirrored() ? 30 : 66,36, 36, 256, 256);
+                RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
+                break;
+            case SPINNING:
+
+                int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
+                int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
+                RenderSystem.scalef(scale, scale, 1.0F);
+                AbstractGui.blit(matrixStack, (int) (posX / scale), (int) ((posY + 14) / scale), textureX, textureY, 36, 36, 256, 256);
+                RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
+                break;
         }
     }
 
     private void drawArrow(MatrixStack matrixStack, int posX, int posY) {
 
-        if (this.showArrow) {
+        if (this.arrowState.isVisible()) {
 
-            int offsetX = (int) ((this.remainingDisplayTicks % 16) * 0.5F) * this.width;
+            float speed = this.arrowState.getSpeed();
+            int offsetX = this.arrowState.isStill() ? this.width * 2 : (int) ((this.remainingDisplayTicks % (16 / speed)) * 0.5F * speed) * this.width;
             AbstractGui.blit(matrixStack, posX, posY, offsetX, 0, this.width, this.height, 256, 256);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private enum ModelState {
+
+        BASIC, FANCY, SPINNING
+    }
+
+    @SuppressWarnings("unused")
+    private enum ArrowState {
+
+        HIDDEN(-1),
+        STILL(-1),
+        MOVING(1),
+        FAST_MOVING(3);
+
+        private final int speed;
+
+        ArrowState(int speed) {
+
+            this.speed = speed;
+        }
+
+        boolean isVisible() {
+
+            return this != HIDDEN;
+        }
+
+        boolean isStill() {
+
+            return this.speed == -1;
+        }
+
+        int getSpeed() {
+
+            return this.speed;
         }
     }
 
