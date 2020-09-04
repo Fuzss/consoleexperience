@@ -2,6 +2,7 @@ package com.fuzs.consoleexperience;
 
 import com.fuzs.consoleexperience.client.element.GameplayElements;
 import com.fuzs.consoleexperience.config.ConfigManager;
+import com.fuzs.consoleexperience.config.JsonBuildHandler;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -28,7 +29,8 @@ public class ConsoleExperience {
 
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         GameplayElements.setup(builder);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, builder.build());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, builder.build(), ConfigManager.configNameForFolder(ModConfig.Type.CLIENT, MODID));
+        //new JsonBuildHandler().load("helditemtooltips.json", MODID);
     }
 
     private void onClientSetup(final FMLClientSetupEvent evt) {

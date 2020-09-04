@@ -67,7 +67,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
         registerClientEntry(builder.comment("Offset on y-axis from screen border.").defineInRange("Y-Offset", 15, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
         registerClientEntry(builder.comment("Define a screen corner to display the save icon in.").defineEnum("Screen Corner", PositionPreset.TOP_RIGHT), v -> this.position = v);
         registerClientEntry(builder.comment("Amount of ticks the save icon will be displayed for. Set to 0 to always display the icon.").defineInRange("Display Time", 40, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
-        registerClientEntry(builder.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
+        registerClientEntry(builder.comment("Shift the save icon downwards when it would otherwise overlap with the potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
         registerClientEntry(builder.comment("Use an animated chest model instead of the static texture.").defineEnum("Model Mode", ModelState.SPINNING), v -> this.modelState = v);
         registerClientEntry(builder.comment("Show a downwards pointing, animated arrow above the save icon.").defineEnum("Arrow Mode", ArrowState.MOVING), v -> this.arrowState = v);
     }

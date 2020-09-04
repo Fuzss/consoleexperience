@@ -48,7 +48,6 @@ public class PaperDollRenderer {
         float prevRotationPitch = entity.prevRotationPitch;
         float prevRenderYawOffset = entity.prevRenderYawOffset;
         float prevRotationYawHead = entity.prevRotationYawHead;
-
         prevRotationYaw = this.updateRotation(entity, partialTicks, prevRotationYaw, rotationYawHead, prevRotationYawHead);
 
         // do render
@@ -135,7 +134,7 @@ public class PaperDollRenderer {
 
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        ConfigManager.registerEntry(ModConfig.Type.CLIENT, builder.comment("Set the axis the player head can move on.").defineEnum("Head Movement", HeadMovement.YAW), v -> this.headMovement = v);
+        ConfigManager.registerEntry(ModConfig.Type.CLIENT, builder.comment("Set axis the player head can move on.").defineEnum("Head Movement", HeadMovement.YAW), v -> this.headMovement = v);
     }
 
     @SuppressWarnings("unused")

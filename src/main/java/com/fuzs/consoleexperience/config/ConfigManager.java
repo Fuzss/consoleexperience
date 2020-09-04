@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 
+import java.io.File;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -37,6 +38,16 @@ public class ConfigManager {
     public static <S extends ForgeConfigSpec.ConfigValue<T>, T> void registerEntry(ModConfig.Type type, S entry, Consumer<T> action) {
 
         CONFIG_ENTRIES.add(new ConfigEntry<>(type, entry, action));
+    }
+
+    public static String defaultConfigName(ModConfig.Type type, String modId) {
+
+        return String.format("%s-%s.toml", modId, type.extension());
+    }
+
+    public static String configNameForFolder(ModConfig.Type type, String modId) {
+
+        return modId + File.separator + defaultConfigName(type, modId);
     }
 
     private static class ConfigEntry<S extends ForgeConfigSpec.ConfigValue<T>, T> {

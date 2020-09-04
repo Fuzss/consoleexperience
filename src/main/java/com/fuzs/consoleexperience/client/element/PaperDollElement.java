@@ -1,22 +1,24 @@
 package com.fuzs.consoleexperience.client.element;
 
+import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.gui.PaperDollRenderer;
 import com.fuzs.consoleexperience.client.gui.PositionPreset;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector2f;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
 
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class PaperDollElement extends GameplayElement implements IHasDisplayTime {
     
@@ -29,13 +31,13 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
     private boolean burning;
     private boolean firstPerson;
 
-    private static final Set<PaperDollCondition> DOLL_CONDITIONS = Sets.newHashSet();
+    private static final List<DisplayAction> DEFAULT_DOLL_CONDITIONS = ImmutableList.of(DisplayAction.SPRINTING, DisplayAction.SWIMMING, DisplayAction.CRAWLING, DisplayAction.CROUCHING, DisplayAction.FLYING, DisplayAction.GLIDING);
+    private static final List<DisplayAction> DOLL_CONDITIONS = Lists.newArrayList();
     private final PaperDollRenderer dollRenderer = new PaperDollRenderer();
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
     private float prevRotationYaw;
-    private float lastSwimAnimation = 1.0F;
 
     @Override
     public void setup() {
@@ -75,41 +77,25 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
             this.position = v;
             this.dollRenderer.setPositionPreset(v);
         });
-        registerClientEntry(builder.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when the \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
+
+        registerClientEntry(builder.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
         registerClientEntry(builder.comment("Only show the paper doll when in first person mode.").define("First Person Only", true), v -> this.firstPerson = v);
-        
-        this.setupConditions(builder);
-        this.dollRenderer.setupConfig(builder);
-    }
-    
-    private void setupConditions(ForgeConfigSpec.Builder builder) {
-        
-        builder.push("conditions");
-        String s = "Display paper doll while ";
+        // flame renderer on paper doll not working anymore
+        // registerClientEntry(builder.comment("Disable flame overlay on hud when on fire and display burning paper doll instead.").define("Burning Doll", false), v -> this.burning = v);
+        registerClientEntry(builder.comment("Display paper doll while performing these actions.", "Allowed Values: " + Arrays.stream(DisplayAction.values()).map(Enum::name).collect(Collectors.joining(", "))).define("Display Actions", DEFAULT_DOLL_CONDITIONS.stream().map(Enum::name).collect(Collectors.toList())), v -> {
 
-        registerCondition(builder.comment(s + "sprinting.").define("Sprinting", true), player -> player.isSprinting() && !player.isSwimming());
-        registerCondition(builder.comment(s + "swimming.").define("Swimming", true), PlayerEntity::isSwimming);
-        registerCondition(builder.comment(s + "crawling in a tight space.").define("Crawling", true), player -> player.getPose() == Pose.SWIMMING && !player.isSwimming());
-        registerCondition(builder.comment(s + "crouching.").define("Crouching", true), player -> this.remainingRidingTicks == 0 && player.movementInput.sneaking);
-        registerCondition(builder.comment(s + "using creative mode flight.").define("Flying", true), player -> player.abilities.isFlying);
-        registerCondition(builder.comment(s + "gliding using an elytra.").define("Elytra Flying", true), LivingEntity::isElytraFlying);
-        registerCondition(builder.comment(s + "riding a mount.").define("Riding", false), Entity::isPassenger);
-        registerCondition(builder.comment(s + "spin attacking using a riptide enchanted trident.").define("Spin Attacking", false), LivingEntity::isSpinAttacking);
-        registerCondition(builder.comment(s + "moving.").define("Moving", false), player -> !player.movementInput.getMoveVector().equals(Vector2f.ZERO));
-        registerCondition(builder.comment(s + "jumping.").define("Jumping", false), player -> player.movementInput.jump);
-        registerCondition(builder.comment(s + "interacting with the world.").define("Interacting", false), player -> player.isSwingInProgress);
-        registerCondition(builder.comment(s + "using an item like food or a bow.").define("Using", false), ClientPlayerEntity::isHandActive);
-        registerCondition(builder.comment("Display paper doll when being hurt.").define("Hurt", false), player -> player.hurtTime > 0);
+            DOLL_CONDITIONS.clear();
+            try {
 
-        PaperDollCondition condition = new PaperDollCondition(Entity::isBurning);
-        registerClientEntry(builder.comment("Disable flame overlay on hud when on fire and display burning paper doll instead.").define("Burning", false), v -> {
+                DOLL_CONDITIONS.addAll(v.stream().map(DisplayAction::valueOf).collect(Collectors.toList()));
+            } catch (IllegalArgumentException e) {
 
-            condition.setActive(v);
-            this.burning = v;
+                ConsoleExperience.LOGGER.error(e);
+                DOLL_CONDITIONS.addAll(DEFAULT_DOLL_CONDITIONS);
+            }
         });
-        DOLL_CONDITIONS.add(condition);
 
-        builder.pop();
+        this.dollRenderer.setupConfig(builder);
     }
 
     @Override
@@ -127,7 +113,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         }
 
         // update display ticks
-        if (DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player))) {
+        if (DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player, this.remainingRidingTicks)) || this.isBurning(player)) {
 
             this.remainingDisplayTicks = this.displayTime;
         } else if (this.remainingDisplayTicks > 0) {
@@ -144,7 +130,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         // don't show paper doll in sneaking position after unmounting a vehicle / mount
         if (player.isPassenger()) {
 
-            this.remainingRidingTicks = 10;
+            this.remainingRidingTicks = Math.max(0, this.displayTime - 2);
         } else if (this.remainingRidingTicks > 0) {
 
             this.remainingRidingTicks--;
@@ -179,8 +165,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
             PositionPreset position = this.position;
             int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
             // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
-            int yOffset = this.yOffset;
-            int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - yOffset : (int) (scale * 2.5F) + yOffset;
+            int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
             y -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
             if (this.potionShift) {
 
@@ -195,70 +180,66 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
     private float updateOffset(ClientPlayerEntity player, float partialTicks) {
 
-        float standingHeight = player.getSize(Pose.STANDING).height;
-        float relativeHeight = player.getHeight() / standingHeight;
+        float height = player.getSize(Pose.STANDING).height;
         if (player.isCrouching()) {
 
-            if (player.isCrouching()) {
+            return player.getSize(Pose.CROUCHING).height / height;
+        } else if (player.isSleeping()) {
 
-                return player.getSize(Pose.CROUCHING).height / standingHeight;
-            }
-        } else if (player.getPose() == Pose.FALL_FLYING) {
+            return player.getSize(Pose.SLEEPING).height / height;
+        } else if (player.isSpinAttacking()) {
 
-            if (player.getTicksElytraFlying() > 0) {
+            return player.getSize(Pose.SPIN_ATTACK).height / height;
+        } else if (player.deathTime > 0) {
 
-                float ticksElytraFlying = (float) player.getTicksElytraFlying() + partialTicks;
-                float f = 1.0F - MathHelper.clamp(ticksElytraFlying * ticksElytraFlying / 100.0F, 0.0F, 1.0F);
-                float flyingHeight = player.getSize(Pose.FALL_FLYING).height / standingHeight;
-                return flyingHeight + (1.0F - flyingHeight) * f;
-            }
-        } else if (player.isActualySwimming()) {
+            float dyingAnimation = ((float) player.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
+            dyingAnimation = Math.min(1.0F, MathHelper.sqrt(dyingAnimation));
+            float dyingHeight = player.getSize(Pose.DYING).height / height;
+            return MathHelper.lerp(dyingAnimation, 1.0F, dyingHeight);
+        } else if (player.getTicksElytraFlying() > 0) {
 
-            if (player.getSwimAnimation(partialTicks) > 0) {
+            float ticksElytraFlying = player.getTicksElytraFlying() + partialTicks;
+            float flyingAnimation = MathHelper.clamp(ticksElytraFlying * 0.09F, 0.0F, 1.0F);
+            float flyingHeight = player.getSize(Pose.FALL_FLYING).height / height;
+            return MathHelper.lerp(flyingAnimation, 1.0F, flyingHeight);
+        } else if (player.getSwimAnimation(partialTicks) > 0) {
 
-                float swimmingHeight = player.getSize(Pose.SWIMMING).height / standingHeight;
-                float swimAnimation = player.getSwimAnimation(partialTicks);
-                if (this.lastSwimAnimation > swimAnimation) {
+            float swimmingAnimation = player.isActualySwimming() ? 1.0F : player.getSwimAnimation(partialTicks);
+            float swimmingHeight = player.getSize(Pose.SWIMMING).height / height;
+            return MathHelper.lerp(swimmingAnimation, 1.0F, swimmingHeight);
+        } else {
 
-                    swimmingHeight += (1.0F - swimmingHeight) * (1.0F - swimAnimation);
-                }
-
-                this.lastSwimAnimation = swimAnimation;
-                return swimmingHeight;
-            }
-        } else if (relativeHeight < 1.0F) {
-
-            return relativeHeight <= 0.0F ? 1.0F : relativeHeight;
+            return 1.0F;
         }
-
-        return 1.0F;
-    }
-    
-    private static void registerCondition(ForgeConfigSpec.BooleanValue active, Predicate<ClientPlayerEntity> action) {
-
-        PaperDollCondition condition = new PaperDollCondition(action);
-        registerClientEntry(active, condition::setActive);
-        DOLL_CONDITIONS.add(condition);
     }
 
-    private static class PaperDollCondition {
+    private boolean isBurning(ClientPlayerEntity player) {
 
-        boolean active;
+        return this.burning && player.isBurning();
+    }
+
+    private enum DisplayAction {
+
+        SPRINTING(ClientPlayerEntity::func_230269_aK_),
+        SWIMMING(player -> player.getSwimAnimation(1.0F) > 0 && player.isInWater()),
+        CRAWLING(player -> player.getSwimAnimation(1.0F) > 0 && !player.isInWater()),
+        CROUCHING(ClientPlayerEntity::isCrouching),
+        FLYING(player -> player.abilities.isFlying),
+        GLIDING(LivingEntity::isElytraFlying),
+        RIDING(Entity::isPassenger),
+        SPIN_ATTACKING(LivingEntity::isSpinAttacking),
+        USING(ClientPlayerEntity::isHandActive);
+
         final Predicate<ClientPlayerEntity> action;
 
-        PaperDollCondition(Predicate<ClientPlayerEntity> action) {
+        DisplayAction(Predicate<ClientPlayerEntity> action) {
 
             this.action = action;
         }
 
-        void setActive(boolean active) {
+        boolean isActive(ClientPlayerEntity player, int remainingRidingTicks) {
 
-            this.active = active;
-        }
-
-        boolean isActive(ClientPlayerEntity player) {
-
-            return this.active && this.action.test(player);
+            return (this != CROUCHING || remainingRidingTicks == 0) && this.action.test(player);
         }
     }
 
