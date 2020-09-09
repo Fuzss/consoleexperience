@@ -35,19 +35,19 @@ public class HoveringHotbarElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return true;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Hovering Hotbar";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Enable the hotbar to hover anywhere on the screen. By default just moves it up a little from the screen bottom.";
     }
@@ -89,6 +89,16 @@ public class HoveringHotbarElement extends GameplayElement {
 
             this.redrawSelectedSlot(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight());
         }
+    }
+
+    public int getXOffset() {
+
+        return this.xOffset;
+    }
+
+    public int getYOffset() {
+
+        return this.yOffset;
     }
 
     /**

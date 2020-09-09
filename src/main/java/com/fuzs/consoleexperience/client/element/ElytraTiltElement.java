@@ -20,19 +20,19 @@ public class ElytraTiltElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return false;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Elytra Camera Tilt";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Tilt the camera according to elytra flight angle.";
     }

@@ -23,19 +23,19 @@ public class ShulkerTooltipElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return true;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Sum Shulker Box Contents";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Sum up stacks of equal items on the shulker box tooltip.";
     }

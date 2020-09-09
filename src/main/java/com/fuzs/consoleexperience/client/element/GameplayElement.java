@@ -12,7 +12,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class GameplayElement {
+public abstract class GameplayElement implements IConfigurableElement {
 
     protected final Minecraft mc = Minecraft.getInstance();
 
@@ -27,13 +27,14 @@ public abstract class GameplayElement {
         registerClientEntry(builder.comment(this.getDescription()).define(this.getDisplayName(), this.getDefaultState()), this::setEnabled);
     }
 
-    public void setupConfig(ForgeConfigSpec.Builder builder) {
-
-    }
-
-    public void init() {
+    public final void load() {
 
         this.reload(true);
+        this.init();
+    }
+
+    protected void init() {
+
     }
 
     private void reload(boolean isInit) {
@@ -47,13 +48,8 @@ public abstract class GameplayElement {
         }
     }
 
-    protected abstract boolean getDefaultState();
-
-    protected abstract String getDisplayName();
-
-    protected abstract String getDescription();
-
-    public final boolean isEnabled() {
+    @Override
+    public boolean isEnabled() {
 
         return this.enabled;
     }

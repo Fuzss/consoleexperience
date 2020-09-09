@@ -8,19 +8,19 @@ public class EatingAnimationElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return true;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Eating Animation";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Animate eating in third-person view.";
     }

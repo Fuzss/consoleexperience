@@ -56,7 +56,7 @@ public class PaperDollRenderer {
         entityrenderermanager.setCameraOrientation(quaternionX);
         entityrenderermanager.setRenderShadow(false);
         IRenderTypeBuffer.Impl impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880);
+        RenderSystem.runAsFancy(() -> entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880));
         impl.finish();
         entityrenderermanager.setRenderShadow(true);
 

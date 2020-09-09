@@ -11,6 +11,7 @@ public class GameplayElements {
 
     private static final Map<ResourceLocation, GameplayElement> ELEMENTS = Maps.newHashMap();
 
+    public static final GameplayElement SELECTED_ITEM = register("selected_item", new SelectedItemElement());
     public static final GameplayElement PAPER_DOLL = register("paper_doll", new PaperDollElement());
     public static final GameplayElement HOVERING_HOTBAR = register("hovering_hotbar", new HoveringHotbarElement());
     public static final GameplayElement SAVE_ICON = register("save_icon", new SaveIconElement());
@@ -45,9 +46,9 @@ public class GameplayElements {
         });
     }
 
-    public static void init() {
+    public static void load() {
 
-        ELEMENTS.values().forEach(GameplayElement::init);
+        ELEMENTS.values().forEach(GameplayElement::load);
     }
 
 }

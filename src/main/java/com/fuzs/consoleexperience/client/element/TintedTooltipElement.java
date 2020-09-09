@@ -11,19 +11,19 @@ public class TintedTooltipElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return false;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Tinted Tooltip";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Make item tooltips colored similarly to Console Edition.";
     }

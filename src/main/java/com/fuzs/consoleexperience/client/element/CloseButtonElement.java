@@ -1,6 +1,7 @@
 package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.client.gui.button.CloseButton;
+import com.fuzs.consoleexperience.mixin.ScreenAccessorMixin;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.inventory.container.Container;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -18,19 +19,19 @@ public class CloseButtonElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return true;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Close Button";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Add a button for closing to every container.";
     }
@@ -58,7 +59,7 @@ public class CloseButtonElement extends GameplayElement {
             return;
         }
 
-        evt.getGui().addButton(new CloseButton(this.offsetX, this.offsetY, button -> {
+        ((ScreenAccessorMixin) evt.getGui()).callAddButton(new CloseButton(this.offsetX, this.offsetY, button -> {
 
             assert (this.mc.player != null);
             this.mc.player.closeScreen();

@@ -25,19 +25,19 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return true;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Hide Hud";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Hide all hud elements when inside of a container.";
     }

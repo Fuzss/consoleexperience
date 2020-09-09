@@ -3,8 +3,7 @@ package com.fuzs.consoleexperience.client.element;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.gui.PaperDollRenderer;
 import com.fuzs.consoleexperience.client.gui.PositionPreset;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -16,24 +15,24 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PaperDollElement extends GameplayElement implements IHasDisplayTime {
-    
-    private PositionPreset position;
+
+    private static final Set<DisplayAction> DEFAULT_DOLL_CONDITIONS = ImmutableSet.of(DisplayAction.SPRINTING, DisplayAction.SWIMMING, DisplayAction.CRAWLING, DisplayAction.CROUCHING, DisplayAction.FLYING, DisplayAction.GLIDING);
+    private final PaperDollRenderer dollRenderer = new PaperDollRenderer();
+
     private int scale;
     private int xOffset;
     private int yOffset;
     private int displayTime;
+    private PositionPreset position;
     private boolean potionShift;
     private boolean burning;
     private boolean firstPerson;
-
-    private static final List<DisplayAction> DEFAULT_DOLL_CONDITIONS = ImmutableList.of(DisplayAction.SPRINTING, DisplayAction.SWIMMING, DisplayAction.CRAWLING, DisplayAction.CROUCHING, DisplayAction.FLYING, DisplayAction.GLIDING);
-    private static final List<DisplayAction> DOLL_CONDITIONS = Lists.newArrayList();
-    private final PaperDollRenderer dollRenderer = new PaperDollRenderer();
+    private Set<DisplayAction> dollConditions;
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
@@ -48,19 +47,19 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return true;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Paper Doll";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Show a small player model in a configurable corner of the screen while the player is performing certain actions such as sprinting, sneaking, flying and gliding.";
     }
@@ -78,20 +77,19 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
             this.dollRenderer.setPositionPreset(v);
         });
 
-        registerClientEntry(builder.comment("Shift the paper doll downwards when it would otherwise overlap with the potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
-        registerClientEntry(builder.comment("Only show the paper doll when in first person mode.").define("First Person Only", true), v -> this.firstPerson = v);
+        registerClientEntry(builder.comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
+        registerClientEntry(builder.comment("Only show paper doll when in first person mode.").define("First Person", true), v -> this.firstPerson = v);
         // flame renderer on paper doll not working anymore
         // registerClientEntry(builder.comment("Disable flame overlay on hud when on fire and display burning paper doll instead.").define("Burning Doll", false), v -> this.burning = v);
         registerClientEntry(builder.comment("Display paper doll while performing these actions.", "Allowed Values: " + Arrays.stream(DisplayAction.values()).map(Enum::name).collect(Collectors.joining(", "))).define("Display Actions", DEFAULT_DOLL_CONDITIONS.stream().map(Enum::name).collect(Collectors.toList())), v -> {
 
-            DOLL_CONDITIONS.clear();
             try {
 
-                DOLL_CONDITIONS.addAll(v.stream().map(DisplayAction::valueOf).collect(Collectors.toList()));
+                this.dollConditions = v.stream().map(DisplayAction::valueOf).collect(Collectors.toSet());
             } catch (IllegalArgumentException e) {
 
                 ConsoleExperience.LOGGER.error(e);
-                DOLL_CONDITIONS.addAll(DEFAULT_DOLL_CONDITIONS);
+                this.dollConditions = DEFAULT_DOLL_CONDITIONS;
             }
         });
 
@@ -113,7 +111,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         }
 
         // update display ticks
-        if (DOLL_CONDITIONS.stream().anyMatch(condition -> condition.isActive(player, this.remainingRidingTicks)) || this.isBurning(player)) {
+        if (this.dollConditions.stream().anyMatch(condition -> condition.isActive(player, this.remainingRidingTicks)) || this.isBurning(player)) {
 
             this.remainingDisplayTicks = this.displayTime;
         } else if (this.remainingDisplayTicks > 0) {
@@ -135,7 +133,6 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
             this.remainingRidingTicks--;
         }
-
     }
 
     private void onRenderBlockOverlay(final RenderBlockOverlayEvent evt) {

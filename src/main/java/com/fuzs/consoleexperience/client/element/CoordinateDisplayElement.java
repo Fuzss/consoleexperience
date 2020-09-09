@@ -26,19 +26,19 @@ public class CoordinateDisplayElement extends GameplayElement {
     }
 
     @Override
-    protected boolean getDefaultState() {
+    public boolean getDefaultState() {
 
         return false;
     }
 
     @Override
-    protected String getDisplayName() {
+    public String getDisplayName() {
 
         return "Coordinate Display";
     }
 
     @Override
-    protected String getDescription() {
+    public String getDescription() {
 
         return "Always show player coordinates on screen.";
     }
@@ -75,8 +75,8 @@ public class CoordinateDisplayElement extends GameplayElement {
                 noDecimalPlaces ? (int) playerX : playerX, noDecimalPlaces ? (int) playerY : playerY, noDecimalPlaces ? (int) playerZ : playerZ);
 
         int opacity = (int) ((this.mc.gameSettings.chatOpacity * 0.9F + 0.1F) * 255.0F);
-        int stringWidth = this.mc.fontRenderer.getStringWidth(component.getString()) + 3;
-        int stringHeight = 7 + 4;
+        int stringWidth = this.mc.fontRenderer.func_238414_a_(component) + 3;
+        int stringHeight = this.mc.fontRenderer.FONT_HEIGHT + 2;
         float scale = this.scale / 6.0F;
         MainWindow window = evt.getWindow();
         PositionPreset position = this.position;
@@ -85,7 +85,6 @@ public class CoordinateDisplayElement extends GameplayElement {
 
         RenderSystem.pushMatrix();
         RenderSystem.scalef(scale, scale, 1.0F);
-
         if (this.background) {
 
             AbstractGui.fill(evt.getMatrixStack(), posX, posY, posX + stringWidth, posY + stringHeight, opacity / 2 << 24);

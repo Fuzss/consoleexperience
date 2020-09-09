@@ -64,6 +64,7 @@ repositories {
 
     // unofficial mcp mappings
     maven { url = "http://dogforce-games.com/maven/" }
+    maven { url = "https://maven.tterrag.com/" }
 }
 
 dependencies {

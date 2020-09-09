@@ -7,7 +7,9 @@
   "mixins": [
   ],
   "client": [
-    "BipedModelMixin"
+    "BipedModelMixin",
+    "IngameGuiAccessorMixin",
+    "ScreenAccessorMixin"
   ],
   "injectors": {
     "defaultRequire": 1
