@@ -171,9 +171,9 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
             }
         }
 
-        if (this.overlayMessageTime > 0) {
+        if (this.overlayMessageTime > 0 && --this.overlayMessageTime == 0) {
 
-            this.overlayMessageTime--;
+            this.tooltipBuilder.reset();
         }
     }
 
@@ -183,6 +183,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
 
             this.overlayMessageTime = this.ingameGUI.getOverlayMessageTime();
             this.ingameGUI.setOverlayMessageTime(0);
+            this.tooltipBuilder.reset();
         }
 
         int width = evt.getWindow().getScaledWidth();

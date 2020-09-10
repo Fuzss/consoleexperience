@@ -47,18 +47,15 @@ public class TooltipBuilder {
         boolean lastLine = ((SelectedItemElement) GameplayElements.SELECTED_ITEM).lastLine && rows > 1;
         List<TooltipElementBase> activeElements = getActiveElements();
         activeElements.forEach(element -> element.make(itemstack, playerIn));
-        if (activeElements.stream().mapToInt(TooltipElementBase::size).sum() > rows) {
+        if (activeElements.stream().mapToInt(TooltipElementBase::size).sum() > rows && lastLine) {
 
-            if (lastLine) {
+            rows--;
+        }
 
-                rows--;
-            }
+        activeElements.sort(Comparator.comparingInt(TooltipElementBase::getPriority));
+        for (TooltipElementBase element : activeElements) {
 
-            activeElements.sort(Comparator.comparingInt(TooltipElementBase::getPriority));
-            for (TooltipElementBase element : activeElements) {
-
-                rows -= element.cut(Math.max(rows, 0));
-            }
+            rows -= element.cut(Math.max(rows, 0));
         }
 
         activeElements.sort(Comparator.comparingInt(TooltipElementBase::getOrdering));
