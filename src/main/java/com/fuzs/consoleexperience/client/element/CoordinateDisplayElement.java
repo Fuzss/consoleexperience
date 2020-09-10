@@ -92,7 +92,7 @@ public class CoordinateDisplayElement extends GameplayElement {
             AbstractGui.fill(evt.getMatrixStack(), posX, posY, posX + stringWidth, posY + stringHeight, opacity / 2 << 24);
         }
 
-        AbstractGui.drawString(evt.getMatrixStack(), this.mc.fontRenderer, component, posX + 2, posY + 2, 16777215 + (opacity << 24));
+        this.mc.fontRenderer.func_238407_a_(evt.getMatrixStack(), component, posX + 2, posY + 2, 16777215 + (opacity << 24));
         RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
         RenderSystem.popMatrix();
         this.mc.getProfiler().endSection();

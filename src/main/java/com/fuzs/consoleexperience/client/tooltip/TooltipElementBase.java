@@ -120,10 +120,10 @@ public abstract class TooltipElementBase {
         }
     }
 
-    protected static boolean testHiddenFlags(ItemStack itemstack, ItemStack.TooltipDisplayFlags flag) {
+    protected static boolean testHiddenFlags(ItemStack itemstack, int flag) {
 
         int hide = itemstack.hasTag() && Objects.requireNonNull(itemstack.getTag()).contains("HideFlags", 99) ? itemstack.getTag().getInt("HideFlags") : 0;
-        return (hide & flag.func_242397_a()) == 0;
+        return (hide & flag) == 0;
     }
 
     protected static void serializeTooltipFlag(JsonObject jsonobject, ITooltipFlag flagIn) {

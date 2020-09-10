@@ -221,7 +221,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
             for (int i = 0; i < tooltip.size(); i++) {
 
                 ITextComponent component = tooltip.get(i);
-                AbstractGui.drawString(matrixStack, fontRenderer, component, posX - fontRenderer.func_238414_a_(component) / 2,
+                fontRenderer.func_238407_a_(matrixStack, component, posX - fontRenderer.func_238414_a_(component) / 2,
                         posY, 16777215 + (alpha << 24));
                 posY += i == 0 ? fontRenderer.FONT_HEIGHT + 3 : fontRenderer.FONT_HEIGHT + 1;
             }
@@ -269,7 +269,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                             height + fontRenderer.FONT_HEIGHT + 2, ColorHelper.PackedColor.blendColors(backgroundColor, 16777215 | alpha));
                 }
 
-                AbstractGui.drawString(matrixStack, fontRenderer, this.ingameGUI.getOverlayMessage(), width, height, hue | alpha);
+                fontRenderer.func_238407_a_(matrixStack, this.ingameGUI.getOverlayMessage(), width, height, hue | alpha);
                 RenderSystem.disableBlend();
                 RenderSystem.popMatrix();
             }

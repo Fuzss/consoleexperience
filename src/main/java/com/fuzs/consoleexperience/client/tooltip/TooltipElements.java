@@ -102,7 +102,7 @@ public class TooltipElements {
                 tooltip.add(new StringTextComponent("#" + FilledMapItem.getMapId(itemstack)).mergeStyle(TextFormatting.GRAY));
             }
 
-            if (testHiddenFlags(itemstack, ItemStack.TooltipDisplayFlags.ADDITIONAL)) {
+            if (testHiddenFlags(itemstack, 32)) {
 
                 if (Block.getBlockFromItem(itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
@@ -162,7 +162,7 @@ public class TooltipElements {
         @Override
         protected List<ITextComponent> build(ItemStack itemstack, @Nullable PlayerEntity playerIn) {
 
-            if (itemstack.hasTag() && testHiddenFlags(itemstack, ItemStack.TooltipDisplayFlags.ENCHANTMENTS)) {
+            if (itemstack.hasTag() && testHiddenFlags(itemstack, 1)) {
 
                 List<ITextComponent> tooltip = Lists.newArrayList();
                 ListNBT listNBT = itemstack.getEnchantmentTagList();
@@ -217,7 +217,7 @@ public class TooltipElements {
                 if (itemstack.getTag().contains("display", 10)) {
 
                     CompoundNBT compoundnbt = itemstack.getTag().getCompound("display");
-                    if (testHiddenFlags(itemstack, ItemStack.TooltipDisplayFlags.DYE) && compoundnbt.contains("color", 99)) {
+                    if (compoundnbt.contains("color", 99)) {
 
                         IFormattableTextComponent iformattabletextcomponent = this.itooltipflag.isAdvanced() ?
                                 new TranslationTextComponent("item.color", String.format("#%06X", compoundnbt.getInt("color"))) :
@@ -327,7 +327,7 @@ public class TooltipElements {
         @Override
         protected List<ITextComponent> build(ItemStack itemstack, @Nullable PlayerEntity playerIn) {
 
-            if (testHiddenFlags(itemstack, ItemStack.TooltipDisplayFlags.MODIFIERS)) {
+            if (testHiddenFlags(itemstack, 2)) {
 
                 for(EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
 
@@ -409,7 +409,7 @@ public class TooltipElements {
         @Override
         protected List<ITextComponent> build(ItemStack itemstack, @Nullable PlayerEntity playerIn) {
 
-            if (itemstack.hasTag() && testHiddenFlags(itemstack, ItemStack.TooltipDisplayFlags.UNBREAKABLE)) {
+            if (itemstack.hasTag() && testHiddenFlags(itemstack, 4)) {
 
                 assert itemstack.getTag() != null;
                 if (itemstack.getTag().getBoolean("Unbreakable")) {

@@ -136,7 +136,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         ClientPlayerEntity player = this.mc.player;
         assert player != null && this.mc.playerController != null;
         boolean isVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
-        boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !this.firstPerson;
+        boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !this.firstPerson;
         if (isVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
 
             int scale = this.scale * 5;
