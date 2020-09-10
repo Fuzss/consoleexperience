@@ -3,7 +3,6 @@ package com.fuzs.consoleexperience.client.element;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.gui.PositionPreset;
 import com.fuzs.consoleexperience.client.util.BackgroundState;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +12,6 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
-@SuppressWarnings({"FieldCanBeLocal", "deprecation"})
 public class SaveIconElement extends GameplayElement implements IHasDisplayTime {
 
     private static final ResourceLocation SAVE_ICONS = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/auto_save.png");
@@ -100,7 +98,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
 
         if (!this.state.isActive() && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 
-            this.drawIcon(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight(), true);
+            this.drawIcon(evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight(), true);
         }
     }
 
@@ -109,12 +107,12 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
         // only render while in-game
         if (this.mc.world != null) {
 
-            this.drawIcon(evt.getMatrixStack(), this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight(), false);
+            this.drawIcon(this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight(), false);
         }
 
     }
 
-    private void drawIcon(MatrixStack matrixStack, int windowWidth, int windowHeight, boolean shift) {
+    private void drawIcon(int windowWidth, int windowHeight, boolean shift) {
 
         if (this.isVisible()) {
 
@@ -132,27 +130,27 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
             RenderSystem.pushMatrix();
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawModel(matrixStack, position, posX, posY);
-            this.drawArrow(matrixStack, posX, posY);
+            this.drawModel(position, posX, posY);
+            this.drawArrow(posX, posY);
             RenderSystem.disableBlend();
             RenderSystem.popMatrix();
             this.mc.getProfiler().endSection();
         }
     }
 
-    private void drawModel(MatrixStack matrixStack, PositionPreset position, int posX, int posY) {
+    private void drawModel(PositionPreset position, int posX, int posY) {
 
         float scale = 0.5F;
         switch (this.modelState) {
 
             case BASIC:
 
-                AbstractGui.blit(matrixStack, posX, posY, position.isMirrored() ? 162 : 144, 0, this.width, this.height, 256, 256);
+                AbstractGui.blit(posX, posY, position.isMirrored() ? 162 : 144, 0, this.width, this.height, 256, 256);
                 break;
             case FANCY:
 
                 RenderSystem.scalef(scale, scale, 1.0F);
-                AbstractGui.blit(matrixStack, (int) (posX / scale), (int) ((posY + 14) / scale), 0, position.isMirrored() ? 30 : 66,36, 36, 256, 256);
+                AbstractGui.blit((int) (posX / scale), (int) ((posY + 14) / scale), 0, position.isMirrored() ? 30 : 66,36, 36, 256, 256);
                 RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
                 break;
             case SPINNING:
@@ -160,19 +158,19 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
                 int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
                 int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
                 RenderSystem.scalef(scale, scale, 1.0F);
-                AbstractGui.blit(matrixStack, (int) (posX / scale), (int) ((posY + 14) / scale), textureX, textureY, 36, 36, 256, 256);
+                AbstractGui.blit((int) (posX / scale), (int) ((posY + 14) / scale), textureX, textureY, 36, 36, 256, 256);
                 RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
                 break;
         }
     }
 
-    private void drawArrow(MatrixStack matrixStack, int posX, int posY) {
+    private void drawArrow(int posX, int posY) {
 
         if (this.arrowState.isVisible()) {
 
             float speed = this.arrowState.getSpeed();
             int offsetX = this.arrowState.isStill() ? this.width * 2 : (int) ((this.remainingDisplayTicks % (16 / speed)) * 0.5F * speed) * this.width;
-            AbstractGui.blit(matrixStack, posX, posY, offsetX, 0, this.width, this.height, 256, 256);
+            AbstractGui.blit(posX, posY, offsetX, 0, this.width, this.height, 256, 256);
         }
     }
 

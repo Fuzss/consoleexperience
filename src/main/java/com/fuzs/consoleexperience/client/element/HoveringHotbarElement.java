@@ -1,7 +1,6 @@
 package com.fuzs.consoleexperience.client.element;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
@@ -12,7 +11,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.List;
 
-@SuppressWarnings("deprecation")
 public class HoveringHotbarElement extends GameplayElement {
 
     private static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
@@ -87,7 +85,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (evt.getType() == ElementType.HOTBAR) {
 
-            this.redrawSelectedSlot(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight());
+            this.redrawSelectedSlot(evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight());
         }
     }
 
@@ -104,13 +102,13 @@ public class HoveringHotbarElement extends GameplayElement {
     /**
      * draw current item highlight again as it's missing two rows of pixels normally
      */
-    private void redrawSelectedSlot(MatrixStack matrixStack, int width, int height) {
+    private void redrawSelectedSlot(int width, int height) {
         
         assert this.mc.player != null;
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(WIDGETS);
         RenderSystem.enableBlend();
-        AbstractGui.blit(matrixStack, width / 2 - 91 - 1 + this.mc.player.inventory.currentItem * 20, height - 1, 0, 44, 24, 2, 256, 256);
+        AbstractGui.blit(width / 2 - 91 - 1 + this.mc.player.inventory.currentItem * 20, height - 1, 0, 44, 24, 2, 256, 256);
         RenderSystem.disableBlend();
     }
 

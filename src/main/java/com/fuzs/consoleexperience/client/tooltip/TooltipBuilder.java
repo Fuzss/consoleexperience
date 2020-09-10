@@ -28,7 +28,7 @@ public class TooltipBuilder {
             new TooltipElements.Information(true, 4, 19, null, ITooltipFlag.TooltipFlags.ADVANCED),
             new TooltipElements.Enchantments(true, 6, 17, null),
             new TooltipElements.Color(true, 8, 15, TextFormatting.GRAY, ITooltipFlag.TooltipFlags.ADVANCED),
-            new TooltipElements.Lore(true, 10, 12, Style.EMPTY.setFormatting(TextFormatting.DARK_PURPLE).setItalic(true)),
+            new TooltipElements.Lore(true, 10, 12, new Style().setColor(TextFormatting.DARK_PURPLE).setItalic(true)),
             new TooltipElements.Modifiers(false, 12, 5, null),
             new TooltipElements.Unbreakable(true, 14, 7, TextFormatting.BLUE),
             new TooltipElements.Durability(true, 16, 18, null),
@@ -47,18 +47,15 @@ public class TooltipBuilder {
         boolean lastLine = ((SelectedItemElement) GameplayElements.SELECTED_ITEM).lastLine && rows > 1;
         List<TooltipElementBase> activeElements = getActiveElements();
         activeElements.forEach(element -> element.make(itemstack, playerIn));
-        if (activeElements.stream().mapToInt(TooltipElementBase::size).sum() > rows) {
+        if (activeElements.stream().mapToInt(TooltipElementBase::size).sum() > rows && lastLine) {
 
-            if (lastLine) {
+            rows--;
+        }
 
-                rows--;
-            }
+        activeElements.sort(Comparator.comparingInt(TooltipElementBase::getPriority));
+        for (TooltipElementBase element : activeElements) {
 
-            activeElements.sort(Comparator.comparingInt(TooltipElementBase::getPriority));
-            for (TooltipElementBase element : activeElements) {
-
-                rows -= element.cut(Math.max(rows, 0));
-            }
+            rows -= element.cut(Math.max(rows, 0));
         }
 
         activeElements.sort(Comparator.comparingInt(TooltipElementBase::getOrdering));
@@ -101,7 +98,7 @@ public class TooltipBuilder {
 
     private ITextComponent getLastLine(int amount) {
 
-        return new TranslationTextComponent("container.shulkerBox.more", amount).mergeStyle(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor, TextFormatting.ITALIC);
+        return new TranslationTextComponent("container.shulkerBox.more", amount).setStyle(new Style().setColor(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor).setItalic(true));
     }
 
     public static List<TooltipElementBase> getActiveElements() {

@@ -6,17 +6,16 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Quaternion;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
 
 public class PaperDollRenderer {
 
     private final float maxRotation = 30.0F;
 
-    @SuppressWarnings("deprecation")
     public float drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prevRotationYaw) {
 
         // prepare
@@ -49,7 +48,7 @@ public class PaperDollRenderer {
         entityrenderermanager.setCameraOrientation(quaternionX);
         entityrenderermanager.setRenderShadow(false);
         IRenderTypeBuffer.Impl impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        RenderSystem.runAsFancy(() -> entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880));
+        entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880);
         impl.finish();
         entityrenderermanager.setRenderShadow(true);
 

@@ -194,7 +194,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
     private enum DisplayAction {
 
-        SPRINTING(ClientPlayerEntity::func_230269_aK_),
+        SPRINTING(player -> player.isSprinting() && !player.isSwimming()),
         SWIMMING(player -> player.getSwimAnimation(1.0F) > 0 && player.isInWater()),
         CRAWLING(player -> player.getSwimAnimation(1.0F) > 0 && !player.isInWater()),
         CROUCHING(ClientPlayerEntity::isCrouching),

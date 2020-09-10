@@ -13,9 +13,8 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.FilledMapItem;
@@ -55,18 +54,18 @@ public class TooltipElements {
         @Override
         protected List<ITextComponent> build(ItemStack itemstack, @Nullable PlayerEntity playerIn) {
 
-            IFormattableTextComponent iformattabletextcomponent = new StringTextComponent("").append(itemstack.getDisplayName()).mergeStyle(itemstack.getRarity().color);
+            ITextComponent iformattabletextcomponent = new StringTextComponent("").appendSibling(itemstack.getDisplayName()).applyTextStyle(itemstack.getRarity().color);
             if (itemstack.hasDisplayName()) {
 
-                iformattabletextcomponent.mergeStyle(TextFormatting.ITALIC);
+                iformattabletextcomponent.applyTextStyle(TextFormatting.ITALIC);
             }
 
             if (GameplayElements.SELECTED_ITEM.isEnabled()) {
 
-                return Lists.newArrayList(this.setDefaultableStyle(iformattabletextcomponent));
+                return Collections.singletonList(this.setDefaultableStyle(iformattabletextcomponent));
             }
 
-            return Lists.newArrayList(iformattabletextcomponent);
+            return Collections.singletonList(iformattabletextcomponent);
         }
 
     }
@@ -99,7 +98,7 @@ public class TooltipElements {
             List<ITextComponent> tooltip = Lists.newArrayList();
             if (!this.itooltipflag.isAdvanced() && !itemstack.hasDisplayName() && itemstack.getItem() == Items.FILLED_MAP) {
 
-                tooltip.add(new StringTextComponent("#" + FilledMapItem.getMapId(itemstack)).mergeStyle(TextFormatting.GRAY));
+                tooltip.add(new StringTextComponent("#" + FilledMapItem.getMapId(itemstack)).applyTextStyle(TextFormatting.GRAY));
             }
 
             if (testHiddenFlags(itemstack, 32)) {
@@ -114,7 +113,7 @@ public class TooltipElements {
             }
 
             tooltip.removeIf(component -> Strings.isNullOrEmpty(component.getString()));
-            tooltip.forEach(itextcomponent -> this.setDefaultableStyle(itextcomponent.deepCopy()));
+            tooltip.forEach(this::setDefaultableStyle);
 
             return tooltip;
         }
@@ -174,7 +173,7 @@ public class TooltipElements {
                     enchantmentEntry.ifPresent(enchantment -> {
 
                         ITextComponent itextcomponent = enchantment.getDisplayName(compoundnbt.getInt("lvl"));
-                        tooltip.add(this.setDefaultableStyle(itextcomponent.deepCopy()));
+                        tooltip.add(this.setDefaultableStyle(itextcomponent));
                     });
                 }
 
@@ -219,10 +218,10 @@ public class TooltipElements {
                     CompoundNBT compoundnbt = itemstack.getTag().getCompound("display");
                     if (compoundnbt.contains("color", 99)) {
 
-                        IFormattableTextComponent iformattabletextcomponent = this.itooltipflag.isAdvanced() ?
+                        ITextComponent iformattabletextcomponent = this.itooltipflag.isAdvanced() ?
                                 new TranslationTextComponent("item.color", String.format("#%06X", compoundnbt.getInt("color"))) :
                                 new TranslationTextComponent("item.dyed");
-                        return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
+                        return Collections.singletonList(iformattabletextcomponent.setStyle(this.getStyle()));
                     }
                 }
             }
@@ -286,10 +285,10 @@ public class TooltipElements {
 
                             try {
 
-                                IFormattableTextComponent iformattabletextcomponent = ITextComponent.Serializer.func_240643_a_(listnbt.getString(i));
+                                ITextComponent iformattabletextcomponent = ITextComponent.Serializer.fromJson(listnbt.getString(i));
                                 if (iformattabletextcomponent != null) {
 
-                                    return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
+                                    return Collections.singletonList(iformattabletextcomponent.setStyle(this.getStyle()));
                                 }
                             } catch (JsonParseException jsonparseexception) {
 
@@ -331,12 +330,12 @@ public class TooltipElements {
 
                 for(EquipmentSlotType equipmentslottype : EquipmentSlotType.values()) {
 
-                    Multimap<Attribute, AttributeModifier> multimap = itemstack.getAttributeModifiers(equipmentslottype);
+                    Multimap<String, AttributeModifier> multimap = itemstack.getAttributeModifiers(equipmentslottype);
                     if (!multimap.isEmpty()) {
 
-                        IFormattableTextComponent iformattabletextcomponent = this.setDefaultableStyle(new TranslationTextComponent("item.modifiers." + equipmentslottype.getName()).mergeStyle(TextFormatting.GRAY));
-                        List<ITextComponent> tooltip = Lists.newArrayList(iformattabletextcomponent);
-                        for(Map.Entry<Attribute, AttributeModifier> entry : multimap.entries()) {
+                        ITextComponent iformattabletextcomponent = this.setDefaultableStyle(new TranslationTextComponent("item.modifiers." + equipmentslottype.getName()).applyTextStyle(TextFormatting.GRAY));
+                        List<ITextComponent> tooltip = Arrays.asList(iformattabletextcomponent);
+                        for(Map.Entry<String, AttributeModifier> entry : multimap.entries()) {
 
                             AttributeModifier attributemodifier = entry.getValue();
                             double amount = attributemodifier.getAmount();
@@ -345,12 +344,12 @@ public class TooltipElements {
 
                                 if (attributemodifier.getID().equals(UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF"))) {
 
-                                    amount += playerIn.getBaseAttributeValue(Attributes.ATTACK_DAMAGE);
+                                    amount += playerIn.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
                                     amount += EnchantmentHelper.getModifierForCreature(itemstack, CreatureAttribute.UNDEFINED);
                                     isKnownModifier = true;
                                 } else if (attributemodifier.getID().equals(UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3"))) {
 
-                                    amount += playerIn.getBaseAttributeValue(Attributes.ATTACK_SPEED);
+                                    amount += playerIn.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
                                     isKnownModifier = true;
                                 }
                             }
@@ -358,7 +357,7 @@ public class TooltipElements {
                             double adjustedAmount;
                             if (attributemodifier.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && attributemodifier.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
 
-                                adjustedAmount = entry.getKey().equals(Attributes.KNOCKBACK_RESISTANCE) ? amount * 10.0D : amount;
+                                adjustedAmount = entry.getKey().equals(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getName()) ? amount * 10.0D : amount;
                             } else {
 
                                 adjustedAmount = amount * 100.0D;
@@ -366,14 +365,14 @@ public class TooltipElements {
 
                             if (isKnownModifier) {
 
-                                tooltip.add(this.setDefaultableStyle(new StringTextComponent(" ").append(new TranslationTextComponent("attribute.modifier.equals." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().func_233754_c_()))).mergeStyle(TextFormatting.DARK_GREEN)));
+                                tooltip.add(this.setDefaultableStyle(new StringTextComponent(" ").appendSibling(new TranslationTextComponent("attribute.modifier.equals." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent("attribute.name." + entry.getKey()))).applyTextStyle(TextFormatting.DARK_GREEN)));
                             } else if (amount > 0.0D) {
 
-                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.plus." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().func_233754_c_())).mergeStyle(TextFormatting.BLUE)));
+                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.plus." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent("attribute.name." + entry.getKey())).applyTextStyle(TextFormatting.BLUE)));
                             } else if (amount < 0.0D) {
 
                                 adjustedAmount *= -1.0D;
-                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.take." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().func_233754_c_())).mergeStyle(TextFormatting.RED)));
+                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.take." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent("attribute.name." + entry.getKey())).applyTextStyle(TextFormatting.RED)));
                             }
                         }
 
@@ -414,8 +413,8 @@ public class TooltipElements {
                 assert itemstack.getTag() != null;
                 if (itemstack.getTag().getBoolean("Unbreakable")) {
 
-                    IFormattableTextComponent iformattabletextcomponent = new TranslationTextComponent("item.unbreakable");
-                    return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
+                    ITextComponent iformattabletextcomponent = new TranslationTextComponent("item.unbreakable");
+                    return Collections.singletonList(iformattabletextcomponent.setStyle(this.getStyle()));
                 }
             }
 
@@ -454,8 +453,8 @@ public class TooltipElements {
 
             if (itemstack.isDamaged()) {
 
-                IFormattableTextComponent iformattabletextcomponent = new TranslationTextComponent("item.durability", itemstack.getMaxDamage() - itemstack.getDamage(), itemstack.getMaxDamage());
-                return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
+                ITextComponent iformattabletextcomponent = new TranslationTextComponent("item.durability", itemstack.getMaxDamage() - itemstack.getDamage(), itemstack.getMaxDamage());
+                return Collections.singletonList(iformattabletextcomponent.setStyle(this.getStyle()));
             }
 
             return Lists.newArrayList();
@@ -486,8 +485,8 @@ public class TooltipElements {
         protected List<ITextComponent> build(ItemStack itemstack, @Nullable PlayerEntity playerIn) {
 
             ResourceLocation nameID = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(itemstack.getItem()));
-            IFormattableTextComponent iformattabletextcomponent = new StringTextComponent(nameID.toString());
-            return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
+            ITextComponent iformattabletextcomponent = new StringTextComponent(nameID.toString());
+            return Collections.singletonList(iformattabletextcomponent.setStyle(this.getStyle()));
         }
 
     }
@@ -517,8 +516,8 @@ public class TooltipElements {
             if (itemstack.hasTag()) {
 
                 assert itemstack.getTag() != null;
-                IFormattableTextComponent iformattabletextcomponent = new TranslationTextComponent("item.nbt_tags", itemstack.getTag().keySet().size());
-                return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
+                ITextComponent iformattabletextcomponent = new TranslationTextComponent("item.nbt_tags", itemstack.getTag().keySet().size());
+                return Collections.singletonList(iformattabletextcomponent.setStyle(this.getStyle()));
             }
 
             return Lists.newArrayList();

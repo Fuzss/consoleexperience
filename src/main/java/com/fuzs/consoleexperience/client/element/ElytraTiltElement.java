@@ -3,7 +3,7 @@ package com.fuzs.consoleexperience.client.element;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -51,8 +51,8 @@ public class ElytraTiltElement extends GameplayElement {
 
             // code from PlayerRenderer#applyRotations which is used there for rotating the player model
             float partialTicks = (float) evt.getRenderPartialTicks();
-            Vector3d vector3d = player.getLook(partialTicks);
-            Vector3d vector3d1 = player.getMotion();
+            Vec3d vector3d = player.getLook(partialTicks);
+            Vec3d vector3d1 = player.getMotion();
             double d0 = Entity.horizontalMag(vector3d1);
             double d1 = Entity.horizontalMag(vector3d);
             if (d0 > 0.0D && d1 > 0.0D) {

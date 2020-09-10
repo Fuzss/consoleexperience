@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -54,7 +54,6 @@ public class CoordinateDisplayElement extends GameplayElement {
         registerClientEntry(builder.comment("Amount of decimal places for the three coordinates.").defineInRange("Decimal Places", 0, 0, Integer.MAX_VALUE), v -> this.decimalPlaces = v);
     }
 
-    @SuppressWarnings("deprecation")
     private void onRenderGameOverlayPre(final RenderGameOverlayEvent.Chat evt) {
 
         if (this.mc.gameSettings.showDebugInfo) {
@@ -71,11 +70,11 @@ public class CoordinateDisplayElement extends GameplayElement {
         double playerZ = round(player.getPosZ(), decimalPlaces);
         boolean noDecimalPlaces = decimalPlaces == 0;
         // no empty decimal place added like this
-        IFormattableTextComponent component = new TranslationTextComponent("screen.coordinates",
+        ITextComponent component = new TranslationTextComponent("screen.coordinates",
                 noDecimalPlaces ? (int) playerX : playerX, noDecimalPlaces ? (int) playerY : playerY, noDecimalPlaces ? (int) playerZ : playerZ);
 
         int opacity = (int) ((this.mc.gameSettings.chatOpacity * 0.9F + 0.1F) * 255.0F);
-        int stringWidth = this.mc.fontRenderer.func_238414_a_(component) + 3;
+        int stringWidth = this.mc.fontRenderer.getStringWidth(component.getString()) + 3;
         int stringHeight = this.mc.fontRenderer.FONT_HEIGHT + 2;
         float scale = this.scale / 6.0F;
         MainWindow window = evt.getWindow();
@@ -89,10 +88,10 @@ public class CoordinateDisplayElement extends GameplayElement {
         RenderSystem.scalef(scale, scale, 1.0F);
         if (this.background) {
 
-            AbstractGui.fill(evt.getMatrixStack(), posX, posY, posX + stringWidth, posY + stringHeight, opacity / 2 << 24);
+            AbstractGui.fill(posX, posY, posX + stringWidth, posY + stringHeight, opacity / 2 << 24);
         }
 
-        this.mc.fontRenderer.func_238407_a_(evt.getMatrixStack(), component, posX + 2, posY + 2, 16777215 + (opacity << 24));
+        this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), posX + 2, posY + 2, 16777215 + (opacity << 24));
         RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
         RenderSystem.popMatrix();
         this.mc.getProfiler().endSection();

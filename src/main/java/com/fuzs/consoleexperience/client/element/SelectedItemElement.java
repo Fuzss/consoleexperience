@@ -3,14 +3,11 @@ package com.fuzs.consoleexperience.client.element;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.tooltip.TooltipBuilder;
 import com.fuzs.consoleexperience.config.StringListBuilder;
-import com.fuzs.consoleexperience.mixin.IngameGuiAccessorMixin;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -25,11 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"deprecation", "SuspiciousNameCombination"})
 public class SelectedItemElement extends GameplayElement implements IHasDisplayTime {
 
     private static final StringListBuilder<Item> ITEM_PARSER = new StringListBuilder<>(ForgeRegistries.ITEMS, ConsoleExperience.LOGGER);
-    private IngameGuiAccessorMixin ingameGUI;
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder();
     private final int defaultScale = 6;
     private final int defaultXOffset = 0;
@@ -58,12 +53,6 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
 
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayText);
-    }
-
-    @Override
-    public void init() {
-
-        this.ingameGUI = (IngameGuiAccessorMixin) this.mc.ingameGUI;
     }
 
     @Override
@@ -163,40 +152,41 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 // used to disable vanilla held item tooltips completely without modifying the game option,
                 // as otherwise the game option might still be deactivated after the mod is removed
                 // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
-                this.ingameGUI.setHighlightingItemStack(this.highlightingItemStack);
+                this.mc.ingameGUI.highlightingItemStack = this.highlightingItemStack;
                 // this is only here to fix a really weird bug where the vanilla tooltip wouldn't be deactivated
                 // once when joining a world for the first time after the game has been started
                 // so it's only required once, but now it's running every time
-                this.ingameGUI.setRemainingHighlightTicks(0);
+                this.mc.ingameGUI.remainingHighlightTicks = 0;
             }
         }
 
-        if (this.overlayMessageTime > 0) {
+        if (this.overlayMessageTime > 0 && --this.overlayMessageTime == 0) {
 
-            this.overlayMessageTime--;
+            this.tooltipBuilder.reset();
         }
     }
 
     private void onRenderGameOverlayText(final RenderGameOverlayEvent.Text evt) {
 
-        if (this.ingameGUI.getOverlayMessageTime() > 0) {
+        if (this.mc.ingameGUI.overlayMessageTime > 0) {
 
-            this.overlayMessageTime = this.ingameGUI.getOverlayMessageTime();
-            this.ingameGUI.setOverlayMessageTime(0);
+            this.overlayMessageTime = this.mc.ingameGUI.overlayMessageTime;
+            this.mc.ingameGUI.overlayMessageTime = 0;
+            this.tooltipBuilder.reset();
         }
 
         int width = evt.getWindow().getScaledWidth();
         int height = evt.getWindow().getScaledHeight();
-        this.renderRecordOverlay(evt.getMatrixStack(), width, height, evt.getPartialTicks());
+        this.renderRecordOverlay(width, height, evt.getPartialTicks());
 
         assert this.mc.playerController != null;
         if (!this.mc.playerController.isSpectatorMode() && (this.isEnabled() || this.mc.gameSettings.heldItemTooltips)) {
 
-            this.renderSelectedItem(evt.getMatrixStack(), width, height);
+            this.renderSelectedItem(width, height);
         }
     }
 
-    private void renderSelectedItem(MatrixStack matrixStack, int width, int height) {
+    private void renderSelectedItem(int width, int height) {
 
         if (this.isVisible() && !this.highlightingItemStack.isEmpty()) {
 
@@ -217,11 +207,11 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.scalef(scale, scale, 1.0F);
-            this.drawBackground(matrixStack, posX, posY, alpha, tooltip);
+            this.drawBackground(posX, posY, alpha, tooltip);
             for (int i = 0; i < tooltip.size(); i++) {
 
                 ITextComponent component = tooltip.get(i);
-                fontRenderer.func_238407_a_(matrixStack, component, posX - fontRenderer.func_238414_a_(component) / 2,
+                fontRenderer.drawStringWithShadow(component.getFormattedText(), posX - fontRenderer.getStringWidth(component.getString()) / 2,
                         posY, 16777215 + (alpha << 24));
                 posY += i == 0 ? fontRenderer.FONT_HEIGHT + 3 : fontRenderer.FONT_HEIGHT + 1;
             }
@@ -234,7 +224,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
         }
     }
 
-    private void renderRecordOverlay(MatrixStack matrixStack, int width, int height, float partialTicks) {
+    private void renderRecordOverlay(int width, int height, float partialTicks) {
 
         if (this.overlayMessageTime > 0) {
 
@@ -250,26 +240,27 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 RenderSystem.defaultBlendFunc();
 
                 width /= 2;
-                width -= fontRenderer.func_238414_a_(this.ingameGUI.getOverlayMessage()) / 2;
+                width -= fontRenderer.getStringWidth(this.mc.ingameGUI.overlayMessage) / 2;
                 height -= 72;
                 width += ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getXOffset();
                 height -= ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getYOffset();
 
                 int hue = 16777215;
-                if (this.ingameGUI.getAnimateOverlayMessageColor()) {
+                if (this.mc.ingameGUI.animateOverlayMessageColor) {
 
                     hue = MathHelper.hsvToRGB(timer / 50.0F, 0.7F, 0.6F) & hue;
                 }
 
+                int background = (int) (alpha * this.mc.gameSettings.accessibilityTextBackgroundOpacity);
                 alpha = alpha << 24 & -16777216;
                 int backgroundColor = this.mc.gameSettings.getTextBackgroundColor(0.0F);
                 if (backgroundColor != 0) {
 
-                    AbstractGui.fill(matrixStack, width - 2, height - 2, width + fontRenderer.func_238414_a_(this.ingameGUI.getOverlayMessage()) + 2,
-                            height + fontRenderer.FONT_HEIGHT + 2, ColorHelper.PackedColor.blendColors(backgroundColor, 16777215 | alpha));
+                    AbstractGui.fill(width - 2, height - 2, width + fontRenderer.getStringWidth(this.mc.ingameGUI.overlayMessage) + 2,
+                            height + fontRenderer.FONT_HEIGHT + 2, background << 24);
                 }
 
-                fontRenderer.func_238407_a_(matrixStack, this.ingameGUI.getOverlayMessage(), width, height, hue | alpha);
+                fontRenderer.drawString(this.mc.ingameGUI.overlayMessage, width, height, hue | alpha);
                 RenderSystem.disableBlend();
                 RenderSystem.popMatrix();
             }
@@ -321,7 +312,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
         return this.tooltipBuilder.create(this.highlightingItemStack, this.mc.player, rows);
     }
 
-    private void drawBackground(MatrixStack matrixStack, int posX, int posY, int alpha, List<ITextComponent> tooltip) {
+    private void drawBackground(int posX, int posY, int alpha, List<ITextComponent> tooltip) {
 
         if (this.backgroundMode != BackgroundMode.NONE || !this.isEnabled()) {
 
@@ -329,10 +320,10 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
             alpha = (int) (alpha * this.mc.gameSettings.accessibilityTextBackgroundOpacity);
             if (this.backgroundMode == BackgroundMode.RECTANGLE || !this.isEnabled()) {
 
-                int maximumWidth = tooltip.stream().mapToInt(fontRenderer::func_238414_a_).max().orElse(0) / 2;
+                int maximumWidth = tooltip.stream().map(ITextComponent::getString).mapToInt(fontRenderer::getStringWidth).max().orElse(0) / 2;
                 int size = tooltip.size();
 
-                AbstractGui.fill(matrixStack, posX - maximumWidth - 2, posY - 2, posX + maximumWidth + 2,
+                AbstractGui.fill(posX - maximumWidth - 2, posY - 2, posX + maximumWidth + 2,
                         posY + size * (fontRenderer.FONT_HEIGHT + 1) + (size > 1 ? 1 : -1) + 2, alpha << 24);
             } else {
 
@@ -344,7 +335,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                     int top = currentWidth < previousWidth ? (i == 1 ? 1 : -1) : 2;
                     int bottom = currentWidth <= nextWidth ? (i == 0 ? 1 : -1) : 2;
 
-                    AbstractGui.fill(matrixStack, posX - currentWidth - 2, posY - top, posX + currentWidth + 2,
+                    AbstractGui.fill(posX - currentWidth - 2, posY - top, posX + currentWidth + 2,
                             posY + fontRenderer.FONT_HEIGHT + bottom, alpha << 24);
                     posY += i == 0 ? fontRenderer.FONT_HEIGHT + 3 : fontRenderer.FONT_HEIGHT + 1;
                 }
@@ -355,7 +346,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
     private int getTextWidth(FontRenderer fontRenderer, List<ITextComponent> tooltip, int index) {
 
         int clampedIndex = MathHelper.clamp(index, 0, tooltip.size() - 1);
-        return clampedIndex == index ? fontRenderer.func_238414_a_(tooltip.get(index)) : 0;
+        return clampedIndex == index ? fontRenderer.getStringWidth(tooltip.get(index).getString()) : 0;
     }
 
     @SuppressWarnings("unused")

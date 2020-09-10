@@ -13,7 +13,6 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -21,6 +20,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
 import org.apache.commons.lang3.tuple.Pair;
@@ -66,7 +66,7 @@ public class ConsoleExperience {
     private void onClientSetup(final FMLClientSetupEvent evt) {
 
         GameplayElements.load();
-        MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
     }
 
     private void onLoadComplete(final FMLLoadCompleteEvent evt) {
@@ -74,13 +74,13 @@ public class ConsoleExperience {
         ConfigManager.sync();
     }
 
-    private void onRegisterCommands(final RegisterCommandsEvent evt) {
+    private void onServerStarting(final FMLServerStartingEvent evt) {
 
-        evt.getDispatcher().register(Commands.literal(ConsoleExperience.MODID).then(Commands.literal("reload").executes(ctx -> {
+        evt.getCommandDispatcher().register(Commands.literal(ConsoleExperience.MODID).then(Commands.literal("reload").executes(ctx -> {
 
             JSONConfigUtil.load(this.jsonName, MODID);
-            ITextComponent itextcomponent = new StringTextComponent(this.jsonName).mergeStyle(TextFormatting.UNDERLINE)
-                    .modifyStyle(style -> style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, JSONConfigUtil.getFilePath(this.jsonName, MODID).getAbsolutePath())));
+            ITextComponent itextcomponent = new StringTextComponent(this.jsonName).applyTextStyle(TextFormatting.UNDERLINE)
+                    .applyTextStyle(style -> style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, JSONConfigUtil.getFilePath(this.jsonName, MODID).getAbsolutePath())));
             ctx.getSource().sendFeedback(new TranslationTextComponent("command.reload", itextcomponent), true);
 
             return Command.SINGLE_SUCCESS;

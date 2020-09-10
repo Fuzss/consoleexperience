@@ -25,20 +25,20 @@ public class ShulkerTooltipBuilder {
 
             for (ItemStack itemstack : contents.subList(0, rows - 1)) {
 
-                IFormattableTextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
-                tooltip.add(iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount())));
+                ITextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
+                tooltip.add(iformattabletextcomponent.appendText(" x").appendText(String.valueOf(itemstack.getCount())));
             }
 
             if (lastLine) {
 
-                tooltip.add(new TranslationTextComponent("container.shulkerBox.more", contents.size() - rows + 1).mergeStyle(TextFormatting.ITALIC));
+                tooltip.add(new TranslationTextComponent("container.shulkerBox.more", contents.size() - rows + 1).applyTextStyle(TextFormatting.ITALIC));
             }
         } else {
 
             for (ItemStack itemstack : contents) {
 
-                IFormattableTextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
-                iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount()));
+                ITextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
+                iformattabletextcomponent.appendText(" x").appendText(String.valueOf(itemstack.getCount()));
                 tooltip.add(iformattabletextcomponent);
             }
         }

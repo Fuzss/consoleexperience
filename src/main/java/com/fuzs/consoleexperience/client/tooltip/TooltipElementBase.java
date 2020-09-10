@@ -147,7 +147,7 @@ public abstract class TooltipElementBase {
         private final String name = "formatting";
 
         @Nullable
-        private Color color;
+        private TextFormatting color;
         private boolean obfuscated;
         private boolean bold;
         private boolean strikethrough;
@@ -169,12 +169,12 @@ public abstract class TooltipElementBase {
 
             super(enabled, ordering, priority);
             // will use default color if null
-            this.color = Color.func_240744_a_(color);
+            this.color = color;
         }
 
         protected final Style getStyle() {
 
-            return Style.EMPTY.setColor(this.color != null ? this.color : getDefaultColor())
+            return new Style().setColor(this.color != null ? this.color : getDefaultColor())
                     .setObfuscated(this.obfuscated)
                     .setBold(this.bold)
                     .setStrikethrough(this.strikethrough)
@@ -182,7 +182,7 @@ public abstract class TooltipElementBase {
                     .setItalic(this.italic);
         }
 
-        protected final IFormattableTextComponent setDefaultableStyle(IFormattableTextComponent iformattabletextcomponent) {
+        protected final ITextComponent setDefaultableStyle(ITextComponent iformattabletextcomponent) {
 
             return this.color != null ? iformattabletextcomponent.setStyle(this.getStyle()) : iformattabletextcomponent;
         }
@@ -219,23 +219,23 @@ public abstract class TooltipElementBase {
             }
         }
 
-        private static Color getDefaultColor() {
+        private static TextFormatting getDefaultColor() {
 
-            return Color.func_240745_a_(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor.getFriendlyName());
+            return ((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor;
         }
 
-        private static void serializeColor(JsonObject jsonobject, @Nullable Color color) {
+        private static void serializeColor(JsonObject jsonobject, @Nullable TextFormatting color) {
 
-            jsonobject.addProperty("color", color != null ? color.func_240747_b_() : "default");
+            jsonobject.addProperty("color", color != null ? color.getFriendlyName() : "default");
         }
 
         @Nullable
-        private static Color deserializeColor(JsonObject jsonobject, Color fallback) {
+        private static TextFormatting deserializeColor(JsonObject jsonobject, TextFormatting fallback) {
 
             if (jsonobject.has("color")) {
 
                 String s = JSONUtils.getString(jsonobject, "color");
-                return Color.func_240745_a_(s);
+                return TextFormatting.getValueByName(s);
             } else {
 
                 return fallback;
