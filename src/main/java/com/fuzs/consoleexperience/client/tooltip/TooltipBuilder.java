@@ -1,29 +1,41 @@
 package com.fuzs.consoleexperience.client.tooltip;
 
-import com.fuzs.consoleexperience.config.ConfigManager;
-import com.google.common.collect.Maps;
+import com.fuzs.consoleexperience.client.element.GameplayElements;
+import com.fuzs.consoleexperience.client.element.SelectedItemElement;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.config.ModConfig;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class TooltipBuilder {
 
-    private boolean moddedInfo;
-    private boolean lastLine;
-
-    public static final Map<String, TooltipElementBase> TOOLTIP_ELEMENTS = Maps.newLinkedHashMap();
+    @SuppressWarnings("UnstableApiUsage")
+    public static final Map<String, TooltipElementBase> TOOLTIP_ELEMENTS = Lists.newArrayList(
+            new TooltipElements.Name(true, 2, 20, null),
+            new TooltipElements.Information(true, 4, 19, null, ITooltipFlag.TooltipFlags.ADVANCED),
+            new TooltipElements.Enchantments(true, 6, 17, null),
+            new TooltipElements.Color(true, 8, 15, TextFormatting.GRAY, ITooltipFlag.TooltipFlags.ADVANCED),
+            new TooltipElements.Lore(true, 10, 12, Style.EMPTY.setFormatting(TextFormatting.DARK_PURPLE).setItalic(true)),
+            new TooltipElements.Modifiers(false, 12, 5, null),
+            new TooltipElements.Unbreakable(true, 14, 7, TextFormatting.BLUE),
+            new TooltipElements.Durability(true, 16, 18, null),
+            new TooltipElements.NameID(false, 18, 5, TextFormatting.DARK_GRAY),
+            new TooltipElements.NBTAmount(false, 20, 4, TextFormatting.DARK_GRAY))
+            .stream().collect(ImmutableMap.toImmutableMap(TooltipElementBase::getName, Function.identity())
+    );
 
     public List<ITextComponent> create(ItemStack itemstack) {
 
@@ -32,7 +44,7 @@ public class TooltipBuilder {
 
     public List<ITextComponent> create(ItemStack itemstack, @Nullable PlayerEntity playerIn, int rows) {
 
-        boolean lastLine = this.lastLine && rows > 1;
+        boolean lastLine = ((SelectedItemElement) GameplayElements.SELECTED_ITEM).lastLine && rows > 1;
         List<TooltipElementBase> activeElements = getActiveElements();
         activeElements.forEach(element -> element.make(itemstack, playerIn));
         if (activeElements.stream().mapToInt(TooltipElementBase::size).sum() > rows) {
@@ -71,16 +83,17 @@ public class TooltipBuilder {
 
     private int applyForgeInformation(List<ITextComponent> tooltip, ItemStack itemstack, @Nullable PlayerEntity playerIn, int rows) {
 
-        if (this.moddedInfo) {
+        if (((SelectedItemElement) GameplayElements.SELECTED_ITEM).moddedInfo) {
 
             int size = tooltip.size();
             ForgeEventFactory.onItemTooltip(itemstack, playerIn, tooltip, ITooltipFlag.TooltipFlags.NORMAL);
-            if (tooltip.size() - size > rows) {
+            int newSize = tooltip.size();
+            if (newSize - size > rows) {
 
-                tooltip.subList(size + rows, tooltip.size()).clear();
+                tooltip.subList(size + rows, newSize).clear();
             }
 
-            return tooltip.size() - size;
+            return newSize - size;
         }
 
         return 0;
@@ -88,31 +101,12 @@ public class TooltipBuilder {
 
     private ITextComponent getLastLine(int amount) {
 
-        return new TranslationTextComponent("container.shulkerBox.more", amount).mergeStyle(TextFormatting.GRAY, TextFormatting.ITALIC);
-    }
-
-    public void setupConfig(ForgeConfigSpec.Builder builder) {
-
-        ConfigManager.registerEntry(ModConfig.Type.CLIENT, builder.comment("Enable tooltip information added by other mods to be included on the tooltip.").define("Modded Information", false), v -> this.moddedInfo = v);
-        ConfigManager.registerEntry(ModConfig.Type.CLIENT, builder.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Last Line", true), v -> this.lastLine = v);
+        return new TranslationTextComponent("container.shulkerBox.more", amount).mergeStyle(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor, TextFormatting.ITALIC);
     }
 
     public static List<TooltipElementBase> getActiveElements() {
 
         return TOOLTIP_ELEMENTS.values().stream().filter(TooltipElementBase::isEnabled).collect(Collectors.toList());
-    }
-
-    private static void add(TooltipElementBase element) {
-
-        TOOLTIP_ELEMENTS.put(element.getName(), element);
-    }
-
-    static {
-
-        add(new TooltipElements.Name(true, 1, 20, true));
-        add(new TooltipElements.Durability(true, 10, 17, TextFormatting.GRAY));
-        add(new TooltipElements.NameID(true, 12, 5, TextFormatting.DARK_GRAY));
-        add(new TooltipElements.NBTAmount(true, 14, 4, TextFormatting.DARK_GRAY));
     }
 
 }

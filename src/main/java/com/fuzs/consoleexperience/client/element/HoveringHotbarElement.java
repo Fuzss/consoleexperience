@@ -63,7 +63,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(this.xOffset, -this.yOffset, 0.0F);
+            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? this.xOffset : 0.0F, -this.yOffset, 0.0F);
         }
     }
 
@@ -71,7 +71,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (evt.isCanceled() && SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? -this.xOffset : 0.0F, this.yOffset, 0.0F);
         }
     }
 
@@ -79,7 +79,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (SHIFTED_ELEMENTS.contains(evt.getType())) {
             
-            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? -this.xOffset : 0.0F, this.yOffset, 0.0F);
         }
     }
 
@@ -93,12 +93,12 @@ public class HoveringHotbarElement extends GameplayElement {
 
     public int getXOffset() {
 
-        return this.xOffset;
+        return this.isEnabled() ? this.xOffset : 0;
     }
 
     public int getYOffset() {
 
-        return this.yOffset;
+        return this.isEnabled() ? this.yOffset : 0;
     }
 
     /**

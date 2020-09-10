@@ -34,7 +34,7 @@ public class ElytraTiltElement extends GameplayElement {
     @Override
     public String getDescription() {
 
-        return "Tilt the camera according to elytra flight angle.";
+        return "Tilt camera according to elytra flight angle.";
     }
 
     @Override

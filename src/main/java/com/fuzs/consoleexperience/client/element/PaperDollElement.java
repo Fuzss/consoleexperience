@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
@@ -28,10 +27,10 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
     private int xOffset;
     private int yOffset;
     private int displayTime;
-    private PositionPreset position;
+    public PositionPreset position;
     private boolean potionShift;
-    private boolean burning;
     private boolean firstPerson;
+    public PaperDollRenderer.HeadMovement headMovement;
     private Set<DisplayAction> dollConditions;
 
     private int remainingDisplayTicks;
@@ -43,7 +42,6 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayPre);
-        this.addListener(this::onRenderBlockOverlay);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
     @Override
     public String getDescription() {
 
-        return "Show a small player model in a configurable corner of the screen while the player is performing certain actions such as sprinting, sneaking, flying and gliding.";
+        return "Show a small player model while the player is performing certain actions such as sprinting, swimming, crouching, flying and gliding.";
     }
 
     @Override
@@ -71,16 +69,10 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         registerClientEntry(builder.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
         registerClientEntry(builder.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.yOffset = v);
         registerClientEntry(builder.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
-        registerClientEntry(builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT), v -> {
-
-            this.position = v;
-            this.dollRenderer.setPositionPreset(v);
-        });
-
+        registerClientEntry(builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT), v -> this.position = v);
         registerClientEntry(builder.comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
         registerClientEntry(builder.comment("Only show paper doll when in first person mode.").define("First Person", true), v -> this.firstPerson = v);
-        // flame renderer on paper doll not working anymore
-        // registerClientEntry(builder.comment("Disable flame overlay on hud when on fire and display burning paper doll instead.").define("Burning Doll", false), v -> this.burning = v);
+        registerClientEntry(builder.comment("Set axis the player head can move on.").defineEnum("Head Movement", PaperDollRenderer.HeadMovement.YAW), v -> this.headMovement = v);
         registerClientEntry(builder.comment("Display paper doll while performing these actions.", "Allowed Values: " + Arrays.stream(DisplayAction.values()).map(Enum::name).collect(Collectors.joining(", "))).define("Display Actions", DEFAULT_DOLL_CONDITIONS.stream().map(Enum::name).collect(Collectors.toList())), v -> {
 
             try {
@@ -92,8 +84,6 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
                 this.dollConditions = DEFAULT_DOLL_CONDITIONS;
             }
         });
-
-        this.dollRenderer.setupConfig(builder);
     }
 
     @Override
@@ -111,7 +101,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         }
 
         // update display ticks
-        if (this.dollConditions.stream().anyMatch(condition -> condition.isActive(player, this.remainingRidingTicks)) || this.isBurning(player)) {
+        if (this.dollConditions.stream().anyMatch(condition -> condition.isActive(player, this.remainingRidingTicks))) {
 
             this.remainingDisplayTicks = this.displayTime;
         } else if (this.remainingDisplayTicks > 0) {
@@ -132,15 +122,6 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         } else if (this.remainingRidingTicks > 0) {
 
             this.remainingRidingTicks--;
-        }
-    }
-
-    private void onRenderBlockOverlay(final RenderBlockOverlayEvent evt) {
-
-        // hide flame overlay and only show on paper doll
-        if (this.burning && evt.getOverlayType() == RenderBlockOverlayEvent.OverlayType.FIRE) {
-
-            evt.setCanceled(true);
         }
     }
 
@@ -177,23 +158,9 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
     private float updateOffset(ClientPlayerEntity player, float partialTicks) {
 
+        // crouching check after elytra since you can do both at the same time
         float height = player.getSize(Pose.STANDING).height;
-        if (player.isCrouching()) {
-
-            return player.getSize(Pose.CROUCHING).height / height;
-        } else if (player.isSleeping()) {
-
-            return player.getSize(Pose.SLEEPING).height / height;
-        } else if (player.isSpinAttacking()) {
-
-            return player.getSize(Pose.SPIN_ATTACK).height / height;
-        } else if (player.deathTime > 0) {
-
-            float dyingAnimation = ((float) player.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
-            dyingAnimation = Math.min(1.0F, MathHelper.sqrt(dyingAnimation));
-            float dyingHeight = player.getSize(Pose.DYING).height / height;
-            return MathHelper.lerp(dyingAnimation, 1.0F, dyingHeight);
-        } else if (player.getTicksElytraFlying() > 0) {
+        if (player.getTicksElytraFlying() > 0) {
 
             float ticksElytraFlying = player.getTicksElytraFlying() + partialTicks;
             float flyingAnimation = MathHelper.clamp(ticksElytraFlying * 0.09F, 0.0F, 1.0F);
@@ -204,15 +171,25 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
             float swimmingAnimation = player.isActualySwimming() ? 1.0F : player.getSwimAnimation(partialTicks);
             float swimmingHeight = player.getSize(Pose.SWIMMING).height / height;
             return MathHelper.lerp(swimmingAnimation, 1.0F, swimmingHeight);
+        } else if (player.isSpinAttacking()) {
+
+            return player.getSize(Pose.SPIN_ATTACK).height / height;
+        } else if (player.isCrouching()) {
+
+            return player.getSize(Pose.CROUCHING).height / height;
+        } else if (player.isSleeping()) {
+
+            return player.getSize(Pose.SLEEPING).height / height;
+        } else if (player.deathTime > 0) {
+
+            float dyingAnimation = ((float) player.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
+            dyingAnimation = Math.min(1.0F, MathHelper.sqrt(dyingAnimation));
+            float dyingHeight = player.getSize(Pose.DYING).height / height;
+            return MathHelper.lerp(dyingAnimation, 1.0F, dyingHeight);
         } else {
 
             return 1.0F;
         }
-    }
-
-    private boolean isBurning(ClientPlayerEntity player) {
-
-        return this.burning && player.isBurning();
     }
 
     private enum DisplayAction {

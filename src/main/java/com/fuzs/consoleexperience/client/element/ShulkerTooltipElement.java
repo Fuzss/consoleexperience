@@ -37,7 +37,7 @@ public class ShulkerTooltipElement extends GameplayElement {
     @Override
     public String getDescription() {
 
-        return "Sum up stacks of equal items on the shulker box tooltip.";
+        return "Sum up stacks of equal items on shulker box tooltip.";
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ShulkerTooltipElement extends GameplayElement {
                 if (index != -1 && tooltip.removeAll(oldContents)) {
 
                     List<ITextComponent> newContents = Lists.newArrayList();
-                    ShulkerTooltipBuilder.addInformation(newContents, evt.getItemStack(), TextFormatting.GRAY, this.rows);
+                    ShulkerTooltipBuilder.addInformation(newContents, evt.getItemStack(), this.rows, true);
                     tooltip.addAll(index, newContents);
                 }
             }

@@ -26,6 +26,8 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableMod
     public ModelRenderer bipedRightArm;
     @Shadow
     public ModelRenderer bipedLeftArm;
+    @Shadow
+    public boolean isSneak;
 
     public BipedModelMixin() {
 
@@ -33,7 +35,7 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableMod
     }
 
     @Inject(method = "setRotationAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(shift = Shift.BEFORE, value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/BipedModel;func_230486_a_(Lnet/minecraft/entity/LivingEntity;F)V"))
-    public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+    public void setRotationAngles1(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
 
         int inUseCount = entityIn.getItemInUseCount();
         if (GameplayElements.EATING_ANIMATION.isEnabled() && entityIn.isHandActive() && inUseCount > 0) {
@@ -57,6 +59,24 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableMod
                 bipedArm.rotateAngleX = f * (bipedArm.rotateAngleX * 0.5F - ((float) Math.PI * 4.0F / 10.0F));
                 bipedArm.rotateAngleY = f * (float) Math.PI / 6F * (isRight ? -1.0F : 1.0F);
             }
+        }
+    }
+
+    @Inject(method = "setRotationAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(shift = Shift.AFTER, value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/BipedModel;func_230486_a_(Lnet/minecraft/entity/LivingEntity;F)V"))
+    public void setRotationAngles2(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+
+        boolean isElytraFlying = entityIn.getTicksElytraFlying() > 4;
+        if (GameplayElements.SUPERMAN_GLIDING.isEnabled() && isElytraFlying && this.isSneak) {
+
+            // superman hand pose
+            boolean isRight = entityIn.getPrimaryHand() == HandSide.RIGHT;
+            ModelRenderer bipedArm = isRight ? this.bipedRightArm : this.bipedLeftArm;
+            bipedArm.rotateAngleX = (float) Math.PI;
+            bipedArm.rotateAngleY = 0.0F;
+            bipedArm.rotateAngleZ = 0.0F;
+
+            // disable sneaking pose while gliding
+            this.isSneak = false;
         }
     }
 

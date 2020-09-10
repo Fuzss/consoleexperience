@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ShulkerTooltipBuilder {
 
-    public static void addInformation(List<ITextComponent> tooltip, ItemStack stack, TextFormatting color, int rows) {
+    public static void addInformation(List<ITextComponent> tooltip, ItemStack stack, int rows, boolean lastLine) {
 
         CompoundNBT compoundnbt = stack.getChildTag("BlockEntityTag");
         if (compoundnbt == null || rows == 0) {
@@ -19,33 +19,36 @@ public class ShulkerTooltipBuilder {
             return;
         }
 
-        getLootTableTooltip(tooltip, compoundnbt, color);
+        getLootTableTooltip(tooltip, compoundnbt);
         List<ItemStack> contents = contentsToList(compoundnbt);
-        if (contents.size() > rows) {
+        if (contents.size() > rows && rows != -1) {
 
             for (ItemStack itemstack : contents.subList(0, rows - 1)) {
 
                 IFormattableTextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
-                tooltip.add(iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount())).mergeStyle(color));
+                tooltip.add(iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount())));
             }
 
-            tooltip.add(new TranslationTextComponent("container.shulkerBox.more", contents.size() - rows + 1).mergeStyle(color).mergeStyle(TextFormatting.ITALIC));
+            if (lastLine) {
+
+                tooltip.add(new TranslationTextComponent("container.shulkerBox.more", contents.size() - rows + 1).mergeStyle(TextFormatting.ITALIC));
+            }
         } else {
 
             for (ItemStack itemstack : contents) {
 
                 IFormattableTextComponent iformattabletextcomponent = itemstack.getDisplayName().deepCopy();
                 iformattabletextcomponent.appendString(" x").appendString(String.valueOf(itemstack.getCount()));
-                tooltip.add(iformattabletextcomponent.mergeStyle(color));
+                tooltip.add(iformattabletextcomponent);
             }
         }
     }
 
-    private static void getLootTableTooltip(List<ITextComponent> tooltip, CompoundNBT compoundnbt, TextFormatting color) {
+    private static void getLootTableTooltip(List<ITextComponent> tooltip, CompoundNBT compoundnbt) {
 
         if (compoundnbt.contains("LootTable", 8)) {
 
-            tooltip.add(new StringTextComponent("???????").mergeStyle(color));
+            tooltip.add(new StringTextComponent("???????"));
         }
     }
 

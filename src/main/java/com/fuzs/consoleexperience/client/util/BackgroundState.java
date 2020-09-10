@@ -6,7 +6,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
 public class BackgroundState {
 
-    private final int capacity;
+    private int capacity;
     private int state;
 
     public BackgroundState(int capacity) {
@@ -30,6 +30,11 @@ public class BackgroundState {
     private void start() {
 
         this.state = this.capacity;
+    }
+
+    public void setCapacity(int capacity) {
+
+        this.capacity = capacity;
     }
 
     public void onBackgroundDrawn(final GuiScreenEvent.BackgroundDrawnEvent evt) {

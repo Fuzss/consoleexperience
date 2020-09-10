@@ -39,7 +39,7 @@ public abstract class GameplayElement implements IConfigurableElement {
 
     private void reload(boolean isInit) {
 
-        if (this.isEnabled()) {
+        if (this.isEnabled() || this.isAlwaysEnabled()) {
 
             this.events.forEach(EventStorage::register);
         } else if (!isInit) {
@@ -49,9 +49,14 @@ public abstract class GameplayElement implements IConfigurableElement {
     }
 
     @Override
-    public boolean isEnabled() {
+    public final boolean isEnabled() {
 
         return this.enabled;
+    }
+
+    protected boolean isAlwaysEnabled() {
+
+        return false;
     }
 
     private void setEnabled(boolean enabled) {

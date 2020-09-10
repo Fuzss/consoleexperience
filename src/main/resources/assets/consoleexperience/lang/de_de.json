@@ -1,3 +1,4 @@
 {
-  "screen.coordinates": "Position: %s, %s, %s"
+  "screen.coordinates": "Position: %s, %s, %s",
+  "command.reload": "Konfiguration wurde neu geladen unter %s"
 }

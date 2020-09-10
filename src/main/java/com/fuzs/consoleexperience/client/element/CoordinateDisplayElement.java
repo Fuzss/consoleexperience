@@ -81,7 +81,9 @@ public class CoordinateDisplayElement extends GameplayElement {
         MainWindow window = evt.getWindow();
         PositionPreset position = this.position;
         int posX = (int) (position.getX(stringWidth, window.getScaledWidth(), this.xOffset) / scale);
-        int posY = (int) (position.getY(stringHeight, window.getScaledHeight(), this.yOffset) / scale);
+        // adjust for hovering hotbar, since this is rendered on chat which is moved as well
+        int posY = (int) ((position.getY(stringHeight, window.getScaledHeight(), this.yOffset) +
+                ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getYOffset()) / scale);
 
         RenderSystem.pushMatrix();
         RenderSystem.scalef(scale, scale, 1.0F);

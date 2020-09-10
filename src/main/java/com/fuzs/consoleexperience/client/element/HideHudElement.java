@@ -4,6 +4,7 @@ import com.fuzs.consoleexperience.client.util.BackgroundState;
 import com.google.common.collect.Lists;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.List;
@@ -14,7 +15,9 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
     private static final List<RenderGameOverlayEvent.ElementType> VISIBLE_ELEMENTS = Lists.newArrayList(
             ElementType.ALL, ElementType.HELMET, ElementType.PORTAL, ElementType.VIGNETTE
     );
-    private final BackgroundState state = new BackgroundState(8);
+
+    private final int defaultDelay = 8;
+    private final BackgroundState state = new BackgroundState(this.defaultDelay);
 
     @Override
     public void setup() {
@@ -40,6 +43,12 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
     public String getDescription() {
 
         return "Hide all hud elements when inside of a container.";
+    }
+
+    @Override
+    public void setupConfig(ForgeConfigSpec.Builder builder) {
+
+        registerClientEntry(builder.comment("Delay after which hud elements appear again.").defineInRange("Hide Delay", this.defaultDelay, 1, Integer.MAX_VALUE), this.state::setCapacity);
     }
 
     @Override

@@ -20,8 +20,8 @@ public class GameplayElements {
     public static final GameplayElement SHULKER_TOOLTIP = register("shulker_tooltip", new ShulkerTooltipElement());
     public static final GameplayElement HIDE_HUD = register("hide_hud", new HideHudElement());
     public static final GameplayElement CLOSE_BUTTON = register("close_button", new CloseButtonElement());
-    public static final GameplayElement TINTED_TOOLTIP = register("tinted_tooltip", new TintedTooltipElement());
     public static final GameplayElement EATING_ANIMATION = register("eating_animation", new EatingAnimationElement());
+    public static final GameplayElement SUPERMAN_GLIDING = register("superman_gliding", new SupermanGlidingElement());
 
     private static GameplayElement register(String key, GameplayElement gameplayElement) {
 
