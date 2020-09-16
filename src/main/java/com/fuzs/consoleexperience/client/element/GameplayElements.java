@@ -20,8 +20,10 @@ public class GameplayElements {
     public static final GameplayElement SHULKER_TOOLTIP = register("shulker_tooltip", new ShulkerTooltipElement());
     public static final GameplayElement HIDE_HUD = register("hide_hud", new HideHudElement());
     public static final GameplayElement CLOSE_BUTTON = register("close_button", new CloseButtonElement());
-    public static final GameplayElement EATING_ANIMATION = register("eating_animation", new EatingAnimationElement());
-    public static final GameplayElement SUPERMAN_GLIDING = register("superman_gliding", new SupermanGlidingElement());
+    public static final GameplayElement PLAYER_ANIMATIONS = register("player_animations", new PlayerAnimationsElement());
+    public static final GameplayElement FALLING_ASLEEP = register("falling_asleep", new FallingAsleepElement());
+    public static final GameplayElement POTION_TIME = register("potion_time", new PotionTimeElement());
+    public static final GameplayElement SCREEN_ANIMATIONS = register("screen_animations", new ScreenAnimationsElement());
 
     private static GameplayElement register(String key, GameplayElement gameplayElement) {
 

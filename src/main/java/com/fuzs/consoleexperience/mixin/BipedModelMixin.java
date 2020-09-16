@@ -1,11 +1,13 @@
 package com.fuzs.consoleexperience.mixin;
 
 import com.fuzs.consoleexperience.client.element.GameplayElements;
+import com.fuzs.consoleexperience.client.element.PlayerAnimationsElement;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.AgeableModel;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.Hand;
@@ -38,7 +40,7 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableMod
     public void setRotationAngles1(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
 
         int inUseCount = entityIn.getItemInUseCount();
-        if (GameplayElements.EATING_ANIMATION.isEnabled() && entityIn.isHandActive() && inUseCount > 0) {
+        if (((PlayerAnimationsElement) GameplayElements.PLAYER_ANIMATIONS).getEatingAnimation() && entityIn.isHandActive() && inUseCount > 0) {
 
             Hand hand = entityIn.getActiveHand();
             ItemStack stack = entityIn.getHeldItem(hand);
@@ -66,7 +68,7 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableMod
     public void setRotationAngles2(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
 
         boolean isElytraFlying = entityIn.getTicksElytraFlying() > 4;
-        if (GameplayElements.SUPERMAN_GLIDING.isEnabled() && isElytraFlying && this.isSneak) {
+        if (((PlayerAnimationsElement) GameplayElements.PLAYER_ANIMATIONS).getSupermanGliding() && isElytraFlying && this.isSneak) {
 
             // superman hand pose
             boolean isRight = entityIn.getPrimaryHand() == HandSide.RIGHT;
@@ -77,6 +79,30 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableMod
 
             // disable sneaking pose while gliding
             this.isSneak = false;
+        }
+    }
+
+    @Inject(method = "setRotationAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(shift = Shift.AFTER, value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/model/BipedModel;func_230486_a_(Lnet/minecraft/entity/LivingEntity;F)V"))
+    public void setRotationAngles3(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+
+        // rotate arms same way as paddles so it looks like the player is actually doing something
+        if (((PlayerAnimationsElement) GameplayElements.PLAYER_ANIMATIONS).getRowingAnimation() && entityIn.getRidingEntity() instanceof BoatEntity) {
+
+            BoatEntity boatEntity = (BoatEntity) entityIn.getRidingEntity();
+
+            float timeRight = boatEntity.getRowingTime(1, limbSwing);
+            if (timeRight > 0.0F) {
+
+                this.bipedRightArm.rotateAngleX = (float)MathHelper.clampedLerp(-(float)Math.PI / 3.0F, -(float)Math.PI / 12.0F, (MathHelper.sin(-timeRight) + 1.0F) / 2.0F);
+                this.bipedRightArm.rotateAngleY = (float)MathHelper.clampedLerp(-(float)Math.PI / 24.0F, (float)Math.PI / 3.0F, (MathHelper.sin(-timeRight + 1.0F) + 1.0F) / 2.0F);
+            }
+
+            float timeLeft = boatEntity.getRowingTime(0, limbSwing);
+            if (timeLeft > 0.0F) {
+
+                this.bipedLeftArm.rotateAngleX = (float)MathHelper.clampedLerp(-(float)Math.PI / 3.0F, -(float)Math.PI / 12.0F, (MathHelper.sin(-timeLeft) + 1.0F) / 2.0F);
+                this.bipedLeftArm.rotateAngleY = -(float)MathHelper.clampedLerp(-(float)Math.PI / 24.0F, (float)Math.PI / 3.0F, (MathHelper.sin(-timeLeft + 1.0F) + 1.0F) / 2.0F);
+            }
         }
     }
 

@@ -71,7 +71,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         registerClientEntry(builder.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
         registerClientEntry(builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT), v -> this.position = v);
         registerClientEntry(builder.comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
-        registerClientEntry(builder.comment("Only show paper doll when in first person mode.").define("First Person", true), v -> this.firstPerson = v);
+        registerClientEntry(builder.comment("Only show paper doll when in first-person mode.").define("First Person", true), v -> this.firstPerson = v);
         registerClientEntry(builder.comment("Set axis the player head can move on.").defineEnum("Head Movement", PaperDollRenderer.HeadMovement.YAW), v -> this.headMovement = v);
         registerClientEntry(builder.comment("Display paper doll while performing these actions.", "Allowed Values: " + Arrays.stream(DisplayAction.values()).map(Enum::name).collect(Collectors.joining(", "))).define("Display Actions", DEFAULT_DOLL_CONDITIONS.stream().map(Enum::name).collect(Collectors.toList())), v -> {
 

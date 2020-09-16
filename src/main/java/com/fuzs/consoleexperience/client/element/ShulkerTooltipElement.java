@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -19,7 +18,7 @@ public class ShulkerTooltipElement extends GameplayElement {
     @Override
     public void setup() {
 
-        this.addListener(EventPriority.LOW, this::onMakeTooltip);
+        this.addListener(this::onMakeTooltip, EventPriority.LOW);
     }
 
     @Override

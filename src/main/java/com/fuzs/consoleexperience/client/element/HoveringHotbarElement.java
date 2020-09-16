@@ -19,18 +19,19 @@ public class HoveringHotbarElement extends GameplayElement {
     // list of gui elements to be moved, idea is to basically wrap around them and whatever other mods would be doing
     private static final List<RenderGameOverlayEvent.ElementType> SHIFTED_ELEMENTS = Lists.newArrayList(
             ElementType.ARMOR, ElementType.HEALTH, ElementType.FOOD, ElementType.AIR, ElementType.HOTBAR,
-            ElementType.EXPERIENCE, ElementType.HEALTHMOUNT, ElementType.JUMPBAR, ElementType.CHAT
+            ElementType.EXPERIENCE, ElementType.HEALTHMOUNT, ElementType.JUMPBAR
     );
     
     private int xOffset;
     private int yOffset;
+    private boolean moveChat;
 
     @Override
     public void setup() {
 
-        this.addListener(EventPriority.HIGHEST, true, this::onRenderGameOverlayPre1);
-        this.addListener(EventPriority.LOWEST, true, this::onRenderGameOverlayPre2);
-        this.addListener(EventPriority.LOWEST, this::onRenderGameOverlayPost);
+        this.addListener(this::onRenderGameOverlayPre1, EventPriority.HIGHEST, true);
+        this.addListener(this::onRenderGameOverlayPre2, EventPriority.LOWEST, true);
+        this.addListener(this::onRenderGameOverlayPost, EventPriority.LOWEST);
         this.addListener(this::onRenderGameOverlayPostHotbar);
     }
 
@@ -57,21 +58,33 @@ public class HoveringHotbarElement extends GameplayElement {
 
         registerClientEntry(builder.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
         registerClientEntry(builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
+        registerClientEntry(builder.comment("Move chat together with hotbar on the vertical axis.").define("Move Chat", true), v -> this.moveChat = v);
     }
 
     private void onRenderGameOverlayPre1(final RenderGameOverlayEvent.Pre evt) {
 
         if (SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? this.xOffset : 0.0F, -this.yOffset, 0.0F);
+            RenderSystem.translatef(this.xOffset, -this.yOffset, 0.0F);
+        } else if (evt.getType() == ElementType.CHAT) {
+
+            RenderSystem.translatef(0.0F, -this.getChatOffset(), 0.0F);
         }
     }
 
     private void onRenderGameOverlayPre2(final RenderGameOverlayEvent.Pre evt) {
 
-        if (evt.isCanceled() && SHIFTED_ELEMENTS.contains(evt.getType())) {
+        if (!evt.isCanceled()) {
 
-            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? -this.xOffset : 0.0F, this.yOffset, 0.0F);
+            return;
+        }
+
+        if (SHIFTED_ELEMENTS.contains(evt.getType())) {
+
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+        } else if (evt.getType() == ElementType.CHAT) {
+
+            RenderSystem.translatef(0.0F, this.getChatOffset(), 0.0F);
         }
     }
 
@@ -79,7 +92,10 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (SHIFTED_ELEMENTS.contains(evt.getType())) {
             
-            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? -this.xOffset : 0.0F, this.yOffset, 0.0F);
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+        } else if (evt.getType() == ElementType.CHAT) {
+
+            RenderSystem.translatef(0.0F, this.getChatOffset(), 0.0F);
         }
     }
 
@@ -99,6 +115,11 @@ public class HoveringHotbarElement extends GameplayElement {
     public int getYOffset() {
 
         return this.isEnabled() ? this.yOffset : 0;
+    }
+    
+    public int getChatOffset() {
+        
+        return this.moveChat && this.yOffset < this.mc.getMainWindow().getScaledHeight() / 3 ? this.getYOffset() : 0;
     }
 
     /**

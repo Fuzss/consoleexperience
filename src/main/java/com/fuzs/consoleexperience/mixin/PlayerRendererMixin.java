@@ -1,6 +1,7 @@
 package com.fuzs.consoleexperience.mixin;
 
 import com.fuzs.consoleexperience.client.element.GameplayElements;
+import com.fuzs.consoleexperience.client.element.PlayerAnimationsElement;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
@@ -27,7 +28,7 @@ public abstract class PlayerRendererMixin extends LivingRenderer<AbstractClientP
     public void getRenderOffset(AbstractClientPlayerEntity entityIn, float partialTicks, CallbackInfoReturnable<Vector3d> cir) {
 
         // prevent player model from shifting downwards when gliding and sneaking at the same time
-        if (GameplayElements.SUPERMAN_GLIDING.isEnabled() && entityIn.isCrouching() && entityIn.getTicksElytraFlying() > 4) {
+        if (((PlayerAnimationsElement) GameplayElements.PLAYER_ANIMATIONS).getSupermanGliding() && entityIn.isCrouching() && entityIn.getTicksElytraFlying() > 4) {
 
             cir.setReturnValue(Vector3d.ZERO);
         }

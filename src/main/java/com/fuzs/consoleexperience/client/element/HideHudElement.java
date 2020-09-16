@@ -24,7 +24,7 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
 
         this.addListener(this.state::onBackgroundDrawn);
         this.addListener(this.state::onRenderGameOverlayPost);
-        this.addListener(EventPriority.HIGHEST, this::onRenderGameOverlayPre);
+        this.addListener(this::onRenderGameOverlayPre, EventPriority.HIGHEST);
     }
 
     @Override
@@ -61,7 +61,10 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
 
         if (this.isVisible() && !VISIBLE_ELEMENTS.contains(evt.getType())) {
 
-            evt.setCanceled(true);
+            if (evt.getType() != ElementType.CHAT || this.state.isChatHidden()) {
+
+                evt.setCanceled(true);
+            }
         }
     }
 

@@ -85,15 +85,20 @@ public abstract class GameplayElement implements IConfigurableElement {
 
     protected final <T extends Event> void addListener(Consumer<T> consumer) {
 
-        this.addListener(EventPriority.NORMAL, consumer);
+        this.addListener(consumer, EventPriority.NORMAL);
     }
 
-    protected final <T extends Event> void addListener(EventPriority priority, Consumer<T> consumer) {
+    protected final <T extends Event> void addListener(Consumer<T> consumer, boolean receiveCancelled) {
 
-        this.addListener(priority, false, consumer);
+        this.addListener(consumer, EventPriority.NORMAL, receiveCancelled);
     }
 
-    protected final <T extends Event> void addListener(EventPriority priority, boolean receiveCancelled, Consumer<T> consumer) {
+    protected final <T extends Event> void addListener(Consumer<T> consumer, EventPriority priority) {
+
+        this.addListener(consumer, priority, false);
+    }
+
+    protected final <T extends Event> void addListener(Consumer<T> consumer, EventPriority priority, boolean receiveCancelled) {
 
         this.events.add(new EventStorage<>(consumer, priority, receiveCancelled));
     }

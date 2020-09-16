@@ -222,8 +222,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
             for (int i = 0; i < tooltip.size(); i++) {
 
                 ITextComponent component = tooltip.get(i);
-                AbstractGui.drawString(matrixStack, fontRenderer, component, posX - fontRenderer.func_238414_a_(component) / 2,
-                        posY, 16777215 + (alpha << 24));
+                AbstractGui.drawCenteredString(matrixStack, fontRenderer, component, posX, posY, 16777215 + (alpha << 24));
                 posY += i == 0 ? fontRenderer.FONT_HEIGHT + 3 : fontRenderer.FONT_HEIGHT + 1;
             }
 

@@ -10,7 +10,10 @@
     "BipedModelMixin",
     "PlayerRendererMixin",
     "IngameGuiAccessorMixin",
-    "ScreenAccessorMixin"
+    "ScreenAccessorMixin",
+    "NewChatGuiMixin",
+    "ForgeIngameGuiMixin",
+    "FirstPersonRendererAccessorMixin"
   ],
   "injectors": {
     "defaultRequire": 1
