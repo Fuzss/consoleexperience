@@ -1,11 +1,15 @@
 package com.fuzs.consoleexperience.config;
 
+import com.google.common.collect.Lists;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StringListParser<T extends IForgeRegistryEntry<T>> {
 
@@ -18,47 +22,82 @@ public class StringListParser<T extends IForgeRegistryEntry<T>> {
         this.logger = logger;
     }
 
-    protected void logStringParsingError(String entry, String message) {
-        
-        this.logger.error("Unable to parse entry \"" + entry + "\": " + message);
-    }
+    protected final boolean checkOverwrite(boolean flag, String entry) {
 
-    protected Optional<ResourceLocation> parseResourceLocation(String source) {
+        if (flag) {
 
-        String[] s = source.split(":");
-        Optional<ResourceLocation> location = Optional.empty();
-        if (s.length == 1) {
-
-            location = Optional.of(new ResourceLocation(s[0]));
-        } else if (s.length == 2) {
-
-            location = Optional.of(new ResourceLocation(s[0], s[1]));
-        } else {
-
-            this.logStringParsingError(source, "Insufficient number of arguments");
+            this.logError(entry, "Already present");
         }
 
-        return location;
+        return !flag;
     }
 
-    protected Optional<T> getEntryFromRegistry(ResourceLocation location) {
+    protected final List<T> getEntryFromRegistry(String source) {
 
-        T entry = this.activeRegistry.getValue(location);
-        if (entry != null && entry != this.activeRegistry.getValue(this.activeRegistry.getDefaultKey())) {
+        List<T> entries = Lists.newArrayList();
+        Optional<ResourceLocation> location = Optional.ofNullable(ResourceLocation.tryCreate(source));
+        if (location.isPresent()) {
 
-            return Optional.of(entry);
+            Optional<T> entry = this.getEntryFromRegistry(location.get());
+            entry.ifPresent(entries::add);
         } else {
 
-            this.logStringParsingError(location.toString(), "Item not found");
+            this.getWildcardEntries(source, entries);
+        }
+
+        return entries;
+    }
+
+    private void getWildcardEntries(String source, List<T> entries) {
+
+        String[] s = source.split(":");
+        switch (s.length) {
+
+            case 1:
+
+                entries.addAll(this.getListFromRegistry("minecraft", s[0]));
+                break;
+            case 2:
+
+                entries.addAll(this.getListFromRegistry(s[0], s[1]));
+                break;
+            default:
+
+                this.logError(source, "Invalid resource location format");
+        }
+    }
+
+    private Optional<T> getEntryFromRegistry(ResourceLocation location) {
+
+        if (this.activeRegistry.containsKey(location)) {
+
+            return Optional.ofNullable(this.activeRegistry.getValue(location));
+        } else {
+
+            this.logError(location.toString(), "Entry not found");
         }
 
         return Optional.empty();
     }
 
-    protected Optional<T> getEntryFromRegistry(String source) {
+    private List<T> getListFromRegistry(String namespace, String path) {
 
-        Optional<ResourceLocation> location = this.parseResourceLocation(source);
-        return location.isPresent() ? this.getEntryFromRegistry(location.get()) : Optional.empty();
+        List<T> entries = this.activeRegistry.getEntries().stream()
+                .filter(entry -> entry.getKey().func_240901_a_().getNamespace().equals(namespace))
+                .filter(entry -> entry.getKey().func_240901_a_().getPath().matches(path.replace("*", "[a-z0-9/._-]*")))
+                .map(Map.Entry::getValue).collect(Collectors.toList());
+
+        if (entries.isEmpty()) {
+
+            this.logError(namespace + ':' + path, "Entry not found");
+        }
+
+        return entries;
+    }
+    
+    protected void logError(String entry, String message) {
+
+        this.logger.error("Unable to parse entry \"{}\": {}", entry, message);
     }
     
 }

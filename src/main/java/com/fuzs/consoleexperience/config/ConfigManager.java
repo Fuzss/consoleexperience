@@ -17,7 +17,7 @@ public class ConfigManager {
 
     }
 
-    public static void onModConfigReloading(final ModConfig.Reloading evt) {
+    public static void onModConfig(final ModConfig.Reloading evt) {
 
         if (evt.getConfig().getModId().equals(ConsoleExperience.MODID)) {
 

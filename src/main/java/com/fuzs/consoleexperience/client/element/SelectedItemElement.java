@@ -2,7 +2,7 @@ package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.tooltip.TooltipBuilder;
-import com.fuzs.consoleexperience.config.StringListBuilder;
+import com.fuzs.consoleexperience.config.EntryCollectionBuilder;
 import com.fuzs.consoleexperience.mixin.IngameGuiAccessorMixin;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"deprecation", "SuspiciousNameCombination"})
 public class SelectedItemElement extends GameplayElement implements IHasDisplayTime {
 
-    private static final StringListBuilder<Item> ITEM_PARSER = new StringListBuilder<>(ForgeRegistries.ITEMS, ConsoleExperience.LOGGER);
     private IngameGuiAccessorMixin ingameGUI;
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder();
     private final int defaultScale = 6;
@@ -98,7 +97,8 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
         registerClientEntry(builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", this.defaultYOffset, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
         registerClientEntry(builder.comment("Amount of ticks the held item tooltip will be displayed for. Set to 0 to always display the tooltip as long as an item is being held.").defineInRange("Display Time", this.defaultDisplayTime, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
         registerClientEntry(builder.comment("Maximum amount of rows to be displayed for held item tooltips.").defineInRange("Maximum Rows", 4, 1, Integer.MAX_VALUE), v -> this.maximumRows = v);
-        registerClientEntry(builder.comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping. Enter as either \"modid:item\" or \"modid\" respectively.").define("Blacklist", new ArrayList<String>()), v -> this.blacklist = ITEM_PARSER.buildEntrySet(v));
+        registerClientEntry(builder.comment("Disables held item tooltips for specified items, mainly to prevent custom tooltips from overlapping.", "Format for every entry is \"<namespace>:<path>\". Path may use single asterisk as wildcard parameter.").define("Blacklist", new ArrayList<String>()),
+                v -> this.blacklist = new EntryCollectionBuilder<>(ForgeRegistries.ITEMS, ConsoleExperience.LOGGER).buildEntrySet(v));
         registerClientEntry(builder.comment("Interval in ticks after which the tooltip will be remade. Some stats such as durability aren't affected.").defineInRange("Update Interval", 20, 1, Integer.MAX_VALUE), v -> this.updateInterval = v);
         registerClientEntry(builder.comment("Enable tooltip information added by other mods to be included on the tooltip.").define("Modded Information", false), v -> this.moddedInfo = v);
         registerClientEntry(builder.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Last Line", true), v -> this.lastLine = v);

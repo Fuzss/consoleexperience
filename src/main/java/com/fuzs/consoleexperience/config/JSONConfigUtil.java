@@ -1,57 +1,59 @@
 package com.fuzs.consoleexperience.config;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
-import com.fuzs.consoleexperience.client.tooltip.TooltipBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import net.minecraftforge.fml.loading.FMLPaths;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.lang.reflect.Type;
-import java.util.Map;
+import java.io.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class JSONConfigUtil {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public static void load(String jsonName, String modId) {
+    public static void load(String jsonName, String modId, BiConsumer<String, File> serializer, Consumer<FileReader> deserializer) {
 
         File jsonFile = getFilePath(jsonName, modId);
-        if (!createIfAbsent(jsonName, jsonFile)) {
-
-            loadFromFile(jsonName, jsonFile);
-        }
+        createIfAbsent(jsonName, jsonFile, serializer);
+        loadFromFile(jsonName, jsonFile, deserializer);
     }
 
-    public static File getFilePath(String jsonName, String modId) {
-
-        return new File(FMLPaths.CONFIGDIR.get().toFile(), modId + File.separator + jsonName);
-    }
-
-    private static boolean createIfAbsent(String jsonName, File jsonFile) {
+    private static void createIfAbsent(String jsonName, File jsonFile, BiConsumer<String, File> serializer) {
 
         if (!jsonFile.exists()) {
 
             jsonFile.getParentFile().mkdir();
-            saveToFile(jsonName, jsonFile);
-            return true;
+            serializer.accept(jsonName, jsonFile);
         }
-
-        return false;
     }
 
-    private static void saveToFile(String jsonName, File file) {
+    public static void copyToFile(String jsonName, File jsonFile) {
 
-        try (FileWriter writer = new FileWriter(file)) {
+        try (InputStream stream = JSONConfigUtil.class.getResourceAsStream(File.separator + jsonName)) {
 
-            JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty("__comment", "Available colors can be found on the Minecraft Wiki: https://minecraft.gamepedia.com/Formatting_codes");
-            TooltipBuilder.TOOLTIP_ELEMENTS.forEach((key, value) -> jsonobject.add(key, value.serialize()));
+            jsonFile.createNewFile();
+            byte[] buffer = new byte[600000];
+            FileOutputStream outStream = new FileOutputStream(jsonFile);
+            int i;
+            while ((i = stream.read(buffer)) != -1) {
+
+                outStream.write(buffer, 0, i);
+            }
+
+            outStream.close();
+        } catch (Exception e) {
+
+            ConsoleExperience.LOGGER.error("Failed to copy \"" + jsonName + "\" in config directory!");
+        }
+    }
+
+    public static void saveToFile(String jsonName, File jsonFile, JsonObject jsonobject) {
+
+        try (FileWriter writer = new FileWriter(jsonFile)) {
+
             GSON.toJson(jsonobject, writer);
         } catch (Exception e) {
 
@@ -59,24 +61,20 @@ public class JSONConfigUtil {
         }
     }
 
-    private static void loadFromFile(String jsonName, File file) {
+    private static void loadFromFile(String jsonName, File file, Consumer<FileReader> deserializer) {
 
         try (FileReader reader = new FileReader(file)) {
 
-            Type mapType = new TypeToken<Map<String, JsonElement>>() {}.getType();
-            GSON.<Map<String, JsonElement>>fromJson(reader, mapType)
-                    .forEach((key, value) -> {
-
-                        // ignore comment field
-                        if (!key.equals("__comment")) {
-
-                            TooltipBuilder.TOOLTIP_ELEMENTS.get(key).deserialize(value);
-                        }
-                    });
+            deserializer.accept(reader);
         } catch (Exception e) {
 
             ConsoleExperience.LOGGER.error("Failed to read \"" + jsonName + "\" in config directory");
         }
+    }
+
+    public static File getFilePath(String jsonName, String modId) {
+
+        return new File(FMLPaths.CONFIGDIR.get().toFile(), modId + File.separator + jsonName);
     }
 
 }

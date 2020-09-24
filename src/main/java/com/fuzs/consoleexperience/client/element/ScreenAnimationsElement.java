@@ -1,15 +1,28 @@
 package com.fuzs.consoleexperience.client.element;
 
+import com.fuzs.consoleexperience.mixin.ContainerScreenAccessorMixin;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraftforge.client.event.GuiContainerEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 
 public class ScreenAnimationsElement extends GameplayElement {
+
+    private final int maxAnimationTime = 10;
 
     private boolean menuTransition;
     private boolean containerAnimation;
     private boolean debugScreen;
+
+    private boolean isMoved;
+    private boolean isClosed;
+    public int animationTime;
 
     private boolean showDebugInfo;
     private int maxLength;
@@ -18,7 +31,12 @@ public class ScreenAnimationsElement extends GameplayElement {
     @Override
     public void setup() {
 
-        this.addListener(this::onRenderGameOverlayPre, true);
+        this.addListener(this::onClientTick);
+        this.addListener(this::onGuiOpen);
+        this.addListener(this::onBackgroundDrawn);
+        this.addListener(this::onDrawScreen, EventPriority.LOW);
+        this.addListener(this::onDrawScreenPre);
+        this.addListener(this::onRenderGameOverlayPre, EventPriority.LOW, true);
         this.addListener(this::onRenderGameOverlayText, true);
         this.addListener(this::onRenderGameOverlayPost, true);
     }
@@ -44,12 +62,81 @@ public class ScreenAnimationsElement extends GameplayElement {
     @Override
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
-        registerClientEntry(builder.comment("").define("", true), v -> this.debugScreen = v);
+        registerClientEntry(builder.comment("Animate debug screen").define("Debug Screen", true), v -> this.debugScreen = v);
+    }
+
+    public float getAnimationProgress() {
+
+        return this.animationTime / (float) this.maxAnimationTime;
+    }
+
+    public void isMoved() {
+
+        this.isMoved = true;
     }
 
     public float getAnimationTranslation() {
 
         return this.isEnabled() ? this.maxLength * (1.0F - this.animationProgess) : 0.0F;
+    }
+
+    private void onClientTick(final TickEvent.ClientTickEvent evt) {
+
+        if (evt.phase != TickEvent.Phase.START) {
+
+            return;
+        }
+
+        if (this.animationTime < this.maxAnimationTime) {
+
+            this.animationTime++;
+        }
+
+        this.isMoved = false;
+    }
+
+    private void onGuiOpen(final GuiOpenEvent evt) {
+
+        if (evt.getGui() instanceof ContainerScreen) {
+
+            this.animationTime = 0;
+        }
+    }
+
+    private void onBackgroundDrawn(final GuiScreenEvent.BackgroundDrawnEvent evt) {
+
+        if (this.isMoved) {
+
+            evt.getMatrixStack().translate(0.0F, this.mc.getMainWindow().getScaledHeight() * (1.0F - this.getAnimationProgress()), 0.0F);
+        }
+    }
+
+    private void onDrawScreen(final GuiScreenEvent.DrawScreenEvent.Post evt) {
+
+        if (this.isMoved) {
+
+            evt.getMatrixStack().translate(0.0F, -this.mc.getMainWindow().getScaledHeight() * (1.0F - this.getAnimationProgress()), 0.0F);
+        }
+    }
+
+    private void onDrawScreenPre(final GuiScreenEvent.DrawScreenEvent.Pre evt) {
+
+        if (evt.getGui() instanceof ContainerScreen) {
+
+            ContainerScreen<?> container = (ContainerScreen<?>) evt.getGui();
+            ContainerScreenAccessorMixin accessor = (ContainerScreenAccessorMixin) evt.getGui();
+            int guiTop = (container.height - container.getYSize()) / 2;
+            accessor.setGuiTop(guiTop + (int) (this.mc.getMainWindow().getScaledHeight() * (1.0F - this.getAnimationProgress())));
+//            evt.getMatrixStack().translate(0.0F, this.mc.getMainWindow().getScaledHeight() * (1.0F - this.getAnimationProgress()), 0.0F);
+        }
+    }
+
+    private void onDrawScreenPost(final GuiScreenEvent.DrawScreenEvent.Post evt) {
+
+        if (this.isMoved) {
+
+            evt.getMatrixStack().translate(0.0F, -this.mc.getMainWindow().getScaledHeight() * (1.0F - this.getAnimationProgress()), 0.0F);
+        }
     }
 
     private void onRenderGameOverlayPre(final RenderGameOverlayEvent.Pre evt) {

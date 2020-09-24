@@ -13,7 +13,12 @@
     "ScreenAccessorMixin",
     "NewChatGuiMixin",
     "ForgeIngameGuiMixin",
-    "FirstPersonRendererAccessorMixin"
+    "FirstPersonRendererAccessorMixin",
+    "ScreenMixin",
+    "ContainerScreenAccessorMixin",
+    "MainMenuScreenAccessorMixin",
+    "WorldLoadProgressScreenAccessorMixin",
+    "WorkingScreenAccessorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

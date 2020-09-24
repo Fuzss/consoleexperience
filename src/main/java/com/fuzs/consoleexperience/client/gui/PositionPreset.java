@@ -43,9 +43,9 @@ public enum PositionPreset {
         return Math.abs((scaledHeight - textureHeight) * this.posY - offset);
     }
 
-    // inverts a value depending on the display side
     public float getRotation(float rotation) {
 
+        // inverts a value depending on the display side
         return -(rotation - rotation * 2 * this.posX);
     }
 

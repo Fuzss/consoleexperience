@@ -2,8 +2,12 @@ package com.fuzs.consoleexperience.client.tooltip;
 
 import com.fuzs.consoleexperience.client.element.GameplayElements;
 import com.fuzs.consoleexperience.client.element.SelectedItemElement;
+import com.fuzs.consoleexperience.config.JSONConfigUtil;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -14,6 +18,9 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileReader;
+import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +30,7 @@ import java.util.stream.Collectors;
 public class TooltipBuilder {
 
     @SuppressWarnings("UnstableApiUsage")
-    public static final Map<String, TooltipElementBase> TOOLTIP_ELEMENTS = Lists.newArrayList(
+    private static final Map<String, TooltipElementBase> TOOLTIP_ELEMENTS = Lists.newArrayList(
             new TooltipElements.Name(true, 2, 20, null),
             new TooltipElements.Information(true, 4, 19, null, ITooltipFlag.TooltipFlags.ADVANCED),
             new TooltipElements.Enchantments(true, 6, 17, null),
@@ -101,9 +108,32 @@ public class TooltipBuilder {
         return new TranslationTextComponent("container.shulkerBox.more", amount).mergeStyle(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor, TextFormatting.ITALIC);
     }
 
-    public static List<TooltipElementBase> getActiveElements() {
+    private static List<TooltipElementBase> getActiveElements() {
 
         return TOOLTIP_ELEMENTS.values().stream().filter(TooltipElementBase::isEnabled).collect(Collectors.toList());
+    }
+
+    public static void serialize(String jsonName, File jsonFile) {
+
+        JsonObject jsonobject = new JsonObject();
+        jsonobject.addProperty("__comment", "Available colors can be found on the Minecraft Wiki: https://minecraft.gamepedia.com/Formatting_codes");
+        TooltipBuilder.TOOLTIP_ELEMENTS.forEach((key, value) -> jsonobject.add(key, value.serialize()));
+
+        JSONConfigUtil.saveToFile(jsonName, jsonFile, jsonobject);
+    }
+
+    public static void deserialize(FileReader reader) {
+
+        Type mapType = new TypeToken<Map<String, JsonElement>>() {}.getType();
+        JSONConfigUtil.GSON.<Map<String, JsonElement>>fromJson(reader, mapType)
+                .forEach((key, value) -> {
+
+                    // ignore comment field
+                    if (!key.equals("__comment")) {
+
+                        TooltipBuilder.TOOLTIP_ELEMENTS.get(key).deserialize(value);
+                    }
+                });
     }
 
 }

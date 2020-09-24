@@ -100,7 +100,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
 
         if (!this.state.isActive() && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 
-            this.drawIcon(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight());
+            this.drawIcon(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight(), true);
         }
     }
 
@@ -109,12 +109,12 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
         // only render while in-game
         if (this.mc.world != null) {
 
-            this.drawIcon(evt.getMatrixStack(), this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight());
+            this.drawIcon(evt.getMatrixStack(), this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight(), false);
         }
 
     }
 
-    private void drawIcon(MatrixStack matrixStack, int windowWidth, int windowHeight) {
+    private void drawIcon(MatrixStack matrixStack, int windowWidth, int windowHeight, boolean shift) {
 
         if (this.isVisible()) {
 
@@ -123,7 +123,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
             PositionPreset position = this.position;
             int posX = position.getX(this.width, windowWidth, this.xOffset);
             int posY = position.getY(this.height, windowHeight, this.yOffset);
-            if (this.potionShift) {
+            if (shift && this.potionShift) {
 
                 assert this.mc.player != null;
                 posY += position.getPotionShift(this.mc.player.getActivePotionEffects());
