@@ -3,7 +3,6 @@ package com.fuzs.consoleexperience.client.element;
 import com.fuzs.consoleexperience.mixin.ContainerScreenAccessorMixin;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraftforge.client.event.GuiContainerEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;

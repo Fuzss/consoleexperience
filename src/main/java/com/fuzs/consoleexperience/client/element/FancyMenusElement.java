@@ -1,20 +1,16 @@
 package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.client.gui.screen.FancyDirtMessageScreen;
-import com.fuzs.consoleexperience.client.gui.screen.FancyDownloadTerrainScreen;
-import com.fuzs.consoleexperience.client.gui.screen.FancyWorkingScreen;
-import com.fuzs.consoleexperience.client.gui.screen.FancyWorldLoadProgressScreen;
+import com.fuzs.consoleexperience.client.gui.screen.*;
 import com.fuzs.consoleexperience.config.JSONConfigUtil;
+import com.fuzs.consoleexperience.mixin.DisconnectedScreenAccessorMixin;
 import com.fuzs.consoleexperience.mixin.WorldLoadProgressScreenAccessorMixin;
 import com.google.common.collect.Lists;
-import net.minecraft.client.gui.screen.DirtMessageScreen;
-import net.minecraft.client.gui.screen.DownloadTerrainScreen;
-import net.minecraft.client.gui.screen.WorkingScreen;
-import net.minecraft.client.gui.screen.WorldLoadProgressScreen;
+import net.minecraft.client.gui.screen.*;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 
 import java.io.FileReader;
 import java.util.List;
@@ -28,6 +24,7 @@ public class FancyMenusElement extends GameplayElement {
     public void setup() {
 
         this.addListener(this::onGuiOpen);
+        this.addListener(this::onDrawScreenPre);
     }
 
     @Override
@@ -50,6 +47,7 @@ public class FancyMenusElement extends GameplayElement {
 
     private void onGuiOpen(final GuiOpenEvent evt) {
 
+        System.out.println(evt.getGui());
         if (evt.getGui() instanceof WorkingScreen) {
 
             evt.setGui(new FancyWorkingScreen((WorkingScreen) evt.getGui()));
@@ -62,6 +60,22 @@ public class FancyMenusElement extends GameplayElement {
         } else if (evt.getGui() instanceof WorldLoadProgressScreen) {
 
             evt.setGui(new FancyWorldLoadProgressScreen(((WorldLoadProgressScreenAccessorMixin) (evt.getGui())).getTracker()));
+        } else if (evt.getGui() instanceof DisconnectedScreen) {
+
+            DisconnectedScreenAccessorMixin accessor = (DisconnectedScreenAccessorMixin) evt.getGui();
+            evt.setGui(new FancyDisconnectedScreen(accessor.getNextScreen(), evt.getGui().getTitle(), accessor.getMessage()));
+        } else if (evt.getGui() instanceof ConnectingScreen) {
+
+            FancyConnectingScreen.onGuiOpen();
+        }
+    }
+
+    private void onDrawScreenPre(GuiScreenEvent.DrawScreenEvent.Pre evt) {
+
+        if (evt.getGui() instanceof ConnectingScreen) {
+
+            evt.setCanceled(true);
+            FancyConnectingScreen.render(this.mc, evt.getMatrixStack(), evt.getMouseX(), evt.getMouseY(), evt.getRenderPartialTicks(), (ConnectingScreen) evt.getGui());
         }
     }
 

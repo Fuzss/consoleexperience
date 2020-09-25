@@ -9,16 +9,18 @@
   "client": [
     "BipedModelMixin",
     "PlayerRendererMixin",
-    "IngameGuiAccessorMixin",
-    "ScreenAccessorMixin",
     "NewChatGuiMixin",
     "ForgeIngameGuiMixin",
-    "FirstPersonRendererAccessorMixin",
     "ScreenMixin",
+    "IngameGuiAccessorMixin",
+    "ScreenAccessorMixin",
+    "FirstPersonRendererAccessorMixin",
     "ContainerScreenAccessorMixin",
     "MainMenuScreenAccessorMixin",
     "WorldLoadProgressScreenAccessorMixin",
-    "WorkingScreenAccessorMixin"
+    "WorkingScreenAccessorMixin",
+    "ConnectingScreenAccessorMixin",
+    "DisconnectedScreenAccessorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Matrix4f;
 
+@SuppressWarnings("deprecation")
 public class RenderTooltipUtil {
 
     public static void drawTooltip(MatrixStack matrixstack, int posX, int posY, int width, int height, IBidiRenderer messageRenderer) {

@@ -25,6 +25,7 @@ public class GameplayElements {
     public static final GameplayElement POTION_TIME = register("potion_time", new PotionTimeElement());
     public static final GameplayElement SCREEN_ANIMATIONS = register("screen_animations", new ScreenAnimationsElement());
     public static final GameplayElement FANCY_MENUS = register("fancy_menus", new FancyMenusElement());
+    public static final GameplayElement MENU_PLAYER = register("menu_player", new MenuPlayerElement());
 
     private static GameplayElement register(String key, GameplayElement gameplayElement) {
 

@@ -22,18 +22,13 @@ public class FancyScreenUtil {
     private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = MainMenuScreenAccessorMixin.getMinecraftTitleTextures();
     private static final ResourceLocation MINECRAFT_TITLE_EDITION = MainMenuScreenAccessorMixin.getMinecraftTitleEdition();
 
-    public static void renderMenuElements(Minecraft minecraft, MatrixStack matrixStack, int width, int height, float partialTicks) {
+    public static void renderMenuElements(Minecraft minecraft, MatrixStack matrixStack, int width, int height) {
 
-        if (partialTicks >= 1.0F) {
-
-            return;
-        }
-
-        renderMenuOverlay(minecraft, matrixStack, width, height, partialTicks);
-        renderTitleElements(minecraft, matrixStack, width, height, partialTicks);
+        renderMenuOverlay(minecraft, matrixStack, width, height);
+        renderTitleElements(minecraft, matrixStack, width, height);
     }
 
-    private static void renderMenuOverlay(Minecraft minecraft, MatrixStack matrixStack, int width, int height, float partialTicks) {
+    private static void renderMenuOverlay(Minecraft minecraft, MatrixStack matrixStack, int width, int height) {
 
         minecraft.getTextureManager().bindTexture(PANORAMA_OVERLAY_TEXTURES);
         RenderSystem.enableBlend();
@@ -42,7 +37,7 @@ public class FancyScreenUtil {
         AbstractGui.blit(matrixStack, 0, 0, width, height, 0.0F, 0.0F, 16, 128, 16, 128);
     }
 
-    private static void renderTitleElements(Minecraft minecraft, MatrixStack matrixStack, int width, int height, float partialTicks) {
+    private static void renderTitleElements(Minecraft minecraft, MatrixStack matrixStack, int width, int height) {
 
         int j = width / 2 - 137;
         int l = MathHelper.ceil(1.0F * 255.0F) << 24;

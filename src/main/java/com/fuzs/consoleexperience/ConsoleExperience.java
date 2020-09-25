@@ -7,7 +7,6 @@ import com.fuzs.consoleexperience.config.ConfigManager;
 import com.fuzs.consoleexperience.config.JSONConfigUtil;
 import com.fuzs.consoleexperience.util.CommandRegisterer;
 import com.mojang.brigadier.Command;
-import net.minecraft.client.gui.screen.DemoScreen;
 import net.minecraft.command.Commands;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -63,7 +62,6 @@ public class ConsoleExperience {
 
         // clientSideOnly = true
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (remote, isServer) -> true));
-        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (client, parent) -> new DemoScreen());
     }
 
     private void onClientSetup(final FMLClientSetupEvent evt) {
