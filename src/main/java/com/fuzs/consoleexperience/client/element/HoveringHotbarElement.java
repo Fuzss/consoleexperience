@@ -17,7 +17,7 @@ public class HoveringHotbarElement extends GameplayElement {
     // list of gui elements to be moved, idea is to basically wrap around them and whatever other mods would be doing
     private static final List<RenderGameOverlayEvent.ElementType> SHIFTED_ELEMENTS = Lists.newArrayList(
             ElementType.ARMOR, ElementType.HEALTH, ElementType.FOOD, ElementType.AIR, ElementType.HOTBAR,
-            ElementType.EXPERIENCE, ElementType.HEALTHMOUNT, ElementType.JUMPBAR, ElementType.CHAT
+            ElementType.EXPERIENCE, ElementType.HEALTHMOUNT, ElementType.JUMPBAR
     );
     
     private int xOffset;
@@ -61,7 +61,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? this.xOffset : 0.0F, -this.yOffset, 0.0F);
+            RenderSystem.translatef(this.xOffset, -this.yOffset, 0.0F);
         }
     }
 
@@ -69,7 +69,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (evt.isCanceled() && SHIFTED_ELEMENTS.contains(evt.getType())) {
 
-            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? -this.xOffset : 0.0F, this.yOffset, 0.0F);
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
         }
     }
 
@@ -77,7 +77,7 @@ public class HoveringHotbarElement extends GameplayElement {
 
         if (SHIFTED_ELEMENTS.contains(evt.getType())) {
             
-            RenderSystem.translatef(evt.getType() != ElementType.CHAT ? -this.xOffset : 0.0F, this.yOffset, 0.0F);
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
         }
     }
 
