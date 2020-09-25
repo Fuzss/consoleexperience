@@ -58,7 +58,7 @@ public class FancyScreenUtil {
 
     public static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, ITextComponent textComponent, int width, int height, float progress) {
 
-        renderLoadingBar(matrixstack, fontrenderer,  textComponent, width / 2, height / 2 + 30, 240, 8, progress);
+        renderLoadingBar(matrixstack, fontrenderer,  textComponent, width / 2, height / 2 + 36, 240, 8, progress);
     }
 
     public static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, ITextComponent textComponent, int posX, int posY, int width, int height, float progress) {
@@ -85,6 +85,7 @@ public class FancyScreenUtil {
         return new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void blitBlackOutline(int width, int height, BiConsumer<Integer, Integer> boxXYConsumer) {
 
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);

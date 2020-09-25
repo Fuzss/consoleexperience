@@ -15,9 +15,10 @@ import net.minecraft.util.math.vector.Vector3f;
 public class PaperDollRenderer {
 
     private final float maxRotation = 30.0F;
+    private float prevRotationYaw;
 
     @SuppressWarnings("deprecation")
-    public float drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prevRotationYaw) {
+    public void drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks) {
 
         // prepare
         RenderSystem.pushMatrix();
@@ -41,7 +42,7 @@ public class PaperDollRenderer {
         float prevRotationPitch = entity.prevRotationPitch;
         float prevRenderYawOffset = entity.prevRenderYawOffset;
         float prevRotationYawHead = entity.prevRotationYawHead;
-        prevRotationYaw = this.updateRotation(entity, partialTicks, prevRotationYaw, rotationYawHead, prevRotationYawHead);
+        this.prevRotationYaw = this.updateRotation(entity, partialTicks, this.prevRotationYaw, rotationYawHead, prevRotationYawHead);
 
         // do render
         EntityRendererManager entityrenderermanager = Minecraft.getInstance().getRenderManager();
@@ -64,9 +65,6 @@ public class PaperDollRenderer {
         // finish
         RenderSystem.enableCull();
         RenderSystem.popMatrix();
-
-        return prevRotationYaw;
-
     }
 
     private float updateRotation(LivingEntity entity, float partialTicks, float prevRotationYaw, float rotationYawHead, float prevRotationYawHead) {
@@ -119,6 +117,11 @@ public class PaperDollRenderer {
         }
 
         return rotationYaw;
+    }
+
+    public void reset() {
+
+        this.prevRotationYaw = 0;
     }
 
     @SuppressWarnings("unused")

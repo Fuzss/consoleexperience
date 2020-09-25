@@ -13,16 +13,13 @@ import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
+import net.minecraft.entity.player.PlayerModelPart;
+import net.minecraft.network.play.server.SPlayerListItemPacket;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderNameplateEvent;
@@ -30,7 +27,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +71,7 @@ public class MenuPlayerElement extends GameplayElement {
         if (evt.getGui() instanceof MainMenuScreen) {
 
             this.setRenderEntityPlayer();
+//            this.setRenderEntityRandom();
         }
     }
 
@@ -109,19 +107,21 @@ public class MenuPlayerElement extends GameplayElement {
 
     protected void renderName(Entity entityIn, ITextComponent displayNameIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn, EntityRendererManager renderManager) {
 
-        float f = entityIn.getHeight() + 0.5F;
-        int i = "deadmau5".equals(displayNameIn.getString()) ? -10 : 0;
+        float renderHeight = entityIn.getHeight() + 0.5F;
+        float renderOffset = "deadmau5".equals(displayNameIn.getString()) ? -10 : 0;
+
         matrixStackIn.push();
-        matrixStackIn.translate(0.0D, f, 0.0D);
+        matrixStackIn.translate(0.0D, renderHeight, 0.0D);
         matrixStackIn.rotate(renderManager.getCameraOrientation());
         matrixStackIn.scale(-0.025F, -0.025F, 0.025F);
         Matrix4f matrix4f = matrixStackIn.getLast().getMatrix();
-        float f1 = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
-        int j = (int)(f1 * 255.0F) << 24;
+
+        float backgroundOpacity = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
+        int alpha = (int)(backgroundOpacity * 255.0F) << 24;
         FontRenderer fontrenderer = renderManager.getFontRenderer();
-        float f2 = (float) (-fontrenderer.func_238414_a_(displayNameIn) / 2);
-        fontrenderer.func_243247_a(displayNameIn, f2, (float)i, 553648127, false, matrix4f, bufferIn, true, j, packedLightIn);
-        fontrenderer.func_243247_a(displayNameIn, f2, (float)i, -1, false, matrix4f, bufferIn, false, 0, packedLightIn);
+        int textWidth = -fontrenderer.func_238414_a_(displayNameIn) / 2;
+        fontrenderer.func_243247_a(displayNameIn, textWidth, renderOffset, 553648127, false, matrix4f, bufferIn, true, alpha, packedLightIn);
+        fontrenderer.func_243247_a(displayNameIn, textWidth, renderOffset, -1, false, matrix4f, bufferIn, false, 0, packedLightIn);
 
         matrixStackIn.pop();
     }
@@ -133,8 +133,8 @@ public class MenuPlayerElement extends GameplayElement {
             GameProfile profileIn = this.mc.getSession().getProfile();
             @SuppressWarnings("ConstantConditions")
             ClientPlayNetHandler clientPlayNetHandler = new ClientPlayNetHandler(this.mc, null, null, profileIn);
-            ClientWorld.ClientWorldInfo clientworld$clientworldinfo = new ClientWorld.ClientWorldInfo(Difficulty.NORMAL, false, false);
-            this.renderWorld = new ClientWorld(clientPlayNetHandler, clientworld$clientworldinfo, World.OVERWORLD, DynamicRegistries.func_239770_b_().func_230520_a_().func_243576_d(DimensionType.OVERWORLD), 3, this.mc::getProfiler, this.mc.worldRenderer, false, 0);
+            ClientWorld.ClientWorldInfo clientworld$clientworldinfo = new ClientWorld.ClientWorldInfo(Difficulty.HARD, false, false);
+            this.renderWorld = new ClientWorld(clientPlayNetHandler, clientworld$clientworldinfo, World.THE_NETHER, DynamicRegistries.func_239770_b_().func_230520_a_().func_243576_d(DimensionType.THE_NETHER), 3, this.mc::getProfiler, this.mc.worldRenderer, false, 0);
         }
 
         return this.renderWorld;
@@ -146,21 +146,50 @@ public class MenuPlayerElement extends GameplayElement {
         Collections.shuffle(entityTypes);
         Optional<EntityType<?>> optionalLivingEntity = entityTypes.stream().findFirst();
         optionalLivingEntity.ifPresent(type -> this.renderEntity = (LivingEntity) type.create(this.getRenderWorld()));
+        try {
+
+            if (this.renderEntity instanceof MobEntity) {
+
+                ((MobEntity) this.renderEntity).onInitialSpawn(null, new DifficultyInstance(Difficulty.HARD, 100000L, 100000, 1.0F), SpawnReason.NATURAL, null, null);
+            }
+        } catch (Exception ignored) {
+
+        }
     }
 
     private void setRenderEntityPlayer() {
 
         this.renderEntity = new RemoteClientPlayerEntity(this.getRenderWorld(), this.mc.getSession().getProfile()) {
 
-            @Nullable
+            private NetworkPlayerInfo playerInfo;
+
+            @Override
             protected NetworkPlayerInfo getPlayerInfo() {
 
-                return null;
+                if (this.playerInfo == null) {
+
+                     this.playerInfo = new NetworkPlayerInfo(new SPlayerListItemPacket().new AddPlayerData(MenuPlayerElement.this.mc.getSession().getProfile(), 1, GameType.SURVIVAL, null));
+                }
+
+                return this.playerInfo;
             }
 
+            @Override
             public boolean isSpectator() {
 
                 return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+
+                return false;
+            }
+
+            @Override
+            public boolean isWearing(@Nonnull PlayerModelPart part) {
+
+                return MenuPlayerElement.this.mc.gameSettings.getModelParts().contains(part);
             }
 
         };

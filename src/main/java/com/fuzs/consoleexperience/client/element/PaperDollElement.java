@@ -35,7 +35,6 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
-    private float prevRotationYaw;
 
     @Override
     public void setup() {
@@ -112,7 +111,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         // reset rotation when no longer shown
         if (!this.isVisible()) {
 
-            this.prevRotationYaw = 0;
+            this.dollRenderer.reset();
         }
 
         // don't show paper doll in sneaking position after unmounting a vehicle / mount
@@ -141,16 +140,16 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
             int scale = this.scale * 5;
             PositionPreset position = this.position;
-            int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
+            int posX = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
             // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
-            int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
-            y -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
+            int posY = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
+            posY -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
             if (this.potionShift) {
 
-                y += position.getPotionShift(player.getActivePotionEffects());
+                posY += position.getPotionShift(player.getActivePotionEffects());
             }
 
-            this.prevRotationYaw = this.dollRenderer.drawEntityOnScreen(x, y, scale, player, evt.getPartialTicks(), this.prevRotationYaw);
+            this.dollRenderer.drawEntityOnScreen(posX, posY, scale, player, evt.getPartialTicks());
         }
 
         this.mc.getProfiler().endSection();

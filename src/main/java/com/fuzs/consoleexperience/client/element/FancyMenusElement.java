@@ -47,7 +47,6 @@ public class FancyMenusElement extends GameplayElement {
 
     private void onGuiOpen(final GuiOpenEvent evt) {
 
-        System.out.println(evt.getGui());
         if (evt.getGui() instanceof WorkingScreen) {
 
             evt.setGui(new FancyWorkingScreen((WorkingScreen) evt.getGui()));
