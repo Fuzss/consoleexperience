@@ -23,12 +23,12 @@ public class PaperDollRenderer {
         // prepare
         RenderSystem.pushMatrix();
         RenderSystem.disableCull();
-        RenderSystem.translatef((float) posX, (float) posY, 950.0F);
+        RenderSystem.translatef((float) posX, (float) posY, 1050.0F);
         RenderSystem.scalef(1.0F, 1.0F, -1.0F);
 
         // set angles and lighting
         MatrixStack stack = new MatrixStack();
-        stack.translate(0.0D, 0.0D, 1000.0D);
+        stack.translate(0.0, 0.0, 1000.0);
         stack.scale((float) scale, (float) scale, (float) scale);
         Quaternion quaternionZ = Vector3f.ZP.rotationDegrees(180.0F);
         Quaternion quaternionX = Vector3f.XP.rotationDegrees(15.0F);

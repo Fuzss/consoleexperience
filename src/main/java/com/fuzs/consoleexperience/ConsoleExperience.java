@@ -79,8 +79,8 @@ public class ConsoleExperience {
 
         evt.getDispatcher().register(Commands.literal(ConsoleExperience.MODID).then(Commands.literal("reload").executes(ctx -> {
 
-            CommandRegisterer.handleReload(this.jsonConfigName, TooltipBuilder::serialize, TooltipBuilder::deserialize, ctx);
-            CommandRegisterer.handleReload(this.jsonTipsName, JSONConfigUtil::copyToFile, FancyMenusElement::deserialize, ctx);
+            CommandRegisterer.handleReload(this.jsonConfigName, "command.reload.config", TooltipBuilder::serialize, TooltipBuilder::deserialize, ctx);
+            CommandRegisterer.handleReload(this.jsonTipsName, "command.reload.tips", JSONConfigUtil::copyToFile, FancyMenusElement::deserialize, ctx);
 
             return Command.SINGLE_SUCCESS;
         })));

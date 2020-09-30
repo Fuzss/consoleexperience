@@ -1,7 +1,6 @@
 package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.client.gui.button.CloseButton;
-import com.fuzs.consoleexperience.mixin.ScreenAccessorMixin;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.inventory.container.Container;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -59,7 +58,7 @@ public class CloseButtonElement extends GameplayElement {
             return;
         }
 
-        ((ScreenAccessorMixin) evt.getGui()).callAddButton(new CloseButton(this.offsetX, this.offsetY, button -> {
+        evt.addWidget(new CloseButton(this.offsetX, this.offsetY, button -> {
 
             assert (this.mc.player != null);
             this.mc.player.closeScreen();

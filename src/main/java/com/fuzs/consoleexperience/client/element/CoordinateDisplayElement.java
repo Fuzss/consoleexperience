@@ -78,11 +78,9 @@ public class CoordinateDisplayElement extends GameplayElement {
         int stringWidth = this.mc.fontRenderer.func_238414_a_(component) + 3;
         int stringHeight = this.mc.fontRenderer.FONT_HEIGHT + 2;
         float scale = this.scale / 6.0F;
-        MainWindow window = evt.getWindow();
-        PositionPreset position = this.position;
-        int posX = (int) (position.getX(stringWidth, window.getScaledWidth(), this.xOffset) / scale);
+        int posX = (int) (this.position.getX(stringWidth, evt.getWindow().getScaledWidth(), this.xOffset) / scale);
         // adjust for hovering hotbar, since this is rendered on chat which is moved as well
-        int posY = (int) ((position.getY(stringHeight, window.getScaledHeight(), this.yOffset) +
+        int posY = (int) ((this.position.getY(stringHeight, evt.getWindow().getScaledHeight(), this.yOffset) +
                 ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getYOffset()) / scale);
 
         RenderSystem.pushMatrix();

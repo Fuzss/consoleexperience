@@ -3,7 +3,7 @@ package com.fuzs.consoleexperience.config;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.*;
@@ -46,18 +46,18 @@ public class JSONConfigUtil {
             outStream.close();
         } catch (Exception e) {
 
-            ConsoleExperience.LOGGER.error("Failed to copy \"" + jsonName + "\" in config directory!");
+            ConsoleExperience.LOGGER.error("Failed to copy {} in config directory: {}", jsonName, e);
         }
     }
 
-    public static void saveToFile(String jsonName, File jsonFile, JsonObject jsonobject) {
+    public static void saveToFile(String jsonName, File jsonFile, JsonElement jsonelement) {
 
         try (FileWriter writer = new FileWriter(jsonFile)) {
 
-            GSON.toJson(jsonobject, writer);
+            GSON.toJson(jsonelement, writer);
         } catch (Exception e) {
 
-            ConsoleExperience.LOGGER.error("Failed to create \"" + jsonName + "\" in config directory");
+            ConsoleExperience.LOGGER.error("Failed to create {} in config directory: {}", jsonName, e);
         }
     }
 
@@ -68,7 +68,7 @@ public class JSONConfigUtil {
             deserializer.accept(reader);
         } catch (Exception e) {
 
-            ConsoleExperience.LOGGER.error("Failed to read \"" + jsonName + "\" in config directory");
+            ConsoleExperience.LOGGER.error("Failed to read {} in config directory: {}", jsonName, e);
         }
     }
 

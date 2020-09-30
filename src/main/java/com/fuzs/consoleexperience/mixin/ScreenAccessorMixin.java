@@ -11,10 +11,6 @@ import java.util.List;
 @Mixin(Screen.class)
 public interface ScreenAccessorMixin {
 
-    @SuppressWarnings("UnusedReturnValue")
-    @Invoker
-    <T extends Widget> T callAddButton(T button);
-
     @Accessor
     List<Widget> getButtons();
 

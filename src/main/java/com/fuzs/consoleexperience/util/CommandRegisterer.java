@@ -17,15 +17,15 @@ import java.util.function.Consumer;
 
 public class CommandRegisterer {
 
-    public static void handleReload(String jsonName, BiConsumer<String, File> serializer, Consumer<FileReader> deserializer, CommandContext<CommandSource> ctx) {
+    public static void handleReload(String jsonName, String translationKey, BiConsumer<String, File> serializer, Consumer<FileReader> deserializer, CommandContext<CommandSource> ctx) {
 
         JSONConfigUtil.load(jsonName, ConsoleExperience.MODID, serializer, deserializer);
-        ctx.getSource().sendFeedback(getFeedbackComponent(jsonName), true);
+        ctx.getSource().sendFeedback(getFeedbackComponent(jsonName, translationKey), true);
     }
 
-    private static IFormattableTextComponent getFeedbackComponent(String jsonName) {
+    private static IFormattableTextComponent getFeedbackComponent(String jsonName, String translationKey) {
 
-        return new TranslationTextComponent("command.reload.config", getClickableComponent(jsonName));
+        return new TranslationTextComponent(translationKey, getClickableComponent(jsonName));
     }
 
     private static IFormattableTextComponent getClickableComponent(String jsonName) {

@@ -120,19 +120,18 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
 
             this.mc.getProfiler().startSection("saveIcon");
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
-            PositionPreset position = this.position;
-            int posX = position.getX(this.width, windowWidth, this.xOffset);
-            int posY = position.getY(this.height, windowHeight, this.yOffset);
+            int posX = this.position.getX(this.width, windowWidth, this.xOffset);
+            int posY = this.position.getY(this.height, windowHeight, this.yOffset);
             if (shift && this.potionShift) {
 
                 assert this.mc.player != null;
-                posY += position.getPotionShift(this.mc.player.getActivePotionEffects());
+                posY += this.position.getPotionShift(this.mc.player.getActivePotionEffects());
             }
 
             RenderSystem.pushMatrix();
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawModel(matrixStack, position, posX, posY);
+            this.drawModel(matrixStack, this.position, posX, posY);
             this.drawArrow(matrixStack, posX, posY);
             RenderSystem.disableBlend();
             RenderSystem.popMatrix();

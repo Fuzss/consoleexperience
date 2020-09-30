@@ -139,14 +139,13 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         if (isVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
 
             int scale = this.scale * 5;
-            PositionPreset position = this.position;
-            int posX = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
+            int posX = this.position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
             // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
-            int posY = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
+            int posY = this.position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
             posY -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
             if (this.potionShift) {
 
-                posY += position.getPotionShift(player.getActivePotionEffects());
+                posY += this.position.getPotionShift(player.getActivePotionEffects());
             }
 
             this.dollRenderer.drawEntityOnScreen(posX, posY, scale, player, evt.getPartialTicks());

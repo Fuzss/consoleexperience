@@ -97,7 +97,7 @@ public class StringListParser<T extends IForgeRegistryEntry<T>> {
     
     protected void logError(String entry, String message) {
 
-        this.logger.error("Unable to parse entry \"{}\": {}", entry, message);
+        this.logger.warn("Unable to parse entry \"{}\": {}", entry, message);
     }
     
 }
