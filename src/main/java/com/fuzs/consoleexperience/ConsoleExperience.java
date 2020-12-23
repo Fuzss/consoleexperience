@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience;
 
-import com.fuzs.consoleexperience.client.element.FancyMenusElement;
 import com.fuzs.consoleexperience.client.element.GameplayElements;
+import com.fuzs.consoleexperience.client.gui.screen.util.FancyScreenUtil;
 import com.fuzs.consoleexperience.client.tooltip.TooltipBuilder;
 import com.fuzs.consoleexperience.config.ConfigManager;
 import com.fuzs.consoleexperience.config.JSONConfigUtil;
@@ -50,7 +50,7 @@ public class ConsoleExperience {
 
                 // this also creates the folder for the default Forge config
                 JSONConfigUtil.load(ConsoleExperience.this.jsonConfigName, MODID, TooltipBuilder::serialize, TooltipBuilder::deserialize);
-                JSONConfigUtil.load(ConsoleExperience.this.jsonTipsName, MODID, JSONConfigUtil::copyToFile, FancyMenusElement::deserialize);
+                JSONConfigUtil.load(ConsoleExperience.this.jsonTipsName, MODID, JSONConfigUtil::copyToFile, FancyScreenUtil::deserialize);
                 ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
                 GameplayElements.setup(builder);
                 ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, builder.build(), ConfigManager.configNameForFolder(ModConfig.Type.CLIENT, MODID));
@@ -80,7 +80,7 @@ public class ConsoleExperience {
         evt.getDispatcher().register(Commands.literal(ConsoleExperience.MODID).then(Commands.literal("reload").executes(ctx -> {
 
             CommandRegisterer.handleReload(this.jsonConfigName, "command.reload.config", TooltipBuilder::serialize, TooltipBuilder::deserialize, ctx);
-            CommandRegisterer.handleReload(this.jsonTipsName, "command.reload.tips", JSONConfigUtil::copyToFile, FancyMenusElement::deserialize, ctx);
+            CommandRegisterer.handleReload(this.jsonTipsName, "command.reload.tips", JSONConfigUtil::copyToFile, FancyScreenUtil::deserialize, ctx);
 
             return Command.SINGLE_SUCCESS;
         })));

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.RenderSkybox;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +17,6 @@ import javax.annotation.Nonnull;
 @OnlyIn(Dist.CLIENT)
 public class FancyDisconnectedScreen extends DisconnectedScreen {
 
-   private final RenderSkybox panorama;
    private final ITextComponent message;
    private IBidiRenderer messageRenderer = IBidiRenderer.field_243257_a;
    private final Screen nextScreen;
@@ -26,7 +24,6 @@ public class FancyDisconnectedScreen extends DisconnectedScreen {
    public FancyDisconnectedScreen(Screen nextScreen, ITextComponent title, ITextComponent message) {
 
       super(nextScreen, title, message);
-      this.panorama = FancyScreenUtil.getPanorama();
       this.nextScreen = nextScreen;
       this.message = message;
    }
@@ -45,10 +42,11 @@ public class FancyDisconnectedScreen extends DisconnectedScreen {
    @Override
    public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 
-      this.panorama.render(partialTicks, 1.0F);
+      FancyScreenUtil.renderPanorama();
       FancyScreenUtil.renderMenuElements(this.minecraft, matrixStack, this.width, this.height);
       FancyScreenUtil.drawCenteredString(matrixStack, this.font, this.title, this.width, this.height);
       this.messageRenderer.func_241863_a(matrixStack, this.width / 2, this.height / 4 + 86);
+      FancyScreenUtil.drawTooltip(matrixStack, this.width / 2, this.height / 2 + 70, 280, 30);
 
       // manual super call
       for (Widget button : this.buttons) {

@@ -8,7 +8,7 @@ public class ConsoleExperienceConnector implements IMixinConnector {
     @Override
     public void connect() {
 
-        Mixins.addConfiguration("META-INF/mixins.json");
+        Mixins.addConfiguration("META-INF/consoleexperience.mixins.json");
     }
 
 }

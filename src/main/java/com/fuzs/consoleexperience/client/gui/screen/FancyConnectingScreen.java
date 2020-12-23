@@ -8,18 +8,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screen.ConnectingScreen;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.RenderSkybox;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class FancyConnectingScreen {
 
-    private static RenderSkybox panorama;
     private static long lastRenderTime;
 
     public static void onGuiOpen() {
 
-        panorama = FancyScreenUtil.getPanorama();
         lastRenderTime = 0L;
     }
     
@@ -34,9 +31,10 @@ public class FancyConnectingScreen {
             NarratorChatListener.INSTANCE.say((new TranslationTextComponent("narrator.joining")).getString());
         }
 
-        panorama.render(partialTicks, 1.0F);
+        FancyScreenUtil.renderPanorama();
         FancyScreenUtil.renderMenuElements(minecraft, matrixStack, width, height);
         FancyScreenUtil.drawCenteredString(matrixStack, Minecraft.getInstance().fontRenderer, ((ConnectingScreenAccessorMixin) connectingScreen).getConnectingProgress(), width, height);
+        FancyScreenUtil.drawTooltip(matrixStack, width / 2, height / 2 + 70, 280, 30);
 
         // manual super call
         for (Widget button : ((ScreenAccessorMixin) connectingScreen).getButtons()) {

@@ -16,7 +16,7 @@ public abstract class NewChatGuiMixin extends AbstractGui {
     private double func_238494_b_(double mouseY) {
 
         // move chat tooltips together with hovering hotbar
-        return mouseY + ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getChatOffset();
+        return mouseY + ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getTooltipOffset();
     }
 
 }

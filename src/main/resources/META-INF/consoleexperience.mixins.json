@@ -3,13 +3,14 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "package": "com.fuzs.consoleexperience.mixin",
-  "refmap": "${mod_id}.refmap.json",
+  "refmap": "consoleexperience.refmap.json",
   "mixins": [
   ],
   "client": [
     "BipedModelMixin",
     "PlayerRendererMixin",
     "NewChatGuiMixin",
+    "ForgeIngameGuiMixin",
     "IngameGuiAccessorMixin",
     "ScreenAccessorMixin",
     "FirstPersonRendererAccessorMixin",

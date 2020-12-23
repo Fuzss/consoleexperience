@@ -3,7 +3,7 @@ package com.fuzs.consoleexperience.client.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.SleepInMultiplayerScreen;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.TickEvent;
 
 public class BackgroundState {
 
@@ -45,6 +45,7 @@ public class BackgroundState {
         this.capacity = capacity;
     }
 
+    @SuppressWarnings("unused")
     public void onBackgroundDrawn(final GuiScreenEvent.BackgroundDrawnEvent evt) {
 
         if (Minecraft.getInstance().world != null) {
@@ -53,15 +54,18 @@ public class BackgroundState {
         }
     }
 
-    public void onRenderGameOverlayPost(final RenderGameOverlayEvent.Post evt) {
+    public void onRenderTick(final TickEvent.RenderTickEvent evt) {
 
-        // also hide while laying in bed
-        if (Minecraft.getInstance().currentScreen instanceof SleepInMultiplayerScreen) {
+        // also hide while laying in bed, only for hide hud element though
+        if (evt.phase == TickEvent.Phase.END && Minecraft.getInstance().currentScreen instanceof SleepInMultiplayerScreen) {
 
             this.start(true);
         }
+    }
 
-        if (evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+    public void onClientTick(final TickEvent.ClientTickEvent evt) {
+
+        if (evt.phase == TickEvent.Phase.END) {
 
             this.tick();
         }

@@ -169,7 +169,7 @@ public abstract class TooltipElementBase {
 
             super(enabled, ordering, priority);
             // will use default color if null
-            this.color = Color.func_240744_a_(color);
+            this.color = Color.fromTextFormatting(color);
         }
 
         protected final Style getStyle() {
@@ -221,12 +221,12 @@ public abstract class TooltipElementBase {
 
         private static Color getDefaultColor() {
 
-            return Color.func_240745_a_(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor.getFriendlyName());
+            return Color.fromHex(((SelectedItemElement) GameplayElements.SELECTED_ITEM).textColor.getFriendlyName());
         }
 
         private static void serializeColor(JsonObject jsonobject, @Nullable Color color) {
 
-            jsonobject.addProperty("color", color != null ? color.func_240747_b_() : "default");
+            jsonobject.addProperty("color", color != null ? color.getName() : "default");
         }
 
         @Nullable
@@ -235,7 +235,7 @@ public abstract class TooltipElementBase {
             if (jsonobject.has("color")) {
 
                 String s = JSONUtils.getString(jsonobject, "color");
-                return Color.func_240745_a_(s);
+                return Color.fromHex(s);
             } else {
 
                 return fallback;

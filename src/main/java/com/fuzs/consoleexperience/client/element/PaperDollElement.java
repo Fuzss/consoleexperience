@@ -134,9 +134,9 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         this.mc.getProfiler().startSection("paperDoll");
         ClientPlayerEntity player = this.mc.player;
         assert player != null && this.mc.playerController != null;
-        boolean isVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
-        boolean firstPerson = this.mc.gameSettings.func_243230_g().func_243192_a() || !this.firstPerson;
-        if (isVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
+        boolean playerVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
+        boolean firstPerson = this.mc.gameSettings.getPointOfView().func_243192_a() || !this.firstPerson;
+        if (playerVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
 
             int scale = this.scale * 5;
             int posX = this.position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
@@ -192,7 +192,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
     private enum DisplayAction {
 
-        SPRINTING(ClientPlayerEntity::func_230269_aK_),
+        SPRINTING(ClientPlayerEntity::shouldSpawnRunningEffects),
         SWIMMING(player -> player.getSwimAnimation(1.0F) > 0 && player.isInWater()),
         CRAWLING(player -> player.getSwimAnimation(1.0F) > 0 && !player.isInWater()),
         CROUCHING(ClientPlayerEntity::isCrouching),

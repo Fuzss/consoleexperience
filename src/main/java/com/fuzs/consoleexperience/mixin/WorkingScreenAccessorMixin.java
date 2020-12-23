@@ -12,7 +12,7 @@ public interface WorkingScreenAccessorMixin {
 
     @Nullable
     @Accessor("field_238648_a_")
-    ITextComponent getWorking();
+    ITextComponent getWorkingTitle();
 
     @Nullable
     @Accessor

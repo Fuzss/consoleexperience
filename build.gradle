@@ -101,7 +101,7 @@ processResources {
     // replace stuff in mods.toml and pack.mcmeta
     from(sourceSets.main.resources.srcDirs) {
 
-        include 'META-INF/mods.toml', 'META-INF/mixins.json', 'META-INF/MANIFEST.MF', 'pack.mcmeta'
+        include 'META-INF/mods.toml', 'META-INF/MANIFEST.MF', 'pack.mcmeta'
 
         expand (
 
@@ -122,7 +122,7 @@ processResources {
     // copy everything else except mods.toml and pack.mcmeta
     from(sourceSets.main.resources.srcDirs) {
 
-        exclude 'META-INF/mods.toml', 'META-INF/mixins.json', 'META-INF/MANIFEST.MF', 'pack.mcmeta'
+        exclude 'META-INF/mods.toml', 'META-INF/MANIFEST.MF', 'pack.mcmeta'
     }
 }
 

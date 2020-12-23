@@ -13,6 +13,8 @@ import net.minecraft.util.math.vector.Matrix4f;
 @SuppressWarnings("deprecation")
 public class RenderTooltipUtil {
 
+    public static final int[] TOOLTIP_COLORS = new int[]{-851356582, -986896};
+
     public static void drawTooltip(MatrixStack matrixstack, int posX, int posY, int width, int height, IBidiRenderer messageRenderer) {
 
         drawTooltipBackground(matrixstack, posX - width / 2, posY, width, height);
@@ -21,23 +23,31 @@ public class RenderTooltipUtil {
 
     private static void drawTooltipBackground(MatrixStack matrixstack, int posX, int posY, int width, int height) {
 
+        final int backgroundColor = TOOLTIP_COLORS[0];
+        final int frameColor = TOOLTIP_COLORS[1];
         matrixstack.push();
-        int backgroundColor = -1068280488;
-        int frameTop = -1;
-        int frameBottom = -1;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
         Matrix4f matrix4f = matrixstack.getLast().getMatrix();
-        fillGradient(matrix4f, bufferbuilder, posX - 3, posY - 4, posX + width + 3, posY - 3, 400, backgroundColor, backgroundColor);
-        fillGradient(matrix4f, bufferbuilder, posX - 3, posY + height + 3, posX + width + 3, posY + height + 4, 400, backgroundColor, backgroundColor);
+        // big middle part
         fillGradient(matrix4f, bufferbuilder, posX - 3, posY - 3, posX + width + 3, posY + height + 3, 400, backgroundColor, backgroundColor);
-        fillGradient(matrix4f, bufferbuilder, posX - 4, posY - 3, posX - 3, posY + height + 3, 400, backgroundColor, backgroundColor);
-        fillGradient(matrix4f, bufferbuilder, posX + width + 3, posY - 3, posX + width + 4, posY + height + 3, 400, backgroundColor, backgroundColor);
-        fillGradient(matrix4f, bufferbuilder, posX - 3, posY - 3 + 1, posX - 3 + 1, posY + height + 3 - 1, 400, frameTop, frameBottom);
-        fillGradient(matrix4f, bufferbuilder, posX + width + 2, posY - 3 + 1, posX + width + 3, posY + height + 3 - 1, 400, frameTop, frameBottom);
-        fillGradient(matrix4f, bufferbuilder, posX - 3, posY - 3, posX + width + 3, posY - 3 + 1, 400, frameTop, frameTop);
-        fillGradient(matrix4f, bufferbuilder, posX - 3, posY + height + 2, posX + width + 3, posY + height + 3, 400, frameBottom, frameBottom);
+        // top background strip
+        fillGradient(matrix4f, bufferbuilder, posX - 3, posY - 4, posX + width + 3, posY - 3, 400, frameColor, frameColor);
+        // bottom background strip
+        fillGradient(matrix4f, bufferbuilder, posX - 3, posY + height + 3, posX + width + 3, posY + height + 4, 400, frameColor, frameColor);
+        // left background strip
+        fillGradient(matrix4f, bufferbuilder, posX - 4, posY - 3, posX - 3, posY + height + 3, 400, frameColor, frameColor);
+        // right background strip
+        fillGradient(matrix4f, bufferbuilder, posX + width + 3, posY - 3, posX + width + 4, posY + height + 3, 400, frameColor, frameColor);
+        // top left dot
+        fillGradient(matrix4f, bufferbuilder, posX - 3, posY - 3, posX - 3 + 1, posY - 3 + 1, 400, frameColor, frameColor);
+        // top right dot
+        fillGradient(matrix4f, bufferbuilder, posX + width + 2, posY - 3, posX + width + 2 + 1, posY - 3 + 1, 400, frameColor, frameColor);
+        // bottom right dot
+        fillGradient(matrix4f, bufferbuilder, posX + width + 2, posY + height + 2, posX + width + 2 + 1, posY + height + 2 + 1, 400, frameColor, frameColor);
+        // bottom left dot
+        fillGradient(matrix4f, bufferbuilder, posX - 3, posY + height + 2, posX - 3 + 1, posY + height + 2 + 1, 400, frameColor, frameColor);
         RenderSystem.enableDepthTest();
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();

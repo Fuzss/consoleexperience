@@ -250,7 +250,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 RenderSystem.defaultBlendFunc();
 
                 width /= 2;
-                width -= fontRenderer.func_238414_a_(this.ingameGUI.getOverlayMessage()) / 2;
+                width -= fontRenderer.getStringPropertyWidth(this.ingameGUI.getOverlayMessage()) / 2;
                 height -= 72;
                 width += ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getXOffset();
                 height -= ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getYOffset();
@@ -265,7 +265,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 int backgroundColor = this.mc.gameSettings.getTextBackgroundColor(0.0F);
                 if (backgroundColor != 0) {
 
-                    AbstractGui.fill(matrixStack, width - 2, height - 2, width + fontRenderer.func_238414_a_(this.ingameGUI.getOverlayMessage()) + 2,
+                    AbstractGui.fill(matrixStack, width - 2, height - 2, width + fontRenderer.getStringPropertyWidth(this.ingameGUI.getOverlayMessage()) + 2,
                             height + fontRenderer.FONT_HEIGHT + 2, ColorHelper.PackedColor.blendColors(backgroundColor, 16777215 | alpha));
                 }
 
@@ -329,7 +329,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
             alpha = (int) (alpha * this.mc.gameSettings.accessibilityTextBackgroundOpacity);
             if (this.backgroundMode == BackgroundMode.RECTANGLE || !this.isEnabled()) {
 
-                int maximumWidth = tooltip.stream().mapToInt(fontRenderer::func_238414_a_).max().orElse(0) / 2;
+                int maximumWidth = tooltip.stream().mapToInt(fontRenderer::getStringPropertyWidth).max().orElse(0) / 2;
                 int size = tooltip.size();
 
                 AbstractGui.fill(matrixStack, posX - maximumWidth - 2, posY - 2, posX + maximumWidth + 2,
@@ -355,7 +355,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
     private int getTextWidth(FontRenderer fontRenderer, List<ITextComponent> tooltip, int index) {
 
         int clampedIndex = MathHelper.clamp(index, 0, tooltip.size() - 1);
-        return clampedIndex == index ? fontRenderer.func_238414_a_(tooltip.get(index)) : 0;
+        return clampedIndex == index ? fontRenderer.getStringPropertyWidth(tooltip.get(index)) : 0;
     }
 
     @SuppressWarnings("unused")

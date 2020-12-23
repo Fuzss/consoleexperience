@@ -5,6 +5,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -16,10 +17,12 @@ public class PlayerAnimationsElement extends GameplayElement {
     private boolean supermanGliding;
     private boolean rowingAnimation;
     private boolean handIdleAnimation;
+    private boolean fallingAsleep;
 
     @Override
     public void setup() {
 
+        this.addListener(this::onCameraSetup);
         this.addListener(this::onRenderHand);
     }
 
@@ -53,6 +56,7 @@ public class PlayerAnimationsElement extends GameplayElement {
         registerClientEntry(builder.comment("Animate eating in third-person view.").define("Eating Animation", true), v -> this.eatingAnimation = v);
         registerClientEntry(builder.comment("Superman pose when crouching and gliding at the same time.").define("Superman Gliding", true), v -> this.supermanGliding = v);
         registerClientEntry(builder.comment("The player's arms actually move when rowing in a boat.").define("Rowing Animation", false), v -> this.rowingAnimation = v);
+        registerClientEntry(builder.comment("Fall into bed slowly and smoothly.").define("Falling Asleep", true), v -> this.fallingAsleep = v);
         registerClientEntry(builder.comment("Subtle hand swing animation in first-person mode while standing still.").define("Hand Idle Animation", true), v -> this.handIdleAnimation = v);
     }
 
@@ -69,6 +73,21 @@ public class PlayerAnimationsElement extends GameplayElement {
     public boolean getRowingAnimation() {
 
         return this.isEnabled() && this.rowingAnimation;
+    }
+
+    private void onCameraSetup(final EntityViewRenderEvent.CameraSetup evt) {
+
+        if (!this.fallingAsleep) {
+
+            return;
+        }
+
+        ClientPlayerEntity player = this.mc.player;
+        assert player != null;
+        if (player.isSleeping()) {
+
+            evt.setPitch(Math.min(0.0F, (float) Math.pow(player.getSleepTimer() + evt.getRenderPartialTicks(), 2) * 0.008F - 45.0F));
+        }
     }
 
     private void onRenderHand(final RenderHandEvent evt) {

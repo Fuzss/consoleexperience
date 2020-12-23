@@ -286,7 +286,7 @@ public class TooltipElements {
 
                             try {
 
-                                IFormattableTextComponent iformattabletextcomponent = ITextComponent.Serializer.func_240643_a_(listnbt.getString(i));
+                                IFormattableTextComponent iformattabletextcomponent = ITextComponent.Serializer.getComponentFromJson(listnbt.getString(i));
                                 if (iformattabletextcomponent != null) {
 
                                     return Lists.newArrayList(iformattabletextcomponent.mergeStyle(this.getStyle()));
@@ -366,14 +366,14 @@ public class TooltipElements {
 
                             if (isKnownModifier) {
 
-                                tooltip.add(this.setDefaultableStyle(new StringTextComponent(" ").append(new TranslationTextComponent("attribute.modifier.equals." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().func_233754_c_()))).mergeStyle(TextFormatting.DARK_GREEN)));
+                                tooltip.add(this.setDefaultableStyle(new StringTextComponent(" ").append(new TranslationTextComponent("attribute.modifier.equals." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().getAttributeName()))).mergeStyle(TextFormatting.DARK_GREEN)));
                             } else if (amount > 0.0D) {
 
-                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.plus." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().func_233754_c_())).mergeStyle(TextFormatting.BLUE)));
+                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.plus." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().getAttributeName())).mergeStyle(TextFormatting.BLUE)));
                             } else if (amount < 0.0D) {
 
                                 adjustedAmount *= -1.0D;
-                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.take." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().func_233754_c_())).mergeStyle(TextFormatting.RED)));
+                                tooltip.add(this.setDefaultableStyle(new TranslationTextComponent("attribute.modifier.take." + attributemodifier.getOperation().getId(), ItemStack.DECIMALFORMAT.format(adjustedAmount), new TranslationTextComponent(entry.getKey().getAttributeName())).mergeStyle(TextFormatting.RED)));
                             }
                         }
 

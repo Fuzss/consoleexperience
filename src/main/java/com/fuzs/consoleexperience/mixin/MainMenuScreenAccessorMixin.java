@@ -1,6 +1,7 @@
 package com.fuzs.consoleexperience.mixin;
 
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.renderer.RenderSkybox;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -25,5 +26,8 @@ public interface MainMenuScreenAccessorMixin {
 
         throw new IllegalStateException();
     }
+
+    @Accessor
+    void setPanorama(RenderSkybox panorama);
 
 }

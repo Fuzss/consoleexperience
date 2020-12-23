@@ -1,26 +1,55 @@
 package com.fuzs.consoleexperience.client.gui.screen.util;
 
+import com.fuzs.consoleexperience.config.JSONConfigUtil;
 import com.fuzs.consoleexperience.mixin.MainMenuScreenAccessorMixin;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IBidiRenderer;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.RenderSkybox;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nullable;
+import java.io.FileReader;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
-@SuppressWarnings({"deprecation", "unused"})
+@SuppressWarnings({"deprecation", "unused", "SameParameterValue"})
 public class FancyScreenUtil {
 
     private static final ResourceLocation PANORAMA_OVERLAY_TEXTURES = MainMenuScreenAccessorMixin.getPanoramaOverlayTextures();
     private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = MainMenuScreenAccessorMixin.getMinecraftTitleTextures();
     private static final ResourceLocation MINECRAFT_TITLE_EDITION = MainMenuScreenAccessorMixin.getMinecraftTitleEdition();
+
+    private static final List<IFormattableTextComponent> TIPS_LIST = Lists.newArrayList();
+    public static final RenderSkybox MENU_PANORAMA = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES) {
+
+        private final Minecraft mc = Minecraft.getInstance();
+        private float time;
+
+        @Override
+        public void render(float deltaT, float alpha) {
+
+            this.time += 0.34F;
+            MainMenuScreen.PANORAMA_RESOURCES.render(this.mc, MathHelper.sin(this.time * 0.001F) * 5.0F + 25.0F, -this.time * 0.1F, alpha);
+        }
+    };
+
+    private static final int TIP_UPDATE_INTERVAL = 6000;
+    private static long lastTipUpdate = TIP_UPDATE_INTERVAL;
+    private static IBidiRenderer activeTip = IBidiRenderer.field_243257_a;
 
     public static void renderMenuElements(Minecraft minecraft, MatrixStack matrixStack, int width, int height) {
 
@@ -40,7 +69,7 @@ public class FancyScreenUtil {
     private static void renderTitleElements(Minecraft minecraft, MatrixStack matrixStack, int width, int height) {
 
         int j = width / 2 - 137;
-        int l = MathHelper.ceil(1.0F * 255.0F) << 24;
+        int l = MathHelper.ceil(255.0F) << 24;
         if ((l & -67108864) != 0) {
 
             minecraft.getTextureManager().bindTexture(MINECRAFT_TITLE_TEXTURES);
@@ -56,36 +85,46 @@ public class FancyScreenUtil {
         }
     }
 
-    public static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, ITextComponent textComponent, int width, int height, float progress) {
+    public static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, @Nullable ITextComponent itextcomponent, int width, int height, int progress) {
 
-        renderLoadingBar(matrixstack, fontrenderer,  textComponent, width / 2, height / 2 + 36, 240, 8, progress);
+        progress = (int) ((MathHelper.clamp(progress, 0, 100) / 100.0F) * 240);
+        if (itextcomponent == null) {
+
+            itextcomponent = StringTextComponent.EMPTY;
+        }
+
+        renderLoadingBar(matrixstack, fontrenderer,  itextcomponent, width / 2, height / 2 + 36, 240, 8, progress);
     }
 
-    public static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, ITextComponent textComponent, int posX, int posY, int width, int height, float progress) {
+    private static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, ITextComponent itextcomponent, int posX, int posY, int width, int height, int progress) {
 
         AbstractGui.fill(matrixstack, posX - width / 2 - 1, posY - height / 2 - 1, posX + width / 2 + 1, posY + height / 2 + 1, -8684675);
-        AbstractGui.fill(matrixstack, posX - width / 2, posY - height / 2, posX - width / 2 + (int) (MathHelper.clamp(progress, 0.0F, 1.0F) * width), posY + height / 2, -15728895);
-        AbstractGui.drawString(matrixstack, fontrenderer, textComponent, posX - width / 2 + 2, posY - height / 2 - fontrenderer.FONT_HEIGHT - 2, 16777215);
+        AbstractGui.fill(matrixstack, posX - width / 2, posY - height / 2, posX - width / 2 + progress, posY + height / 2, -15728895);
+        AbstractGui.drawString(matrixstack, fontrenderer, itextcomponent, posX - width / 2 + 2, posY - height / 2 - fontrenderer.FONT_HEIGHT - 2, 16777215);
     }
 
-    public static void drawCenteredString(MatrixStack matrixStack, FontRenderer fontrenderer, ITextComponent itextcomponent, int width, int height) {
+    public static void drawCenteredString(MatrixStack matrixStack, FontRenderer fontrenderer, @Nullable ITextComponent itextcomponent, int width, int height) {
+
+        if (itextcomponent == null) {
+
+            itextcomponent = StringTextComponent.EMPTY;
+        }
 
         drawCenteredString(matrixStack, fontrenderer, itextcomponent, width / 2, 110, 16777215, 2.0F);
     }
 
-    public static void drawCenteredString(MatrixStack matrixStack, FontRenderer fontrenderer, ITextComponent itextcomponent, int width, int height, int color, float scale) {
+    private static void drawCenteredString(MatrixStack matrixStack, FontRenderer fontrenderer, ITextComponent itextcomponent, int width, int height, int color, float scale) {
 
         matrixStack.scale(scale, scale, 0.0F);
         AbstractGui.drawCenteredString(matrixStack, fontrenderer, itextcomponent, (int) (width / scale), (int) (height / scale), color);
         matrixStack.scale(1.0F / scale, 1.0F / scale, 0.0F);
     }
 
-    public static RenderSkybox getPanorama() {
+    public static void renderPanorama() {
 
-        return new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
+        MENU_PANORAMA.render(0.34F, 1.0F);
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static void blitBlackOutline(int width, int height, BiConsumer<Integer, Integer> boxXYConsumer) {
 
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -95,6 +134,30 @@ public class FancyScreenUtil {
         boxXYConsumer.accept(width, height - 1);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         boxXYConsumer.accept(width, height);
+    }
+
+    public static void drawTooltip(MatrixStack matrixstack, int posX, int posY, int width, int height) {
+
+        RenderTooltipUtil.drawTooltip(matrixstack, posX, posY, width, height, getActiveTip());
+    }
+
+    private static IBidiRenderer getActiveTip() {
+
+        if (Util.milliTime() - TIP_UPDATE_INTERVAL > lastTipUpdate) {
+
+            lastTipUpdate = Util.milliTime();
+            activeTip = IBidiRenderer.func_243258_a(Minecraft.getInstance().fontRenderer, !TIPS_LIST.isEmpty() ?
+                    TIPS_LIST.get((int) (TIPS_LIST.size() * Math.random())) : new StringTextComponent("missingno"), 270);
+        }
+
+        return activeTip;
+    }
+
+    public static void deserialize(FileReader reader) {
+
+        TIPS_LIST.clear();
+        Stream.of(JSONConfigUtil.GSON.fromJson(reader, String[].class))
+                .forEach(tip -> TIPS_LIST.add(new TranslationTextComponent(tip)));
     }
 
 }

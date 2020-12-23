@@ -31,6 +31,7 @@ public class TooltipBuilder {
 
     @SuppressWarnings("UnstableApiUsage")
     private static final Map<String, TooltipElementBase> TOOLTIP_ELEMENTS = Lists.newArrayList(
+
             new TooltipElements.Name(true, 2, 20, null),
             new TooltipElements.Information(true, 4, 19, null, ITooltipFlag.TooltipFlags.ADVANCED),
             new TooltipElements.Enchantments(true, 6, 17, null),
