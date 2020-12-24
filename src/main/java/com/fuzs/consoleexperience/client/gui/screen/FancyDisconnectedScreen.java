@@ -46,7 +46,6 @@ public class FancyDisconnectedScreen extends DisconnectedScreen {
       FancyScreenUtil.renderMenuElements(this.minecraft, matrixStack, this.width, this.height);
       FancyScreenUtil.drawCenteredString(matrixStack, this.font, this.title, this.width, this.height);
       this.messageRenderer.func_241863_a(matrixStack, this.width / 2, this.height / 4 + 86);
-      FancyScreenUtil.drawTooltip(matrixStack, this.width / 2, this.height / 2 + 70, 280, 30);
 
       // manual super call
       for (Widget button : this.buttons) {

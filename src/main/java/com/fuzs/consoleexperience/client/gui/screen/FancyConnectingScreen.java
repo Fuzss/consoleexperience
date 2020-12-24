@@ -34,7 +34,6 @@ public class FancyConnectingScreen {
         FancyScreenUtil.renderPanorama();
         FancyScreenUtil.renderMenuElements(minecraft, matrixStack, width, height);
         FancyScreenUtil.drawCenteredString(matrixStack, Minecraft.getInstance().fontRenderer, ((ConnectingScreenAccessorMixin) connectingScreen).getConnectingProgress(), width, height);
-        FancyScreenUtil.drawTooltip(matrixStack, width / 2, height / 2 + 70, 280, 30);
 
         // manual super call
         for (Widget button : ((ScreenAccessorMixin) connectingScreen).getButtons()) {

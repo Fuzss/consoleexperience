@@ -114,7 +114,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
         // only render while in-game
         if (this.mc.world != null) {
 
-            this.drawIcon(evt.getMatrixStack(), this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight(), true);
+            this.drawIcon(evt.getMatrixStack(), this.mc.getMainWindow().getScaledWidth(), this.mc.getMainWindow().getScaledHeight(), false);
         }
 
     }

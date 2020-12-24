@@ -3,6 +3,7 @@ package com.fuzs.consoleexperience.client.element;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.PotionSpriteUploader;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class PotionTimeElement extends GameplayElement {
 
     private static final ResourceLocation POTION_BACKGROUND = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/mob_effect_background.png");
@@ -60,7 +62,6 @@ public class PotionTimeElement extends GameplayElement {
         evt.setCanceled(true);
     }
 
-    @SuppressWarnings("deprecation")
     private void onRenderGameOverlayText(final RenderGameOverlayEvent.Text evt) {
 
         // use this event so potion icons are drawn behind the debug menu like in vanilla
@@ -73,7 +74,7 @@ public class PotionTimeElement extends GameplayElement {
             int beneficialCounter = 0;
             int harmfulCounter = 0;
             PotionSpriteUploader potionspriteuploader = this.mc.getPotionSpriteUploader();
-            List<Runnable> list = Lists.newArrayListWithExpectedSize(activePotionEffects.size());
+            List<Runnable> effects = Lists.newArrayListWithExpectedSize(activePotionEffects.size());
             for (EffectInstance effectinstance : Ordering.natural().reverse().sortedCopy(activePotionEffects)) {
 
                 // Rebind in case previous renderHUDEffect changed texture
@@ -114,29 +115,30 @@ public class PotionTimeElement extends GameplayElement {
                     }
 
                     TextureAtlasSprite textureatlassprite = potionspriteuploader.getSprite(effect);
-                    final int width1 = width;
-                    final int height1 = height;
-                    final float alpha1 = alpha;
-                    list.add(() -> {
-
-                        this.mc.getTextureManager().bindTexture(textureatlassprite.getAtlasTexture().getTextureLocation());
-                        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha1);
-                        AbstractGui.blit(evt.getMatrixStack(), width1 + 5, height1 + (effectinstance.isAmbient() ? 3 : 2), this.mc.ingameGUI.getBlitOffset(), 18, 18, textureatlassprite);
-                        if (!effectinstance.isAmbient()) {
-
-                            StringTextComponent component = new StringTextComponent(EffectUtils.getPotionDurationString(effectinstance, 1.0F));
-                            int potionColor = PotionUtils.getPotionColorFromEffectList(Collections.singleton(effectinstance));
-                            AbstractGui.drawCenteredString(evt.getMatrixStack(), this.mc.fontRenderer, component, width1 + 15, height1 + 14, potionColor);
-                        }
-                    });
-
+                    this.addEffectToList(evt.getMatrixStack(), effects, effectinstance, textureatlassprite, width, height, alpha);
                     effectinstance.renderHUDEffect(this.mc.ingameGUI, evt.getMatrixStack(), width, height, this.mc.ingameGUI.getBlitOffset(), alpha);
                 }
             }
 
-            list.forEach(Runnable::run);
+            effects.forEach(Runnable::run);
             RenderSystem.enableDepthTest();
         }
+    }
+
+    private void addEffectToList(MatrixStack matrixStack, List<Runnable> effects, EffectInstance effectinstance, TextureAtlasSprite textureatlassprite, int width, int height, float alpha) {
+
+        effects.add(() -> {
+
+            this.mc.getTextureManager().bindTexture(textureatlassprite.getAtlasTexture().getTextureLocation());
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+            AbstractGui.blit(matrixStack, width + 5, height + (effectinstance.isAmbient() ? 3 : 2), this.mc.ingameGUI.getBlitOffset(), 18, 18, textureatlassprite);
+            if (!effectinstance.isAmbient()) {
+
+                StringTextComponent component = new StringTextComponent(EffectUtils.getPotionDurationString(effectinstance, 1.0F));
+                int potionColor = PotionUtils.getPotionColorFromEffectList(Collections.singleton(effectinstance));
+                AbstractGui.drawCenteredString(matrixStack, this.mc.fontRenderer, component, width + 15, height + 14, potionColor);
+            }
+        });
     }
 
 }
