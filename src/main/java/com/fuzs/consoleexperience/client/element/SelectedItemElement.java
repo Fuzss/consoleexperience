@@ -2,7 +2,8 @@ package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.tooltip.TooltipBuilder;
-import com.fuzs.consoleexperience.config.StringListBuilder;
+import com.fuzs.consoleexperience.config.EntryCollectionBuilder;
+import com.fuzs.consoleexperience.mixin.IngameGuiAccessorMixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
@@ -24,9 +25,10 @@ import java.util.stream.Collectors;
 
 public class SelectedItemElement extends GameplayElement implements IHasDisplayTime {
 
-    private static final StringListBuilder<Item> ITEM_PARSER = new StringListBuilder<>(ForgeRegistries.ITEMS, ConsoleExperience.LOGGER);
+    private IngameGuiAccessorMixin ingameGUI;
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder();
     private final int defaultScale = 6;
+    @SuppressWarnings("FieldCanBeLocal")
     private final int defaultXOffset = 0;
     private final int defaultYOffset = 59;
     private final int defaultDisplayTime = 40;
@@ -53,6 +55,12 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
 
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayText);
+    }
+
+    @Override
+    public void init() {
+
+        this.ingameGUI = (IngameGuiAccessorMixin) this.mc.ingameGUI;
     }
 
     @Override
@@ -87,7 +95,8 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
         registerClientEntry(builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", this.defaultYOffset, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
         registerClientEntry(builder.comment("Amount of ticks the held item tooltip will be displayed for. Set to 0 to always display the tooltip as long as an item is being held.").defineInRange("Display Time", this.defaultDisplayTime, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
         registerClientEntry(builder.comment("Maximum amount of rows to be displayed for held item tooltips.").defineInRange("Maximum Rows", 4, 1, Integer.MAX_VALUE), v -> this.maximumRows = v);
-        registerClientEntry(builder.comment("Disables held item tooltips for specified items and mods, mainly to prevent custom tooltips from overlapping. Enter as either \"modid:item\" or \"modid\" respectively.").define("Blacklist", new ArrayList<String>()), v -> this.blacklist = ITEM_PARSER.buildEntrySet(v));
+        registerClientEntry(builder.comment("Disables held item tooltips for specified items, mainly to prevent custom tooltips from overlapping.", "Format for every entry is \"<namespace>:<path>\". Path may use single asterisk as wildcard parameter.").define("Blacklist", new ArrayList<String>()),
+                v -> this.blacklist = new EntryCollectionBuilder<>(ForgeRegistries.ITEMS, ConsoleExperience.LOGGER).buildEntrySet(v));
         registerClientEntry(builder.comment("Interval in ticks after which the tooltip will be remade. Some stats such as durability aren't affected.").defineInRange("Update Interval", 20, 1, Integer.MAX_VALUE), v -> this.updateInterval = v);
         registerClientEntry(builder.comment("Enable tooltip information added by other mods to be included on the tooltip.").define("Modded Information", false), v -> this.moddedInfo = v);
         registerClientEntry(builder.comment("Show how many more lines there are that currently don't fit the tooltip.").define("Last Line", true), v -> this.lastLine = v);
@@ -152,11 +161,11 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 // used to disable vanilla held item tooltips completely without modifying the game option,
                 // as otherwise the game option might still be deactivated after the mod is removed
                 // updates highlightingItemStack in IngameGui so the vanilla gui doesn't register a change
-                this.mc.ingameGUI.highlightingItemStack = this.highlightingItemStack;
+                this.ingameGUI.setHighlightingItemStack(this.highlightingItemStack);
                 // this is only here to fix a really weird bug where the vanilla tooltip wouldn't be deactivated
                 // once when joining a world for the first time after the game has been started
                 // so it's only required once, but now it's running every time
-                this.mc.ingameGUI.remainingHighlightTicks = 0;
+                this.ingameGUI.setRemainingHighlightTicks(0);
             }
         }
 
@@ -168,10 +177,10 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
 
     private void onRenderGameOverlayText(final RenderGameOverlayEvent.Text evt) {
 
-        if (this.mc.ingameGUI.overlayMessageTime > 0) {
+        if (this.ingameGUI.getOverlayMessageTime() > 0) {
 
-            this.overlayMessageTime = this.mc.ingameGUI.overlayMessageTime;
-            this.mc.ingameGUI.overlayMessageTime = 0;
+            this.overlayMessageTime = this.ingameGUI.getOverlayMessageTime();
+            this.ingameGUI.setOverlayMessageTime(0);
             this.tooltipBuilder.reset();
         }
 
@@ -186,6 +195,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
         }
     }
 
+    @SuppressWarnings("IntegerDivisionInFloatingPointContext")
     private void renderSelectedItem(int width, int height) {
 
         if (this.isVisible() && !this.highlightingItemStack.isEmpty()) {
@@ -240,13 +250,13 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 RenderSystem.defaultBlendFunc();
 
                 width /= 2;
-                width -= fontRenderer.getStringWidth(this.mc.ingameGUI.overlayMessage) / 2;
+                width -= fontRenderer.getStringWidth(this.ingameGUI.getOverlayMessage()) / 2;
                 height -= 72;
                 width += ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getXOffset();
                 height -= ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getYOffset();
 
                 int hue = 16777215;
-                if (this.mc.ingameGUI.animateOverlayMessageColor) {
+                if (this.ingameGUI.getAnimateOverlayMessageColor()) {
 
                     hue = MathHelper.hsvToRGB(timer / 50.0F, 0.7F, 0.6F) & hue;
                 }
@@ -256,11 +266,11 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
                 int backgroundColor = this.mc.gameSettings.getTextBackgroundColor(0.0F);
                 if (backgroundColor != 0) {
 
-                    AbstractGui.fill(width - 2, height - 2, width + fontRenderer.getStringWidth(this.mc.ingameGUI.overlayMessage) + 2,
+                    AbstractGui.fill(width - 2, height - 2, width + fontRenderer.getStringWidth(this.ingameGUI.getOverlayMessage()) + 2,
                             height + fontRenderer.FONT_HEIGHT + 2, background << 24);
                 }
 
-                fontRenderer.drawString(this.mc.ingameGUI.overlayMessage, width, height, hue | alpha);
+                fontRenderer.drawString(this.ingameGUI.getOverlayMessage(), width, height, hue | alpha);
                 RenderSystem.disableBlend();
                 RenderSystem.popMatrix();
             }

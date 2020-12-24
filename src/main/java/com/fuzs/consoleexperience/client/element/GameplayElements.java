@@ -20,6 +20,10 @@ public class GameplayElements {
     public static final GameplayElement SHULKER_TOOLTIP = register("shulker_tooltip", new ShulkerTooltipElement());
     public static final GameplayElement HIDE_HUD = register("hide_hud", new HideHudElement());
     public static final GameplayElement CLOSE_BUTTON = register("close_button", new CloseButtonElement());
+    public static final GameplayElement PLAYER_ANIMATIONS = register("player_animations", new PlayerAnimationsElement());
+    public static final GameplayElement POTION_TIME = register("potion_time", new PotionTimeElement());
+    public static final GameplayElement FANCY_MENUS = register("fancy_menus", new FancyMenusElement());
+    public static final GameplayElement TINTED_TOOLTIP = register("tinted_tooltip", new TintedTooltipElement());
 
     private static GameplayElement register(String key, GameplayElement gameplayElement) {
 

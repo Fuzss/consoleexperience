@@ -1,9 +1,12 @@
 package com.fuzs.consoleexperience.client.element;
 
+import com.fuzs.consoleexperience.ConsoleExperience;
+import com.fuzs.consoleexperience.client.util.CompatibilityMode;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -11,7 +14,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 
 import java.util.List;
 
-public class HoveringHotbarElement extends GameplayElement {
+public class HoveringHotbarElement extends GameplayElement implements IHasDisplayTime {
 
     private static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
     // list of gui elements to be moved, idea is to basically wrap around them and whatever other mods would be doing
@@ -22,13 +25,18 @@ public class HoveringHotbarElement extends GameplayElement {
     
     private int xOffset;
     private int yOffset;
+    private boolean moveChat;
+    private CompatibilityMode compatibilityMode;
+
+    private boolean visible;
 
     @Override
     public void setup() {
 
-        this.addListener(EventPriority.HIGHEST, true, this::onRenderGameOverlayPre1);
-        this.addListener(EventPriority.LOWEST, true, this::onRenderGameOverlayPre2);
-        this.addListener(EventPriority.LOWEST, this::onRenderGameOverlayPost);
+        this.addListener(this::onRenderGameOverlayPre1, EventPriority.HIGHEST, true);
+        this.addListener(this::onRenderGameOverlayPre2, EventPriority.LOWEST, true);
+        this.addListener(this::onRenderGameOverlayPost1, EventPriority.HIGHEST);
+        this.addListener(this::onRenderGameOverlayPost2, EventPriority.LOWEST);
         this.addListener(this::onRenderGameOverlayPostHotbar);
     }
 
@@ -55,29 +63,63 @@ public class HoveringHotbarElement extends GameplayElement {
 
         registerClientEntry(builder.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
         registerClientEntry(builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
+        registerClientEntry(builder.comment("Move chat together with hotbar on the vertical axis.").define("Move Chat", true), v -> this.moveChat = v);
+        registerClientEntry(builder.comment("Compatibility mode for screen elements from mods that normally go unaffected. May have an unwanted impact on other elements, too. Tinker around with modes 1-3, setting to 0 will disable this mode.").define("Compatibility Mode", 0), v -> this.compatibilityMode = MathHelper.clamp(v, 0, 3) == v ? CompatibilityMode.values()[v] : CompatibilityMode.NONE);
+    }
+
+    @Override
+    public boolean isVisible() {
+
+        return this.visible;
     }
 
     private void onRenderGameOverlayPre1(final RenderGameOverlayEvent.Pre evt) {
 
-        if (SHIFTED_ELEMENTS.contains(evt.getType())) {
+        if (SHIFTED_ELEMENTS.contains(evt.getType()) || (CompatibilityMode.isEnabled(CompatibilityMode.PRE, this.compatibilityMode) && evt.getType() == ElementType.ALL)) {
 
-            RenderSystem.translatef(this.xOffset, -this.yOffset, 0.0F);
+            this.enable();
+        } else if (this.moveChat && evt.getType() == ElementType.CHAT) {
+
+            this.visible = true;
+            RenderSystem.translatef(0.0F, -this.getChatOffset(), 0.0F);
         }
     }
 
     private void onRenderGameOverlayPre2(final RenderGameOverlayEvent.Pre evt) {
 
-        if (evt.isCanceled() && SHIFTED_ELEMENTS.contains(evt.getType())) {
+        if (CompatibilityMode.isEnabled(CompatibilityMode.PRE, this.compatibilityMode) && evt.getType() == ElementType.ALL) {
 
-            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+            this.disable();
+        } else if (evt.isCanceled()) {
+
+            if (SHIFTED_ELEMENTS.contains(evt.getType())) {
+
+                this.disable();
+            } else if (this.moveChat && evt.getType() == ElementType.CHAT) {
+
+                this.visible = false;
+                RenderSystem.translatef(0.0F, this.getChatOffset(), 0.0F);
+            }
         }
     }
 
-    private void onRenderGameOverlayPost(final RenderGameOverlayEvent.Post evt) {
+    private void onRenderGameOverlayPost1(final RenderGameOverlayEvent.Post evt) {
 
-        if (SHIFTED_ELEMENTS.contains(evt.getType())) {
-            
-            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+        if (CompatibilityMode.isEnabled(CompatibilityMode.POST, this.compatibilityMode) && evt.getType() == ElementType.ALL) {
+
+            this.enable();
+        }
+    }
+
+    private void onRenderGameOverlayPost2(final RenderGameOverlayEvent.Post evt) {
+
+        if (SHIFTED_ELEMENTS.contains(evt.getType()) || CompatibilityMode.isEnabled(CompatibilityMode.POST, this.compatibilityMode) && evt.getType() == ElementType.ALL) {
+
+            this.disable();
+        } else if (this.moveChat && evt.getType() == ElementType.CHAT) {
+
+            this.visible = false;
+            RenderSystem.translatef(0.0F, this.getChatOffset(), 0.0F);
         }
     }
 
@@ -89,6 +131,40 @@ public class HoveringHotbarElement extends GameplayElement {
         }
     }
 
+    private void enable() {
+
+        if (!this.isVisible()) {
+
+            RenderSystem.translatef(this.xOffset, -this.yOffset, 0.0F);
+            this.visible = true;
+        } else {
+
+            ConsoleExperience.LOGGER.error("Overflow trying to shift hotbar");
+        }
+    }
+
+    private void disable() {
+
+        if (this.isVisible()) {
+
+            RenderSystem.translatef(-this.xOffset, this.yOffset, 0.0F);
+            this.visible = false;
+        } else {
+
+            ConsoleExperience.LOGGER.error("Underflow trying to shift hotbar");
+        }
+    }
+
+    private int getChatOffset() {
+
+        return this.yOffset < this.mc.getMainWindow().getScaledHeight() / 3 ? this.yOffset : 0;
+    }
+
+    public int getTooltipOffset() {
+
+        return this.isEnabled() && this.moveChat ? this.getChatOffset() : 0;
+    }
+
     public int getXOffset() {
 
         return this.isEnabled() ? this.xOffset : 0;
@@ -97,6 +173,19 @@ public class HoveringHotbarElement extends GameplayElement {
     public int getYOffset() {
 
         return this.isEnabled() ? this.yOffset : 0;
+    }
+
+    public void run(Runnable runnable) {
+
+        if (this.isEnabled() && this.isVisible()) {
+
+            this.disable();
+            runnable.run();
+            this.enable();
+        } else {
+
+            runnable.run();
+        }
     }
 
     /**

@@ -35,7 +35,6 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
-    private float prevRotationYaw;
 
     @Override
     public void setup() {
@@ -71,7 +70,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         registerClientEntry(builder.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
         registerClientEntry(builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT), v -> this.position = v);
         registerClientEntry(builder.comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
-        registerClientEntry(builder.comment("Only show paper doll when in first person mode.").define("First Person", true), v -> this.firstPerson = v);
+        registerClientEntry(builder.comment("Only show paper doll when in first-person mode.").define("First Person", true), v -> this.firstPerson = v);
         registerClientEntry(builder.comment("Set axis the player head can move on.").defineEnum("Head Movement", PaperDollRenderer.HeadMovement.YAW), v -> this.headMovement = v);
         registerClientEntry(builder.comment("Display paper doll while performing these actions.", "Allowed Values: " + Arrays.stream(DisplayAction.values()).map(Enum::name).collect(Collectors.joining(", "))).define("Display Actions", DEFAULT_DOLL_CONDITIONS.stream().map(Enum::name).collect(Collectors.toList())), v -> {
 
@@ -112,7 +111,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         // reset rotation when no longer shown
         if (!this.isVisible()) {
 
-            this.prevRotationYaw = 0;
+            this.dollRenderer.reset();
         }
 
         // don't show paper doll in sneaking position after unmounting a vehicle / mount
@@ -135,22 +134,21 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         this.mc.getProfiler().startSection("paperDoll");
         ClientPlayerEntity player = this.mc.player;
         assert player != null && this.mc.playerController != null;
-        boolean isVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
+        boolean playerVisible = !player.isInvisible() && !this.mc.playerController.isSpectatorMode();
         boolean firstPerson = this.mc.gameSettings.thirdPersonView == 0 || !this.firstPerson;
-        if (isVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
+        if (playerVisible && firstPerson && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && this.isVisible()) {
 
             int scale = this.scale * 5;
-            PositionPreset position = this.position;
-            int x = position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
+            int posX = this.position.getX(0, evt.getWindow().getScaledWidth(), (int) (scale * 1.5F) + this.xOffset);
             // can't use PositionPreset#getY as the orientation point isn't in the top left corner of the image
-            int y = position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
-            y -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
+            int posY = this.position.isBottom() ? evt.getWindow().getScaledHeight() - scale - this.yOffset : (int) (scale * 2.5F) + this.yOffset;
+            posY -= scale - this.updateOffset(player, evt.getPartialTicks()) * scale;
             if (this.potionShift) {
 
-                y += position.getPotionShift(player.getActivePotionEffects());
+                posY += this.position.getPotionShift(player.getActivePotionEffects());
             }
 
-            this.prevRotationYaw = this.dollRenderer.drawEntityOnScreen(x, y, scale, player, evt.getPartialTicks(), this.prevRotationYaw);
+            this.dollRenderer.drawEntityOnScreen(posX, posY, scale, player, evt.getPartialTicks());
         }
 
         this.mc.getProfiler().endSection();

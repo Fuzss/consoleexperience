@@ -1,4 +1,5 @@
 {
   "screen.coordinates": "Position: %s, %s, %s",
-  "command.reload": "Konfiguration wurde neu geladen unter %s"
+  "command.reload.config": "Konfiguration wurde neu geladen unter %s",
+  "command.reload.tips": "Tipps wurden neu geladen unter %s"
 }

@@ -58,7 +58,7 @@ public class CloseButtonElement extends GameplayElement {
             return;
         }
 
-        evt.getGui().addButton(new CloseButton(this.offsetX, this.offsetY, button -> {
+        evt.addWidget(new CloseButton(this.offsetX, this.offsetY, button -> {
 
             assert (this.mc.player != null);
             this.mc.player.closeScreen();

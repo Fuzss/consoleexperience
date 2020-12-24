@@ -18,7 +18,7 @@ public class ShulkerTooltipElement extends GameplayElement {
     @Override
     public void setup() {
 
-        this.addListener(EventPriority.LOW, this::onMakeTooltip);
+        this.addListener(this::onMakeTooltip, EventPriority.LOW);
     }
 
     @Override

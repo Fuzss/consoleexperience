@@ -2,7 +2,6 @@ package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.client.gui.PositionPreset;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MainWindow;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.text.ITextComponent;
@@ -64,37 +63,49 @@ public class CoordinateDisplayElement extends GameplayElement {
         this.mc.getProfiler().startSection("coordinateDisplay");
         ClientPlayerEntity player = this.mc.player;
         assert player != null;
-        int decimalPlaces = this.decimalPlaces;
-        double playerX = round(player.getPosX(), decimalPlaces);
-        double playerY = round(player.getBoundingBox().minY, decimalPlaces);
-        double playerZ = round(player.getPosZ(), decimalPlaces);
-        boolean noDecimalPlaces = decimalPlaces == 0;
-        // no empty decimal place added like this
-        ITextComponent component = new TranslationTextComponent("screen.coordinates",
-                noDecimalPlaces ? (int) playerX : playerX, noDecimalPlaces ? (int) playerY : playerY, noDecimalPlaces ? (int) playerZ : playerZ);
+
+        ITextComponent component;
+        if (this.decimalPlaces == 0) {
+
+            // no empty decimal place added like this
+            int playerX = (int) player.getPosX();
+            int playerY = (int) player.getBoundingBox().minY;
+            int playerZ = (int) player.getPosZ();
+            component = new TranslationTextComponent("screen.coordinates", playerX, playerY, playerZ);
+        } else {
+
+            double playerX = round(player.getPosX(), this.decimalPlaces);
+            double playerY = round(player.getBoundingBox().minY, this.decimalPlaces);
+            double playerZ = round(player.getPosZ(), this.decimalPlaces);
+            component = new TranslationTextComponent("screen.coordinates", playerX, playerY, playerZ);
+        }
 
         int opacity = (int) ((this.mc.gameSettings.chatOpacity * 0.9F + 0.1F) * 255.0F);
         int stringWidth = this.mc.fontRenderer.getStringWidth(component.getString()) + 3;
         int stringHeight = this.mc.fontRenderer.FONT_HEIGHT + 2;
         float scale = this.scale / 6.0F;
-        MainWindow window = evt.getWindow();
-        PositionPreset position = this.position;
-        int posX = (int) (position.getX(stringWidth, window.getScaledWidth(), this.xOffset) / scale);
+        int posX = (int) (this.position.getX(stringWidth, evt.getWindow().getScaledWidth(), this.xOffset) / scale);
         // adjust for hovering hotbar, since this is rendered on chat which is moved as well
-        int posY = (int) ((position.getY(stringHeight, window.getScaledHeight(), this.yOffset) +
-                ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).getYOffset()) / scale);
-
-        RenderSystem.pushMatrix();
-        RenderSystem.scalef(scale, scale, 1.0F);
-        if (this.background) {
-
-            AbstractGui.fill(posX, posY, posX + stringWidth, posY + stringHeight, opacity / 2 << 24);
-        }
-
-        this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), posX + 2, posY + 2, 16777215 + (opacity << 24));
-        RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
-        RenderSystem.popMatrix();
+        int posY = (int) (this.position.getY(stringHeight, evt.getWindow().getScaledHeight(), this.yOffset) / scale);
+        this.renderCoordinates(component, opacity, stringWidth, stringHeight, scale, posX, posY);
         this.mc.getProfiler().endSection();
+    }
+
+    private void renderCoordinates(ITextComponent component, int opacity, int stringWidth, int stringHeight, float scale, int posX, int posY) {
+
+        ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).run(() -> {
+
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(scale, scale, 1.0F);
+            if (this.background) {
+
+                AbstractGui.fill(posX, posY, posX + stringWidth, posY + stringHeight, opacity / 2 << 24);
+            }
+
+            this.mc.fontRenderer.drawStringWithShadow(component.getFormattedText(), posX + 2, posY + 2, 16777215 + (opacity << 24));
+            RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);
+            RenderSystem.popMatrix();
+        });
     }
 
     private static double round(double toRound, int decimalPlaces) {

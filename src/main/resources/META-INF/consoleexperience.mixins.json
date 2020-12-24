@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "package": "com.fuzs.consoleexperience.mixin",
+  "refmap": "consoleexperience.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "BipedModelMixin",
+    "PlayerRendererMixin",
+    "NewChatGuiMixin",
+    "ForgeIngameGuiMixin",
+    "IngameGuiAccessorMixin",
+    "ScreenAccessorMixin",
+    "FirstPersonRendererAccessorMixin",
+    "MainMenuScreenAccessorMixin",
+    "WorldLoadProgressScreenAccessorMixin",
+    "WorkingScreenAccessorMixin",
+    "ConnectingScreenAccessorMixin",
+    "DisconnectedScreenAccessorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

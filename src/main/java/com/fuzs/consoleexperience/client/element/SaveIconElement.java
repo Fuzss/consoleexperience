@@ -6,6 +6,7 @@ import com.fuzs.consoleexperience.client.util.BackgroundState;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -33,7 +34,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
     public void setup() {
 
         this.addListener(this.state::onBackgroundDrawn);
-        this.addListener(this.state::onRenderGameOverlayPost);
+        this.addListener(this.state::onClientTick);
         this.addListener(this::onSaveWorld);
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayPre);
@@ -78,7 +79,11 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
 
     private void onSaveWorld(final WorldEvent.Save evt) {
 
-        this.remainingDisplayTicks = this.displayTime;
+        // only trigger once as all dimensions are saved separately
+        if (evt.getWorld().getWorld().dimension.getType() == DimensionType.OVERWORLD) {
+
+            this.remainingDisplayTicks = this.displayTime;
+        }
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent evt) {
@@ -96,7 +101,7 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
 
     private void onRenderGameOverlayPre(final RenderGameOverlayEvent.Pre evt) {
 
-        if (!this.state.isActive() && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+        if (!this.state.isActive() && !((IHasDisplayTime) GameplayElements.HIDE_HUD).isVisible() && evt.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 
             this.drawIcon(evt.getWindow().getScaledWidth(), evt.getWindow().getScaledHeight(), true);
         }
@@ -118,24 +123,31 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
 
             this.mc.getProfiler().startSection("saveIcon");
             this.mc.getTextureManager().bindTexture(SAVE_ICONS);
-            PositionPreset position = this.position;
-            int posX = position.getX(this.width, windowWidth, this.xOffset);
-            int posY = position.getY(this.height, windowHeight, this.yOffset);
+            int posX = this.position.getX(this.width, windowWidth, this.xOffset);
+            int posY = this.position.getY(this.height, windowHeight, this.yOffset);
             if (shift && this.potionShift) {
 
                 assert this.mc.player != null;
-                posY += position.getPotionShift(this.mc.player.getActivePotionEffects());
+                posY += this.position.getPotionShift(this.mc.player.getActivePotionEffects());
             }
+
+            this.renderIcon(posX, posY);
+            this.mc.getProfiler().endSection();
+        }
+    }
+
+    private void renderIcon(int posX, int posY) {
+
+        ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).run(() -> {
 
             RenderSystem.pushMatrix();
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawModel(position, posX, posY);
+            this.drawModel(this.position, posX, posY);
             this.drawArrow(posX, posY);
             RenderSystem.disableBlend();
             RenderSystem.popMatrix();
-            this.mc.getProfiler().endSection();
-        }
+        });
     }
 
     private void drawModel(PositionPreset position, int posX, int posY) {
@@ -155,8 +167,8 @@ public class SaveIconElement extends GameplayElement implements IHasDisplayTime 
                 break;
             case SPINNING:
 
-                int textureX = (int) ((this.remainingDisplayTicks % 12) * 0.5F) * 36;
-                int textureY = 30 + ((int) ((this.remainingDisplayTicks % 48) * 0.5F) / 6) * 36;
+                int textureX = (int) (((this.displayTime - this.remainingDisplayTicks) % 12) * 0.5F) * 36;
+                int textureY = 30 + ((int) (((this.displayTime - this.remainingDisplayTicks) % 48) * 0.5F) / 6) * 36;
                 RenderSystem.scalef(scale, scale, 1.0F);
                 AbstractGui.blit((int) (posX / scale), (int) ((posY + 14) / scale), textureX, textureY, 36, 36, 256, 256);
                 RenderSystem.scalef(1.0F / scale, 1.0F / scale, 1.0F);

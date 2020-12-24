@@ -1,6 +1,7 @@
 package com.fuzs.consoleexperience.client.gui;
 
 import com.fuzs.consoleexperience.client.element.GameplayElements;
+import com.fuzs.consoleexperience.client.element.HoveringHotbarElement;
 import com.fuzs.consoleexperience.client.element.PaperDollElement;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -15,57 +16,58 @@ import net.minecraft.util.math.MathHelper;
 public class PaperDollRenderer {
 
     private final float maxRotation = 30.0F;
+    private float prevRotationYaw;
 
-    public float drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks, float prevRotationYaw) {
+    public void drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks) {
 
-        // prepare
-        RenderSystem.pushMatrix();
-        RenderSystem.disableCull();
-        RenderSystem.translatef((float) posX, (float) posY, 950.0F);
-        RenderSystem.scalef(1.0F, 1.0F, -1.0F);
+        ((HoveringHotbarElement) GameplayElements.HOVERING_HOTBAR).run(() -> {
 
-        // set angles and lighting
-        MatrixStack stack = new MatrixStack();
-        stack.translate(0.0D, 0.0D, 1000.0D);
-        stack.scale((float) scale, (float) scale, (float) scale);
-        Quaternion quaternionZ = Vector3f.ZP.rotationDegrees(180.0F);
-        Quaternion quaternionX = Vector3f.XP.rotationDegrees(15.0F);
-        quaternionZ.multiply(quaternionX);
-        stack.rotate(quaternionZ);
+            // prepare
+            RenderSystem.pushMatrix();
+            RenderSystem.disableCull();
+            RenderSystem.translatef((float) posX, (float) posY, 950.0F);
+            RenderSystem.scalef(1.0F, 1.0F, -1.0F);
 
-        // save rotation as we don't want to change the actual entity
-        float rotationPitch = entity.rotationPitch;
-        float renderYawOffset = entity.renderYawOffset;
-        float rotationYawHead = entity.rotationYawHead;
-        float prevRotationPitch = entity.prevRotationPitch;
-        float prevRenderYawOffset = entity.prevRenderYawOffset;
-        float prevRotationYawHead = entity.prevRotationYawHead;
-        prevRotationYaw = this.updateRotation(entity, partialTicks, prevRotationYaw, rotationYawHead, prevRotationYawHead);
+            // set angles and lighting
+            MatrixStack stack = new MatrixStack();
+            stack.translate(0.0, 0.0, 1000.0);
+            stack.scale((float) scale, (float) scale, (float) scale);
+            Quaternion quaternionZ = Vector3f.ZP.rotationDegrees(180.0F);
+            Quaternion quaternionX = Vector3f.XP.rotationDegrees(15.0F);
+            quaternionZ.multiply(quaternionX);
+            stack.rotate(quaternionZ);
 
-        // do render
-        EntityRendererManager entityrenderermanager = Minecraft.getInstance().getRenderManager();
-        quaternionX.conjugate();
-        entityrenderermanager.setCameraOrientation(quaternionX);
-        entityrenderermanager.setRenderShadow(false);
-        IRenderTypeBuffer.Impl impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880);
-        impl.finish();
-        entityrenderermanager.setRenderShadow(true);
+            // save rotation as we don't want to change the actual entity
+            float rotationPitch = entity.rotationPitch;
+            float renderYawOffset = entity.renderYawOffset;
+            float rotationYawHead = entity.rotationYawHead;
+            float prevRotationPitch = entity.prevRotationPitch;
+            float prevRenderYawOffset = entity.prevRenderYawOffset;
+            float prevRotationYawHead = entity.prevRotationYawHead;
+            this.prevRotationYaw = this.updateRotation(entity, partialTicks, this.prevRotationYaw, rotationYawHead, prevRotationYawHead);
 
-        // restore entity rotation
-        entity.rotationPitch = rotationPitch;
-        entity.renderYawOffset = renderYawOffset;
-        entity.rotationYawHead = rotationYawHead;
-        entity.prevRotationPitch = prevRotationPitch;
-        entity.prevRenderYawOffset = prevRenderYawOffset;
-        entity.prevRotationYawHead = prevRotationYawHead;
+            // do render
+            EntityRendererManager entityrenderermanager = Minecraft.getInstance().getRenderManager();
+            quaternionX.conjugate();
+            entityrenderermanager.setCameraOrientation(quaternionX);
+            entityrenderermanager.setRenderShadow(false);
+            IRenderTypeBuffer.Impl impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+            entityrenderermanager.renderEntityStatic(entity, 0.0, 0.0, 0.0, 0.0F, partialTicks, stack, impl, 15728880);
+            impl.finish();
+            entityrenderermanager.setRenderShadow(true);
 
-        // finish
-        RenderSystem.enableCull();
-        RenderSystem.popMatrix();
+            // restore entity rotation
+            entity.rotationPitch = rotationPitch;
+            entity.renderYawOffset = renderYawOffset;
+            entity.rotationYawHead = rotationYawHead;
+            entity.prevRotationPitch = prevRotationPitch;
+            entity.prevRenderYawOffset = prevRenderYawOffset;
+            entity.prevRotationYawHead = prevRotationYawHead;
 
-        return prevRotationYaw;
-
+            // finish
+            RenderSystem.enableCull();
+            RenderSystem.popMatrix();
+        });
     }
 
     private float updateRotation(LivingEntity entity, float partialTicks, float prevRotationYaw, float rotationYawHead, float prevRotationYawHead) {
@@ -118,6 +120,11 @@ public class PaperDollRenderer {
         }
 
         return rotationYaw;
+    }
+
+    public void reset() {
+
+        this.prevRotationYaw = 0;
     }
 
     @SuppressWarnings("unused")
