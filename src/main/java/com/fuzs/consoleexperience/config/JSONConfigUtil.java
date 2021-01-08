@@ -37,8 +37,13 @@ public class JSONConfigUtil {
             jsonFile.createNewFile();
             byte[] buffer = new byte[16384];
             FileOutputStream out = new FileOutputStream(jsonFile);
-            int lengthRead;
-            while ((lengthRead = stream.read(buffer)) != -1) {
+            int lengthRead = stream.read(buffer);
+            if (lengthRead <= 0) {
+
+                ConsoleExperience.LOGGER.error("Failed to copy {} in config directory: {}", jsonName, "Empty Buffer");
+            }
+
+            for (; lengthRead > 0; lengthRead = stream.read(buffer)) {
 
                 out.write(buffer, 0, lengthRead);
                 out.flush();
