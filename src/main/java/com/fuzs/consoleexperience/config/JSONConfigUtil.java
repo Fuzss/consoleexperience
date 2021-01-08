@@ -35,15 +35,16 @@ public class JSONConfigUtil {
         try (InputStream stream = JSONConfigUtil.class.getResourceAsStream(File.separator + jsonName)) {
 
             jsonFile.createNewFile();
-            byte[] buffer = new byte[600000];
-            FileOutputStream outStream = new FileOutputStream(jsonFile);
-            int i;
-            while ((i = stream.read(buffer)) != -1) {
+            byte[] buffer = new byte[16384];
+            FileOutputStream out = new FileOutputStream(jsonFile);
+            int lengthRead;
+            while ((lengthRead = stream.read(buffer)) != -1) {
 
-                outStream.write(buffer, 0, i);
+                out.write(buffer, 0, lengthRead);
+                out.flush();
             }
 
-            outStream.close();
+            out.close();
         } catch (Exception e) {
 
             ConsoleExperience.LOGGER.error("Failed to copy {} in config directory: {}", jsonName, e);

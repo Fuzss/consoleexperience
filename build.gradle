@@ -163,9 +163,9 @@ def createSignJarTask(def name, def jarTask) {
         }
 
         keyStore = project.findProperty('keyStore')
-        alias = project.findProperty('alias')
-        storePass = project.findProperty('storePass')
-        keyPass = project.findProperty('keyPass')
+        alias = project.findProperty('keyStoreAlias')
+        storePass = project.findProperty('keyStorePass')
+        keyPass = project.findProperty('keyStoreKeyPass')
         inputFile = jarTask.archivePath
         outputFile = jarTask.archivePath
         dependsOn jarTask
