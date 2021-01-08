@@ -32,18 +32,19 @@ public class JSONConfigUtil {
 
     public static void copyToFile(String jsonName, File jsonFile) {
 
-        try (InputStream stream = JSONConfigUtil.class.getResourceAsStream(File.separator + jsonName)) {
+        // has to always be normal slash for some reason (even Windows), not File.separator
+        try (InputStream stream = JSONConfigUtil.class.getResourceAsStream("/" + jsonName)) {
 
             jsonFile.createNewFile();
-            byte[] buffer = new byte[600000];
-            FileOutputStream outStream = new FileOutputStream(jsonFile);
-            int i;
-            while ((i = stream.read(buffer)) != -1) {
+            byte[] buffer = new byte[16384];
+            FileOutputStream out = new FileOutputStream(jsonFile);
+            for (int lengthRead = stream.read(buffer); lengthRead > 0; lengthRead = stream.read(buffer)) {
 
-                outStream.write(buffer, 0, i);
+                out.write(buffer, 0, lengthRead);
+                out.flush();
             }
 
-            outStream.close();
+            out.close();
         } catch (Exception e) {
 
             ConsoleExperience.LOGGER.error("Failed to copy {} in config directory: {}", jsonName, e);
