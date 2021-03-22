@@ -18,7 +18,7 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
             ElementType.ALL, ElementType.HELMET, ElementType.PORTAL, ElementType.VIGNETTE
     );
 
-    private final int defaultDelay = 8;
+    private final int defaultDelay = 3;
     private final BackgroundState state = new BackgroundState(this.defaultDelay);
 
     private CompatibilityMode compatibilityMode;

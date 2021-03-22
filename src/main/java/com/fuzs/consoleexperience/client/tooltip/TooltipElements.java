@@ -101,15 +101,21 @@ public class TooltipElements {
                 tooltip.add(new StringTextComponent("#" + FilledMapItem.getMapId(itemstack)).applyTextStyle(TextFormatting.GRAY));
             }
 
-            if (testHiddenFlags(itemstack, 32)) {
+            // some mods expect the tooltip to not be empty, so catch those
+            try {
 
-                if (Block.getBlockFromItem(itemstack.getItem()) instanceof ShulkerBoxBlock) {
+                if (testHiddenFlags(itemstack, 32)) {
 
-                    ShulkerTooltipBuilder.addInformation(tooltip, itemstack, -1, false);
-                } else {
+                    if (Block.getBlockFromItem(itemstack.getItem()) instanceof ShulkerBoxBlock) {
 
-                    itemstack.getItem().addInformation(itemstack, playerIn != null ? playerIn.world : null, tooltip, this.itooltipflag);
+                        ShulkerTooltipBuilder.addInformation(tooltip, itemstack, -1, false);
+                    } else {
+
+                        itemstack.getItem().addInformation(itemstack, playerIn != null ? playerIn.world : null, tooltip, this.itooltipflag);
+                    }
                 }
+            } catch (Exception ignored) {
+
             }
 
             tooltip.removeIf(component -> Strings.isNullOrEmpty(component.getString()));

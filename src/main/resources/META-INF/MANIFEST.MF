@@ -1,1 +1,1 @@
-MixinConnector: ${mod_group}.mixin.${mod_name2}Connector
+MixinConnector: ${mod_group}.mixin.MixinConnector
