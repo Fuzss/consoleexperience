@@ -1,14 +1,15 @@
 modLoader="javafml"
 loaderVersion="[${loader_version},)"
-license="The Unlicense"
+license="Public Domain"
+issueTrackerURL="${mod_issue}"
 
 [[mods]]
     modId="${mod_id}"
     displayName="${mod_name}"
     description="${mod_description}"
     version="${mod_version}"
-    displayURL="${mod_url}"
     authors="${mod_author}"
+    displayURL="${mod_url}"
 
 [[dependencies.${mod_id}]]
     modId="forge"
@@ -20,6 +21,6 @@ license="The Unlicense"
 [[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[${mc_version},)"
+    versionRange="[${mc_version},${next_mc_version})"
     ordering="NONE"
     side="BOTH"
