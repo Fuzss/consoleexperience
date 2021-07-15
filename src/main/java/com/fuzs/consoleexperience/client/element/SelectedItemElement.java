@@ -3,7 +3,7 @@ package com.fuzs.consoleexperience.client.element;
 import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.client.tooltip.TooltipBuilder;
 import com.fuzs.consoleexperience.config.EntryCollectionBuilder;
-import com.fuzs.consoleexperience.mixin.IngameGuiAccessorMixin;
+import com.fuzs.consoleexperience.mixin.client.accessor.IIngameGuiAccessor;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"deprecation", "SuspiciousNameCombination"})
 public class SelectedItemElement extends GameplayElement implements IHasDisplayTime {
 
-    private IngameGuiAccessorMixin ingameGUI;
+    private IIngameGuiAccessor ingameGUI;
     private final TooltipBuilder tooltipBuilder = new TooltipBuilder();
     private final int defaultScale = 6;
     private final int defaultXOffset = 0;
@@ -62,7 +62,7 @@ public class SelectedItemElement extends GameplayElement implements IHasDisplayT
     @Override
     public void init() {
 
-        this.ingameGUI = (IngameGuiAccessorMixin) this.mc.ingameGUI;
+        this.ingameGUI = (IIngameGuiAccessor) this.mc.ingameGUI;
     }
 
     @Override

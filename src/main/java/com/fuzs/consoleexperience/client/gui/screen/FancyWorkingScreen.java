@@ -1,7 +1,7 @@
 package com.fuzs.consoleexperience.client.gui.screen;
 
 import com.fuzs.consoleexperience.client.gui.screen.util.FancyScreenUtil;
-import com.fuzs.consoleexperience.mixin.WorkingScreenAccessorMixin;
+import com.fuzs.consoleexperience.mixin.client.accessor.IWorkingScreenAccessor;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.screen.WorkingScreen;
 import net.minecraft.client.gui.widget.Widget;
@@ -13,11 +13,11 @@ import javax.annotation.Nonnull;
 @OnlyIn(Dist.CLIENT)
 public class FancyWorkingScreen extends WorkingScreen {
 
-   private final WorkingScreenAccessorMixin workingScreen;
+   private final IWorkingScreenAccessor workingScreen;
 
    public FancyWorkingScreen(WorkingScreen workingScreen) {
 
-      this.workingScreen = (WorkingScreenAccessorMixin) workingScreen;
+      this.workingScreen = (IWorkingScreenAccessor) workingScreen;
    }
 
    @Override

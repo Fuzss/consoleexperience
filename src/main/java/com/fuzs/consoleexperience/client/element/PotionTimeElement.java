@@ -1,11 +1,14 @@
 package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.ConsoleExperience;
+import com.fuzs.consoleexperience.mixin.client.accessor.IDisplayEffectsScreenAccessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.DisplayEffectsScreen;
+import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.renderer.texture.PotionSpriteUploader;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.potion.Effect;
@@ -14,13 +17,15 @@ import net.minecraft.potion.EffectUtils;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.*;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("deprecation")
 public class PotionTimeElement extends GameplayElement {
@@ -30,6 +35,9 @@ public class PotionTimeElement extends GameplayElement {
     @Override
     public void setup() {
 
+        this.addListener(this::onPotionShift);
+        this.addListener(this::onInitGuiPost);
+        this.addListener(this::onDrawScreenPost);
         this.addListener(this::onRenderGameOverlayPre);
         this.addListener(this::onRenderGameOverlayText);
     }
@@ -52,6 +60,53 @@ public class PotionTimeElement extends GameplayElement {
         return "Add remaining duration to potion icons shown in-game.";
     }
 
+    private void onPotionShift(final GuiScreenEvent.PotionShiftEvent evt) {
+
+        evt.setCanceled(true);
+    }
+
+    private void onInitGuiPost(final GuiScreenEvent.InitGuiEvent.Post evt) {
+
+        if (evt.getGui() instanceof DisplayEffectsScreen) {
+
+            // disable vanilla rendering in creative mode inventory, survival inventory has to be disabled via mixin
+            // this is not needed by us, we just check before rendering as survival inventory does
+            ((IDisplayEffectsScreenAccessor) evt.getGui()).setHasActivePotionEffects(false);
+        }
+    }
+
+    private void onDrawScreenPost(final GuiScreenEvent.DrawScreenEvent.Post evt) {
+
+        if (evt.getGui() instanceof DisplayEffectsScreen && (!(evt.getGui() instanceof IRecipeShownListener) || !((IRecipeShownListener) evt.getGui()).getRecipeGui().isVisible())) {
+
+            int guiLeft = ((DisplayEffectsScreen<?>) evt.getGui()).getGuiLeft();
+            this.drawPotionIcons(evt.getMatrixStack(), guiLeft, ((DisplayEffectsScreen<?>) evt.getGui()).getGuiTop(), evt.getMouseX(), evt.getMouseY(), Math.max(1, guiLeft / 30)).ifPresent(effectInstance -> {
+
+                if (effectInstance.shouldRenderInvText()) {
+
+                    String potionName = effectInstance.getPotion().getName();
+                    IFormattableTextComponent textComponent = new TranslationTextComponent(potionName);
+                    if (effectInstance.getAmplifier() >= 1 && effectInstance.getAmplifier() <= 9) {
+
+                        textComponent.appendString(" ").append(new TranslationTextComponent("enchantment.level." + (effectInstance.getAmplifier() + 1)));
+                    }
+
+                    List<ITextComponent> list = Lists.newArrayList(textComponent);
+                    // description may be provided by Potion Descriptions mod
+                    String descriptionKey = "description." + potionName;
+                    // hasKey
+                    if (LanguageMap.getInstance().func_230506_b_(descriptionKey)) {
+
+                        list.add(new TranslationTextComponent(descriptionKey).mergeStyle(TextFormatting.GRAY));
+                    }
+
+                    // renderTooltip
+                    evt.getGui().func_243308_b(evt.getMatrixStack(), list, evt.getMouseX(), evt.getMouseY());
+                }
+            });
+        }
+    }
+
     private void onRenderGameOverlayPre(final RenderGameOverlayEvent.Pre evt) {
 
         if (evt.getType() != ElementType.POTION_ICONS) {
@@ -65,12 +120,22 @@ public class PotionTimeElement extends GameplayElement {
     private void onRenderGameOverlayText(final RenderGameOverlayEvent.Text evt) {
 
         // use this event so potion icons are drawn behind the debug menu like in vanilla
+        this.drawPotionIcons(evt.getMatrixStack(), evt.getWindow().getScaledWidth(), 1, -1, -1, -1);
+    }
+
+    private Optional<EffectInstance> drawPotionIcons(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, final int maxWidth) {
+
         assert this.mc.player != null;
         Collection<EffectInstance> activePotionEffects = this.mc.player.getActivePotionEffects();
+        Optional<EffectInstance> hoveredEffect = Optional.empty();
         if (!activePotionEffects.isEmpty()) {
 
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
+            final int beneficialRows = (int) Math.ceil((double) activePotionEffects.stream()
+                    .map(EffectInstance::getPotion)
+                    .filter(Effect::isBeneficial)
+                    .count() / maxWidth);
             int beneficialCounter = 0;
             int harmfulCounter = 0;
             PotionSpriteUploader potionspriteuploader = this.mc.getPotionSpriteUploader();
@@ -79,34 +144,45 @@ public class PotionTimeElement extends GameplayElement {
 
                 // Rebind in case previous renderHUDEffect changed texture
                 this.mc.getTextureManager().bindTexture(POTION_BACKGROUND);
-                if (effectinstance.shouldRenderHUD() && effectinstance.isShowIcon()) {
+                if (maxWidth != -1 || effectinstance.shouldRenderHUD() && effectinstance.isShowIcon()) {
 
                     Effect effect = effectinstance.getPotion();
-                    int width = evt.getWindow().getScaledWidth();
-                    int height = 1;
+                    int width = x;
+                    int height = y;
                     if (this.mc.isDemo()) {
+
                         height += 15;
                     }
 
                     if (effect.isBeneficial()) {
 
+                        if (maxWidth != -1) {
+
+                            height += 25 * (beneficialCounter / maxWidth);
+                        }
+
                         beneficialCounter++;
-                        width = width - 30 * beneficialCounter;
+                        width -= 30 * (maxWidth != -1 ? (beneficialCounter - 1) % maxWidth + 1 : beneficialCounter);
                     } else {
 
+                        height += maxWidth != -1 ? 25 * beneficialRows + 1 : 26;
+                        if (maxWidth != -1) {
+
+                            height += 25 * (harmfulCounter / maxWidth);
+                        }
+
                         harmfulCounter++;
-                        width = width - 30 * harmfulCounter;
-                        height += 26;
+                        width -= 30 * (maxWidth != -1 ? (harmfulCounter - 1) % maxWidth + 1 : harmfulCounter);
                     }
 
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     float alpha = 1.0F;
                     if (effectinstance.isAmbient()) {
 
-                        AbstractGui.blit(evt.getMatrixStack(), width, height, 29, 0, 29, 24, 256, 256);
+                        AbstractGui.blit(matrixStack, width, height, 29, 0, 29, 24, 256, 256);
                     } else {
 
-                        AbstractGui.blit(evt.getMatrixStack(), width, height, 0, 0, 29, 24, 256, 256);
+                        AbstractGui.blit(matrixStack, width, height, 0, 0, 29, 24, 256, 256);
                         if (effectinstance.getDuration() <= 200) {
 
                             int duration = 10 - effectinstance.getDuration() / 20;
@@ -114,20 +190,27 @@ public class PotionTimeElement extends GameplayElement {
                         }
                     }
 
+                    if (mouseX >= width && mouseX <= width + 30 && mouseY > height && mouseY <= height + 26) {
+
+                        hoveredEffect = Optional.of(effectinstance);
+                    }
+
                     TextureAtlasSprite textureatlassprite = potionspriteuploader.getSprite(effect);
-                    this.addEffectToList(evt.getMatrixStack(), effects, effectinstance, textureatlassprite, width, height, alpha);
-                    effectinstance.renderHUDEffect(this.mc.ingameGUI, evt.getMatrixStack(), width, height, this.mc.ingameGUI.getBlitOffset(), alpha);
+                    effects.add(this.getEffectRenderer(matrixStack, effectinstance, textureatlassprite, width, height, alpha));
+                    effectinstance.renderHUDEffect(this.mc.ingameGUI, matrixStack, width, height, this.mc.ingameGUI.getBlitOffset(), alpha);
                 }
             }
 
             effects.forEach(Runnable::run);
             RenderSystem.enableDepthTest();
         }
+
+        return hoveredEffect;
     }
 
-    private void addEffectToList(MatrixStack matrixStack, List<Runnable> effects, EffectInstance effectinstance, TextureAtlasSprite textureatlassprite, int width, int height, float alpha) {
+    private Runnable getEffectRenderer(MatrixStack matrixStack, EffectInstance effectinstance, TextureAtlasSprite textureatlassprite, int width, int height, float alpha) {
 
-        effects.add(() -> {
+        return () -> {
 
             this.mc.getTextureManager().bindTexture(textureatlassprite.getAtlasTexture().getTextureLocation());
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -135,10 +218,20 @@ public class PotionTimeElement extends GameplayElement {
             if (!effectinstance.isAmbient()) {
 
                 StringTextComponent component = new StringTextComponent(EffectUtils.getPotionDurationString(effectinstance, 1.0F));
-                int potionColor = PotionUtils.getPotionColorFromEffectList(Collections.singleton(effectinstance));
+                int potionColor = this.isColorTooDark(PotionUtils.getPotionColorFromEffectList(Collections.singleton(effectinstance)));
                 AbstractGui.drawCenteredString(matrixStack, this.mc.fontRenderer, component, width + 15, height + 14, potionColor);
             }
-        });
+        };
+    }
+    
+    @SuppressWarnings("PointlessBitwiseExpression")
+    private int isColorTooDark(int potionColor) {
+
+        int r = potionColor >> 16 & 255;
+        int g = potionColor >> 8 & 255;
+        int b = potionColor >> 0 & 255;
+
+        return r + g + b < 128 ? 8355711 : potionColor;
     }
 
 }

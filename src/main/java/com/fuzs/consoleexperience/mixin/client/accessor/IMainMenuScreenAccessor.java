@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.mixin;
+package com.fuzs.consoleexperience.mixin.client.accessor;
 
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.RenderSkybox;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(MainMenuScreen.class)
-public interface MainMenuScreenAccessorMixin {
+public interface IMainMenuScreenAccessor {
 
     @Accessor("PANORAMA_OVERLAY_TEXTURES")
     static ResourceLocation getPanoramaOverlayTextures() {

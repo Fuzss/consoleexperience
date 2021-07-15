@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.mixin;
+package com.fuzs.consoleexperience.mixin.client.accessor;
 
 import net.minecraft.client.gui.screen.WorkingScreen;
 import net.minecraft.util.text.ITextComponent;
@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import javax.annotation.Nullable;
 
 @Mixin(WorkingScreen.class)
-public interface WorkingScreenAccessorMixin {
+public interface IWorkingScreenAccessor {
 
     @Nullable
     @Accessor("field_238648_a_")

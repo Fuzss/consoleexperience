@@ -1,6 +1,6 @@
 package com.fuzs.consoleexperience.client.element;
 
-import com.fuzs.consoleexperience.mixin.FirstPersonRendererAccessorMixin;
+import com.fuzs.consoleexperience.mixin.client.accessor.IFirstPersonRendererAccessor;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
@@ -11,7 +11,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public class PlayerAnimationsElement extends GameplayElement {
 
-    private FirstPersonRendererAccessorMixin firstPersonRenderer;
+    private IFirstPersonRendererAccessor firstPersonRenderer;
 
     private boolean eatingAnimation;
     private boolean supermanGliding;
@@ -29,7 +29,7 @@ public class PlayerAnimationsElement extends GameplayElement {
     @Override
     public void init() {
 
-        this.firstPersonRenderer = (FirstPersonRendererAccessorMixin) this.mc.getFirstPersonRenderer();
+        this.firstPersonRenderer = (IFirstPersonRendererAccessor) this.mc.getFirstPersonRenderer();
     }
 
     @Override

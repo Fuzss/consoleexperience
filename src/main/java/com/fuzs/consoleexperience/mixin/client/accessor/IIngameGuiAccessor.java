@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.mixin;
+package com.fuzs.consoleexperience.mixin.client.accessor;
 
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.item.ItemStack;
@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(IngameGui.class)
-public interface IngameGuiAccessorMixin {
+public interface IIngameGuiAccessor {
 
     @Accessor
     ITextComponent getOverlayMessage();

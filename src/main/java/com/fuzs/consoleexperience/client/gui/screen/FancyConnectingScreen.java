@@ -1,8 +1,8 @@
 package com.fuzs.consoleexperience.client.gui.screen;
 
 import com.fuzs.consoleexperience.client.gui.screen.util.FancyScreenUtil;
-import com.fuzs.consoleexperience.mixin.ConnectingScreenAccessorMixin;
-import com.fuzs.consoleexperience.mixin.ScreenAccessorMixin;
+import com.fuzs.consoleexperience.mixin.client.accessor.IConnectingScreenAccessor;
+import com.fuzs.consoleexperience.mixin.client.accessor.IScreenAccessor;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
@@ -33,10 +33,10 @@ public class FancyConnectingScreen {
 
         FancyScreenUtil.renderPanorama();
         FancyScreenUtil.renderMenuElements(minecraft, matrixStack, width, height);
-        FancyScreenUtil.drawCenteredString(matrixStack, Minecraft.getInstance().fontRenderer, ((ConnectingScreenAccessorMixin) connectingScreen).getConnectingProgress(), width, height);
+        FancyScreenUtil.drawCenteredString(matrixStack, Minecraft.getInstance().fontRenderer, ((IConnectingScreenAccessor) connectingScreen).getConnectingProgress(), width, height);
 
         // manual super call
-        for (Widget button : ((ScreenAccessorMixin) connectingScreen).getButtons()) {
+        for (Widget button : ((IScreenAccessor) connectingScreen).getButtons()) {
 
             button.render(matrixStack, mouseX, mouseY, partialTicks);
         }

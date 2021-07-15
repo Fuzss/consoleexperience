@@ -1,4 +1,4 @@
-package com.fuzs.consoleexperience.mixin;
+package com.fuzs.consoleexperience.mixin.client;
 
 import com.fuzs.consoleexperience.client.element.GameplayElements;
 import com.fuzs.consoleexperience.client.element.PlayerAnimationsElement;
