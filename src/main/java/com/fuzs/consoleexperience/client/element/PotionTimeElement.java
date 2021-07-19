@@ -9,6 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.DisplayEffectsScreen;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.texture.PotionSpriteUploader;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.potion.Effect;
@@ -23,14 +24,14 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("deprecation")
 public class PotionTimeElement extends GameplayElement {
 
-    private static final ResourceLocation POTION_BACKGROUND = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/mob_effect_background.png");
+    private static final ResourceLocation EFFECT_BACKGROUND = new ResourceLocation(ConsoleExperience.MODID,"textures/gui/mob_effect_background.png");
+    private static final ResourceLocation TINY_NUMBERS_TEXTURE = new ResourceLocation(ConsoleExperience.MODID,"textures/font/tiny_numbers.png");
 
     @Override
     public void setup() {
@@ -77,10 +78,10 @@ public class PotionTimeElement extends GameplayElement {
 
     private void onDrawScreenPost(final GuiScreenEvent.DrawScreenEvent.Post evt) {
 
-        if (evt.getGui() instanceof DisplayEffectsScreen && (!(evt.getGui() instanceof IRecipeShownListener) || !((IRecipeShownListener) evt.getGui()).getRecipeGui().isVisible())) {
+        if (evt.getGui() instanceof ContainerScreen && (!(evt.getGui() instanceof IRecipeShownListener) || !((IRecipeShownListener) evt.getGui()).getRecipeGui().isVisible())) {
 
-            int guiLeft = ((DisplayEffectsScreen<?>) evt.getGui()).getGuiLeft();
-            this.drawPotionIcons(evt.getMatrixStack(), guiLeft, ((DisplayEffectsScreen<?>) evt.getGui()).getGuiTop(), evt.getMouseX(), evt.getMouseY(), Math.max(1, guiLeft / 30)).ifPresent(effectInstance -> {
+            int guiLeft = ((ContainerScreen<?>) evt.getGui()).getGuiLeft();
+            this.drawPotionIcons(evt.getMatrixStack(), guiLeft, ((ContainerScreen<?>) evt.getGui()).getGuiTop(), evt.getMouseX(), evt.getMouseY(), Math.max(1, guiLeft / 30)).ifPresent(effectInstance -> {
 
                 if (effectInstance.shouldRenderInvText()) {
 
@@ -143,7 +144,7 @@ public class PotionTimeElement extends GameplayElement {
             for (EffectInstance effectinstance : Ordering.natural().reverse().sortedCopy(activePotionEffects)) {
 
                 // Rebind in case previous renderHUDEffect changed texture
-                this.mc.getTextureManager().bindTexture(POTION_BACKGROUND);
+                this.mc.getTextureManager().bindTexture(EFFECT_BACKGROUND);
                 if (maxWidth != -1 || effectinstance.shouldRenderHUD() && effectinstance.isShowIcon()) {
 
                     Effect effect = effectinstance.getPotion();
@@ -215,10 +216,25 @@ public class PotionTimeElement extends GameplayElement {
             this.mc.getTextureManager().bindTexture(textureatlassprite.getAtlasTexture().getTextureLocation());
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
             AbstractGui.blit(matrixStack, width + 5, height + (effectinstance.isAmbient() ? 3 : 2), this.mc.ingameGUI.getBlitOffset(), 18, 18, textureatlassprite);
+            int potionColor = this.isColorTooDark(PotionUtils.getPotionColorFromEffectList(Lists.newArrayList(effectinstance)));
+//            potionColor = 0xFFFFFF;
+            if (effectinstance.getAmplifier() > 0 && effectinstance.getAmplifier() <= 9) {
+
+                this.mc.getTextureManager().bindTexture(TINY_NUMBERS_TEXTURE);
+                float r = (potionColor >> 16 & 255) / 255.0F;
+                float g = (potionColor >> 8 & 255) / 255.0F;
+                float b = (potionColor >> 0 & 255) / 255.0F;
+                RenderSystem.color4f(r * 0.25F, g * 0.25F, b * 0.25F, 1.0F);
+                AbstractGui.blit(matrixStack, width + 24, height + 3, 5 * (effectinstance.getAmplifier() + 1), 0, 3, 5, 256, 256);
+                RenderSystem.color4f(r, g, b, 1.0F);
+                AbstractGui.blit(matrixStack, width + 23, height + 2, 5 * (effectinstance.getAmplifier() + 1), 0, 3, 5, 256, 256);
+            }
+
             if (!effectinstance.isAmbient()) {
 
-                StringTextComponent component = new StringTextComponent(EffectUtils.getPotionDurationString(effectinstance, 1.0F));
-                int potionColor = this.isColorTooDark(PotionUtils.getPotionColorFromEffectList(Collections.singleton(effectinstance)));
+                String durationString = EffectUtils.getPotionDurationString(effectinstance, 1.0F);
+                durationString = durationString.equals("**:**") ? "\u221e" : durationString;
+                StringTextComponent component = new StringTextComponent(durationString);
                 AbstractGui.drawCenteredString(matrixStack, this.mc.fontRenderer, component, width + 15, height + 14, potionColor);
             }
         };
