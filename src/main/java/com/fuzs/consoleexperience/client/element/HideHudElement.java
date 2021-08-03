@@ -22,6 +22,7 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
     private final BackgroundState state = new BackgroundState(this.defaultDelay);
 
     private CompatibilityMode compatibilityMode;
+    private boolean noBackground;
 
     @Override
     public void setup() {
@@ -55,6 +56,7 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
     public void setupConfig(ForgeConfigSpec.Builder builder) {
 
         registerClientEntry(builder.comment("Delay after which hud elements appear again.").defineInRange("Hide Delay", this.defaultDelay, 1, Integer.MAX_VALUE), this.state::setCapacity);
+        registerClientEntry(builder.comment("Prevent dark container background from rendering.").define("Clear Container Background", true), v -> this.noBackground = v);
         registerClientEntry(builder.comment("Compatibility mode for screen elements from mods that normally go unaffected. May have an unwanted impact on other elements, too. Tinker around with modes 1-3, setting to 0 will disable this mode.").define("Compatibility Mode", 0), v -> this.compatibilityMode = MathHelper.clamp(v, 0, 3) == v ? CompatibilityMode.values()[v] : CompatibilityMode.NONE);
     }
 
@@ -86,6 +88,11 @@ public class HideHudElement extends GameplayElement implements IHasDisplayTime {
     public CompatibilityMode getCompatibilityMode() {
 
         return this.isEnabled() ? this.compatibilityMode : CompatibilityMode.NONE;
+    }
+
+    public boolean hideBackground() {
+
+        return this.isEnabled() && this.noBackground;
     }
 
 }

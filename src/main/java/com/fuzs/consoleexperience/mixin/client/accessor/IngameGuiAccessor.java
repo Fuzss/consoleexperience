@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(IngameGui.class)
-public interface IIngameGuiAccessor {
+public interface IngameGuiAccessor {
 
     @Accessor
     ITextComponent getOverlayMessage();

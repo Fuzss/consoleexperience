@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import javax.annotation.Nullable;
 
 @Mixin(WorkingScreen.class)
-public interface IWorkingScreenAccessor {
+public interface WorkingScreenAccessor {
 
     @Nullable
     @Accessor("field_238648_a_")

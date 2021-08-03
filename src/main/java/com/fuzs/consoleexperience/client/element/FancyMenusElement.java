@@ -2,9 +2,9 @@ package com.fuzs.consoleexperience.client.element;
 
 import com.fuzs.consoleexperience.client.gui.screen.*;
 import com.fuzs.consoleexperience.client.gui.screen.util.FancyScreenUtil;
-import com.fuzs.consoleexperience.mixin.client.accessor.IDisconnectedScreenAccessor;
-import com.fuzs.consoleexperience.mixin.client.accessor.IMainMenuScreenAccessor;
-import com.fuzs.consoleexperience.mixin.client.accessor.IWorldLoadProgressScreenAccessor;
+import com.fuzs.consoleexperience.mixin.client.accessor.DisconnectedScreenAccessor;
+import com.fuzs.consoleexperience.mixin.client.accessor.MainMenuScreenAccessor;
+import com.fuzs.consoleexperience.mixin.client.accessor.WorldLoadProgressScreenAccessor;
 import net.minecraft.client.gui.screen.*;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -40,7 +40,7 @@ public class FancyMenusElement extends GameplayElement {
 
         if (evt.getGui() instanceof MainMenuScreen) {
 
-            ((IMainMenuScreenAccessor) evt.getGui()).setPanorama(FancyScreenUtil.MENU_PANORAMA);
+            ((MainMenuScreenAccessor) evt.getGui()).setPanorama(FancyScreenUtil.MENU_PANORAMA);
         } else if (evt.getGui() instanceof WorkingScreen) {
 
             evt.setGui(new FancyWorkingScreen((WorkingScreen) evt.getGui()));
@@ -52,10 +52,10 @@ public class FancyMenusElement extends GameplayElement {
             evt.setGui(new FancyDirtMessageScreen(evt.getGui().getTitle()));
         } else if (evt.getGui() instanceof WorldLoadProgressScreen) {
 
-            evt.setGui(new FancyWorldLoadProgressScreen(((IWorldLoadProgressScreenAccessor) (evt.getGui())).getTracker()));
+            evt.setGui(new FancyWorldLoadProgressScreen(((WorldLoadProgressScreenAccessor) (evt.getGui())).getTracker()));
         } else if (evt.getGui() instanceof DisconnectedScreen) {
 
-            IDisconnectedScreenAccessor accessor = (IDisconnectedScreenAccessor) evt.getGui();
+            DisconnectedScreenAccessor accessor = (DisconnectedScreenAccessor) evt.getGui();
             evt.setGui(new FancyDisconnectedScreen(accessor.getNextScreen(), evt.getGui().getTitle(), accessor.getMessage()));
         } else if (evt.getGui() instanceof ConnectingScreen) {
 

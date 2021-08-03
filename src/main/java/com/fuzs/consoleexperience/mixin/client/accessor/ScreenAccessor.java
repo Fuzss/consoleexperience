@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import java.util.List;
 
 @Mixin(Screen.class)
-public interface IScreenAccessor {
+public interface ScreenAccessor {
 
     @Accessor
     List<Widget> getButtons();

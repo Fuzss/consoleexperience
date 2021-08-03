@@ -28,6 +28,7 @@ public class HoveringHotbarElement extends GameplayElement implements IHasDispla
     private int xOffset;
     private int yOffset;
     private boolean moveChat;
+    private boolean moveXpLevel;
     private CompatibilityMode compatibilityMode;
 
     private boolean visible;
@@ -66,6 +67,7 @@ public class HoveringHotbarElement extends GameplayElement implements IHasDispla
         registerClientEntry(builder.comment("Offset on x-axis from screen center.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
         registerClientEntry(builder.comment("Offset on y-axis from screen bottom.").defineInRange("Y-Offset", 18, 0, Integer.MAX_VALUE), v -> this.yOffset = v);
         registerClientEntry(builder.comment("Move chat together with hotbar on the vertical axis.").define("Move Chat", true), v -> this.moveChat = v);
+        registerClientEntry(builder.comment("Show xp level display a few pixels above the bar.").define("Move Xp Level", true), v -> this.moveXpLevel = v);
         registerClientEntry(builder.comment("Compatibility mode for screen elements from mods that normally go unaffected. May have an unwanted impact on other elements, too. Tinker around with modes 1-3, setting to 0 will disable this mode.").define("Compatibility Mode", 0), v -> this.compatibilityMode = MathHelper.clamp(v, 0, 3) == v ? CompatibilityMode.values()[v] : CompatibilityMode.NONE);
     }
 
@@ -165,6 +167,11 @@ public class HoveringHotbarElement extends GameplayElement implements IHasDispla
     public int getTooltipOffset() {
 
         return this.isEnabled() && this.moveChat ? this.getChatOffset() : 0;
+    }
+
+    public boolean moveXpLevel() {
+
+        return this.isEnabled() && this.moveXpLevel;
     }
 
     public int getXOffset() {

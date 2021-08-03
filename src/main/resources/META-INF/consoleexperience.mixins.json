@@ -7,20 +7,22 @@
   "mixins": [
   ],
   "client": [
-    "client.accessor.IConnectingScreenAccessor",
-    "client.accessor.IDisconnectedScreenAccessor",
-    "client.accessor.IDisplayEffectsScreenAccessor",
-    "client.accessor.IFirstPersonRendererAccessor",
-    "client.accessor.IIngameGuiAccessor",
-    "client.accessor.IScreenAccessor",
-    "client.accessor.IMainMenuScreenAccessor",
-    "client.accessor.IWorkingScreenAccessor",
-    "client.accessor.IWorldLoadProgressScreenAccessor",
     "client.BipedModelMixin",
     "client.ForgeIngameGuiMixin",
-    "client.InventoryScreenMixin",
+    "client.IngameGuiMixin",
+    "client.ItemRendererMixin",
+    "client.MapItemRendererInstanceMixin",
     "client.NewChatGuiMixin",
-    "client.PlayerRendererMixin"
+    "client.PlayerRendererMixin",
+    "client.ScreenMixin",
+    "client.accessor.ConnectingScreenAccessor",
+    "client.accessor.DisconnectedScreenAccessor",
+    "client.accessor.FirstPersonRendererAccessor",
+    "client.accessor.IngameGuiAccessor",
+    "client.accessor.ScreenAccessor",
+    "client.accessor.MainMenuScreenAccessor",
+    "client.accessor.WorkingScreenAccessor",
+    "client.accessor.WorldLoadProgressScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

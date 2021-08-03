@@ -1,7 +1,8 @@
 package com.fuzs.consoleexperience.client.gui.screen.util;
 
+import com.fuzs.consoleexperience.ConsoleExperience;
 import com.fuzs.consoleexperience.config.JSONConfigUtil;
-import com.fuzs.consoleexperience.mixin.client.accessor.IMainMenuScreenAccessor;
+import com.fuzs.consoleexperience.mixin.client.accessor.MainMenuScreenAccessor;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -29,9 +30,9 @@ import java.util.stream.Stream;
 @SuppressWarnings({"deprecation", "unused", "SameParameterValue"})
 public class FancyScreenUtil {
 
-    private static final ResourceLocation PANORAMA_OVERLAY_TEXTURES = IMainMenuScreenAccessor.getPanoramaOverlayTextures();
-    private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = IMainMenuScreenAccessor.getMinecraftTitleTextures();
-    private static final ResourceLocation MINECRAFT_TITLE_EDITION = IMainMenuScreenAccessor.getMinecraftTitleEdition();
+    private static final ResourceLocation PANORAMA_OVERLAY_TEXTURES = MainMenuScreenAccessor.getPanoramaOverlayTextures();
+    private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = MainMenuScreenAccessor.getMinecraftTitleTextures();
+    private static final ResourceLocation MINECRAFT_TITLE_EDITION = MainMenuScreenAccessor.getMinecraftTitleEdition();
 
     private static final List<IFormattableTextComponent> TIPS_LIST = Lists.newArrayList();
     public static final RenderSkybox MENU_PANORAMA = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES) {

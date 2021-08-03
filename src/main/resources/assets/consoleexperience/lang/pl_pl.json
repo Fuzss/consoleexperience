@@ -1,3 +1,4 @@
 {
+  "map.coordinates": "X: %s, Y: %s, Z: %s",
   "screen.coordinates": "Pozycja: %s, %s, %s"
 }

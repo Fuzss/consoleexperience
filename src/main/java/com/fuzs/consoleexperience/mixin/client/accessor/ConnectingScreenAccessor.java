@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ConnectingScreen.class)
-public interface IConnectingScreenAccessor {
+public interface ConnectingScreenAccessor {
 
     @Accessor("field_209515_s")
     ITextComponent getConnectingProgress();
