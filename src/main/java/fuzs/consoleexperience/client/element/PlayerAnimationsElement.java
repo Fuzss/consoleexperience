@@ -1,10 +1,14 @@
 package fuzs.consoleexperience.client.element;
 
+import fuzs.consoleexperience.ConsoleExperience;
+import fuzs.consoleexperience.mixin.client.accessor.ActiveRenderInfoAccessor;
 import fuzs.consoleexperience.mixin.client.accessor.FirstPersonRendererAccessor;
 import fuzs.puzzleslib.config.option.OptionsBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.settings.PointOfView;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,6 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 
 public class PlayerAnimationsElement extends AbstractElement implements IClientElement {
@@ -38,6 +43,7 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
 
         this.addListener(this::onClientTick);
         this.addListener(this::onCameraSetup);
+        this.addListener(this::onCameraSetup2);
         this.addListener(this::onRenderHand);
     }
 
@@ -67,10 +73,27 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
         builder.pop();
     }
 
+    private void onCameraSetup2(final EntityViewRenderEvent.CameraSetup evt) {
+
+        ActiveRenderInfo activeRenderInfo = evt.getInfo();
+        if (!activeRenderInfo.isDetached() && activeRenderInfo.getEntity() instanceof ClientPlayerEntity) {
+
+            float viewXRot = activeRenderInfo.getEntity().getViewXRot((float) evt.getRenderPartialTicks());
+            viewXRot = MathHelper.wrapDegrees(viewXRot);
+            float degree = (float) (viewXRot / 180.0F * Math.PI);
+            final float x = 6.5F / 16.0F;
+            final float y = 4.0F / 16.0F;
+            double xOff = x * Math.cos(degree) + y * -Math.sin(degree);
+            double yOff = x * Math.sin(degree) + y * Math.cos(degree);
+            ConsoleExperience.LOGGER.info("{}, {}", xOff, yOff);
+            ((ActiveRenderInfoAccessor) activeRenderInfo).callMove(xOff, yOff - y, 0.0);
+        }
+    }
+
     private void onClientTick(final TickEvent.ClientTickEvent evt) {
 
-        // player null check actually matters here as this also runs outside of a world
         PlayerEntity player = this.mc.player;
+        // player null check actually matters here as this also runs outside of a world
         if (evt.phase != TickEvent.Phase.END || player == null) {
 
             return;
@@ -78,25 +101,41 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
 
         if (this.thirdPersonGliding) {
 
-            if (player.isFallFlying() && player.getFallFlyingTicks() > 4) {
-
-                if (this.oldPointOfView == null) {
-
-                    this.oldPointOfView = this.mc.options.getCameraType();
-                    this.mc.options.setCameraType(PointOfView.THIRD_PERSON_BACK);
-                }
-            } else if (this.oldPointOfView != null) {
-
-                if (this.mc.options.getCameraType() == PointOfView.THIRD_PERSON_BACK) {
-
-                    this.mc.options.setCameraType(this.oldPointOfView);
-                }
-
-                this.oldPointOfView = null;
-            }
+            this.setThirdPersonGliding(player);
         }
 
-        if (this.elytraTilt && player.isFallFlying()) {
+        if (this.elytraTilt) {
+
+            this.updateElytraRotation(player);
+        }
+    }
+
+    private void setThirdPersonGliding(PlayerEntity player) {
+
+        if (player.isFallFlying() && player.getFallFlyingTicks() > 4) {
+
+            if (this.oldPointOfView == null) {
+
+                this.oldPointOfView = this.mc.options.getCameraType();
+                if (this.mc.options.getCameraType() == PointOfView.FIRST_PERSON) {
+
+                    this.mc.options.setCameraType(PointOfView.THIRD_PERSON_BACK);
+                }
+            }
+        } else if (this.oldPointOfView != null) {
+
+            if (this.mc.options.getCameraType() == PointOfView.THIRD_PERSON_BACK) {
+
+                this.mc.options.setCameraType(this.oldPointOfView);
+            }
+
+            this.oldPointOfView = null;
+        }
+    }
+
+    private void updateElytraRotation(PlayerEntity player) {
+
+        if (player.isFallFlying()) {
 
             // code from PlayerRenderer#applyRotations which is used there for rotating player model while flying
             Vector3d vector3d = player.getViewVector(1.0F);
@@ -114,10 +153,10 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
                 this.elytraRotation += (rotationDelta - this.elytraRotation) * this.tiltSpeed;
             }
 
-            return;
-        }
+        } else {
 
-        this.prevElytraRotation = this.elytraRotation = 0.0F;
+            this.prevElytraRotation = this.elytraRotation = 0.0F;
+        }
     }
 
     private void onCameraSetup(final EntityViewRenderEvent.CameraSetup evt) {
