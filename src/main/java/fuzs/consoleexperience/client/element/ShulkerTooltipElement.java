@@ -1,0 +1,70 @@
+package fuzs.consoleexperience.client.element;
+
+import fuzs.consoleexperience.client.tooltip.ShulkerTooltipBuilder;
+import com.google.common.collect.Lists;
+import net.minecraft.block.Block;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+
+import java.util.List;
+
+public class ShulkerTooltipElement extends GameplayElement {
+
+    private int rows;
+
+    @Override
+    public void setup() {
+
+        this.addListener(this::onMakeTooltip, EventPriority.LOW);
+    }
+
+    @Override
+    public boolean getDefaultState() {
+
+        return true;
+    }
+
+    @Override
+    public String getDisplayName() {
+
+        return "Sum Shulker Box Contents";
+    }
+
+    @Override
+    public String getDescription() {
+
+        return "Sum up stacks of equal items on shulker box tooltip.";
+    }
+
+    @Override
+    public void setupConfig(ForgeConfigSpec.Builder builder) {
+
+        registerClientEntry(builder.comment("Maximum amount of rows on the shulker box tooltip.").defineInRange("Shulker Box Rows", 6, 0, Integer.MAX_VALUE), v -> this.rows = v);
+    }
+
+    private void onMakeTooltip(final ItemTooltipEvent evt) {
+
+        if (Block.byItem(evt.getItemStack().getItem()) instanceof ShulkerBoxBlock) {
+
+            List<ITextComponent> tooltip = evt.getToolTip();
+            List<ITextComponent> oldContents = Lists.newArrayList();
+            evt.getItemStack().getItem().appendHoverText(evt.getItemStack(),
+                    evt.getPlayer() == null ? null : evt.getPlayer().level, oldContents, evt.getFlags());
+
+            if (!tooltip.isEmpty() && !oldContents.isEmpty()) {
+
+                int index = tooltip.indexOf(oldContents.get(0));
+                if (index != -1 && tooltip.removeAll(oldContents)) {
+
+                    List<ITextComponent> newContents = Lists.newArrayList();
+                    ShulkerTooltipBuilder.addInformation(newContents, evt.getItemStack(), this.rows, true);
+                    tooltip.addAll(index, newContents);
+                }
+            }
+        }
+    }
+
+}

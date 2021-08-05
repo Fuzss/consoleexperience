@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
-  "package": "com.fuzs.consoleexperience.mixin",
+  "package": "fuzs.consoleexperience.mixin",
   "refmap": "consoleexperience.refmap.json",
   "mixins": [
   ],

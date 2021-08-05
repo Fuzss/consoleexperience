@@ -1,6 +1,6 @@
 {
-  "map.coordinates": "X: %s, Y: %s, Z: %s",
-  "screen.coordinates": "Position: %s, %s, %s",
+  "map.position": "X: %s, Y: %s, Z: %s",
+  "screen.position": "Position: %s, %s, %s",
   "command.reload.config": "Konfiguration wurde neu geladen unter %s",
   "command.reload.tips": "Tipps wurden neu geladen unter %s"
 }
