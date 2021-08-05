@@ -1,14 +1,10 @@
 package fuzs.consoleexperience.client.element;
 
-import fuzs.consoleexperience.ConsoleExperience;
-import fuzs.consoleexperience.mixin.client.accessor.ActiveRenderInfoAccessor;
 import fuzs.consoleexperience.mixin.client.accessor.FirstPersonRendererAccessor;
 import fuzs.puzzleslib.config.option.OptionsBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.settings.PointOfView;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,7 +14,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 
 public class PlayerAnimationsElement extends AbstractElement implements IClientElement {
@@ -43,7 +38,6 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
 
         this.addListener(this::onClientTick);
         this.addListener(this::onCameraSetup);
-        this.addListener(this::onCameraSetup2);
         this.addListener(this::onRenderHand);
     }
 
@@ -71,23 +65,6 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
         builder.define("Hand Idle Animation", false).comment("Subtle hand swing animation in first-person mode while standing still.").sync(v -> this.handIdleAnimation = v);
         builder.define("Animation Speed", 10).range(1, 20).comment("Animations speed of idle hands.").sync(v -> this.idleAnimationSpeed = v);
         builder.pop();
-    }
-
-    private void onCameraSetup2(final EntityViewRenderEvent.CameraSetup evt) {
-
-        ActiveRenderInfo activeRenderInfo = evt.getInfo();
-        if (!activeRenderInfo.isDetached() && activeRenderInfo.getEntity() instanceof ClientPlayerEntity) {
-
-            float viewXRot = activeRenderInfo.getEntity().getViewXRot((float) evt.getRenderPartialTicks());
-            viewXRot = MathHelper.wrapDegrees(viewXRot);
-            float degree = (float) (viewXRot / 180.0F * Math.PI);
-            final float x = 6.5F / 16.0F;
-            final float y = 4.0F / 16.0F;
-            double xOff = x * Math.cos(degree) + y * -Math.sin(degree);
-            double yOff = x * Math.sin(degree) + y * Math.cos(degree);
-            ConsoleExperience.LOGGER.info("{}, {}", xOff, yOff);
-            ((ActiveRenderInfoAccessor) activeRenderInfo).callMove(xOff, yOff - y, 0.0);
-        }
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent evt) {
