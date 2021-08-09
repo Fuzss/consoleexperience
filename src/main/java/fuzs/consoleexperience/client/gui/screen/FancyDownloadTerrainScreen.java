@@ -16,10 +16,10 @@ public class FancyDownloadTerrainScreen extends DownloadTerrainScreen {
    @Override
    public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 
-      FancyScreenUtil.renderPanorama();
+      FancyScreenUtil.renderPanorama(partialTicks);
       FancyScreenUtil.renderMenuElements(this.minecraft, matrixStack, this.width, this.height);
       FancyScreenUtil.drawCenteredString(matrixStack, this.font, new TranslationTextComponent("multiplayer.downloadingTerrain"), this.width, this.height);
-      FancyScreenUtil.drawTooltip(matrixStack, this.width / 2, this.height / 2 + 70, 280, 30);
+      FancyScreenUtil.drawTooltip(matrixStack, this.width, this.height);
 
       // manual super call
       for (Widget button : this.buttons) {

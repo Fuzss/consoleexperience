@@ -3,7 +3,7 @@ package fuzs.consoleexperience.client.element;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fuzs.consoleexperience.client.gui.PositionPreset;
-import fuzs.puzzleslib.config.option.OptionsBuilder;
+import fuzs.puzzleslib.config.option.OptionBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
 import fuzs.puzzleslib.util.PuzzlesUtil;
@@ -48,7 +48,7 @@ public class PositionDisplayElement extends AbstractElement implements IClientEl
     }
 
     @Override
-    public void setupClientConfig(OptionsBuilder builder) {
+    public void setupClientConfig(OptionBuilder builder) {
 
         builder.push("map_display");
         builder.define("Map Display", true).comment("Draw player position on a held map item.").sync(v -> this.mapDisplay = v);

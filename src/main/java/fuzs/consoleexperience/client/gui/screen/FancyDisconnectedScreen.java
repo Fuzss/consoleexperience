@@ -42,7 +42,7 @@ public class FancyDisconnectedScreen extends DisconnectedScreen {
    @Override
    public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 
-      FancyScreenUtil.renderPanorama();
+      FancyScreenUtil.renderPanorama(partialTicks);
       FancyScreenUtil.renderMenuElements(this.minecraft, matrixStack, this.width, this.height);
       FancyScreenUtil.drawCenteredString(matrixStack, this.font, this.title, this.width, this.height);
       this.messageRenderer.renderCentered(matrixStack, this.width / 2, this.height / 4 + 86);

@@ -1,7 +1,7 @@
 package fuzs.consoleexperience.client.element;
 
 import fuzs.consoleexperience.mixin.client.accessor.FirstPersonRendererAccessor;
-import fuzs.puzzleslib.config.option.OptionsBuilder;
+import fuzs.puzzleslib.config.option.OptionBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
 import net.minecraft.client.Minecraft;
@@ -48,7 +48,7 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
     }
 
     @Override
-    public void setupClientConfig(OptionsBuilder builder) {
+    public void setupClientConfig(OptionBuilder builder) {
         
         builder.push("elytra_gliding");
         builder.define("Elytra Camera Tilt", true).comment("Tilt camera depending on elytra flight angle.").sync(v -> this.elytraTilt = v);

@@ -5,35 +5,28 @@ import fuzs.consoleexperience.client.gui.screen.util.FancyScreenUtil;
 import fuzs.consoleexperience.mixin.client.accessor.DisconnectedScreenAccessor;
 import fuzs.consoleexperience.mixin.client.accessor.MainMenuScreenAccessor;
 import fuzs.consoleexperience.mixin.client.accessor.WorldLoadProgressScreenAccessor;
+import fuzs.puzzleslib.element.AbstractElement;
+import fuzs.puzzleslib.element.side.IClientElement;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.*;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 
-public class FancyMenusElement extends GameplayElement {
+public class FancyMenusElement extends AbstractElement implements IClientElement {
+
+    private final Minecraft mc = Minecraft.getInstance();
 
     @Override
-    public void setup() {
+    public void constructClient() {
 
         this.addListener(this::onGuiOpen);
         this.addListener(this::onDrawScreenPre);
     }
 
     @Override
-    public boolean getDefaultState() {
+    public String[] getDescription() {
 
-        return true;
-    }
-
-    @Override
-    public String getDisplayName() {
-
-        return "Fancy Menus";
-    }
-
-    @Override
-    public String getDescription() {
-
-        return "Replace boring dirt backgrounds with the fancy main menu panorama and some bold fonts.";
+        return new String[]{"Replace boring dirt backgrounds with the fancy main menu panorama and some bold fonts."};
     }
 
     private void onGuiOpen(final GuiOpenEvent evt) {

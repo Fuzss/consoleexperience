@@ -1,6 +1,8 @@
 package fuzs.consoleexperience;
 
 import com.mojang.brigadier.Command;
+import fuzs.consoleexperience.client.element.FancyMenusElement;
+import fuzs.consoleexperience.client.element.PaperDollElement;
 import fuzs.consoleexperience.client.element.PlayerAnimationsElement;
 import fuzs.consoleexperience.client.element.PositionDisplayElement;
 import fuzs.consoleexperience.client.gui.screen.util.FancyScreenUtil;
@@ -32,6 +34,8 @@ public class ConsoleExperience {
 
     public static final AbstractElement POSITION_DISPLAY = REGISTRY.register("position_display", () -> new PositionDisplayElement(), Dist.CLIENT);
     public static final AbstractElement PLAYER_ANIMATIONS = REGISTRY.register("player_animations", () -> new PlayerAnimationsElement(), Dist.CLIENT);
+    public static final AbstractElement PAPER_DOLL = REGISTRY.register("paper_doll", () -> new PaperDollElement(), Dist.CLIENT);
+    public static final AbstractElement FANCY_MENUS = REGISTRY.register("fancy_menus", () -> new FancyMenusElement(), Dist.CLIENT);
 
     private final String jsonConfigName = "helditemtooltips.json";
     private final String jsonTipsName = "tips.json";

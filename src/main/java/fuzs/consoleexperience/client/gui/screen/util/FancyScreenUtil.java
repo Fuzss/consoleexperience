@@ -10,8 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IBidiRenderer;
-import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.RenderSkybox;
+import net.minecraft.client.renderer.RenderSkyboxCube;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -34,7 +34,8 @@ public class FancyScreenUtil {
     private static final ResourceLocation MINECRAFT_TITLE_EDITION = MainMenuScreenAccessor.getMinecraftTitleEdition();
 
     private static final List<IFormattableTextComponent> TIPS_LIST = Lists.newArrayList();
-    public static final RenderSkybox MENU_PANORAMA = new RenderSkybox(MainMenuScreen.CUBE_MAP) {
+    public static final RenderSkyboxCube CUBE_MAP = new RenderFancySkyboxCube(new ResourceLocation("textures/gui/title/background/panorama"));
+    public static final RenderSkybox MENU_PANORAMA = new RenderSkybox(CUBE_MAP) {
 
         private final Minecraft mc = Minecraft.getInstance();
         private float time;
@@ -42,8 +43,8 @@ public class FancyScreenUtil {
         @Override
         public void render(float deltaT, float alpha) {
 
-            this.time += 0.34F;
-            MainMenuScreen.CUBE_MAP.render(this.mc, MathHelper.sin(this.time * 0.001F) * 5.0F + 25.0F, -this.time * 0.1F, alpha);
+            this.time += Math.min(deltaT, 0.24F);
+            CUBE_MAP.render(this.mc, MathHelper.sin(this.time * 0.001F) * 5.0F + 25.0F, -this.time * 0.1F, alpha);
         }
     };
 
@@ -93,7 +94,7 @@ public class FancyScreenUtil {
             itextcomponent = StringTextComponent.EMPTY;
         }
 
-        renderLoadingBar(matrixstack, fontrenderer,  itextcomponent, width / 2, height / 2 + 36, 240, 8, progress);
+        renderLoadingBar(matrixstack, fontrenderer, itextcomponent, width / 2, height / 2 + 32, 240, 8, progress);
     }
 
     private static void renderLoadingBar(MatrixStack matrixstack, FontRenderer fontrenderer, ITextComponent itextcomponent, int posX, int posY, int width, int height, int progress) {
@@ -105,12 +106,7 @@ public class FancyScreenUtil {
 
     public static void drawCenteredString(MatrixStack matrixStack, FontRenderer fontrenderer, @Nullable ITextComponent itextcomponent, int width, int height) {
 
-        if (itextcomponent == null) {
-
-            itextcomponent = StringTextComponent.EMPTY;
-        }
-
-        drawCenteredString(matrixStack, fontrenderer, itextcomponent, width / 2, 110, 16777215, 2.0F);
+        drawCenteredString(matrixStack, fontrenderer, itextcomponent != null ? itextcomponent : StringTextComponent.EMPTY, width / 2, height / 2 - 12, 16777215, 2.0F);
     }
 
     private static void drawCenteredString(MatrixStack matrixStack, FontRenderer fontrenderer, ITextComponent itextcomponent, int width, int height, int color, float scale) {
@@ -120,9 +116,9 @@ public class FancyScreenUtil {
         matrixStack.scale(1.0F / scale, 1.0F / scale, 0.0F);
     }
 
-    public static void renderPanorama() {
+    public static void renderPanorama(float partialTicks) {
 
-        MENU_PANORAMA.render(0.34F, 1.0F);
+        MENU_PANORAMA.render(Math.min(partialTicks, 0.24F), 1.0F);
     }
 
     private static void blitBlackOutline(int width, int height, BiConsumer<Integer, Integer> boxXYConsumer) {
@@ -136,7 +132,12 @@ public class FancyScreenUtil {
         boxXYConsumer.accept(width, height);
     }
 
-    public static void drawTooltip(MatrixStack matrixstack, int posX, int posY, int width, int height) {
+    public static void drawTooltip(MatrixStack matrixstack, int width, int height) {
+
+        drawTooltip(matrixstack, width / 2, height - 60, 280, 30);
+    }
+
+    private static void drawTooltip(MatrixStack matrixstack, int posX, int posY, int width, int height) {
 
         RenderTooltipUtil.drawTooltip(matrixstack, posX, posY, width, height, getActiveTip());
     }

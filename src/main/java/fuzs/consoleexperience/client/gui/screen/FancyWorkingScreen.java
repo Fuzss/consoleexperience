@@ -33,12 +33,11 @@ public class FancyWorkingScreen extends WorkingScreen {
 
       } else {
 
-         FancyScreenUtil.renderPanorama();
+         FancyScreenUtil.renderPanorama(partialTicks);
          FancyScreenUtil.renderMenuElements(this.minecraft, matrixStack, this.width, this.height);
          // this renders nothing as the text component is always null, but for some reason the tooltip isn't be drawn when this doesn't happen
          FancyScreenUtil.drawCenteredString(matrixStack, this.font, this.workingScreen.getHeader(), this.width, this.height);
-         FancyScreenUtil.drawTooltip(matrixStack, this.width / 2, this.height / 2 + 70, 280, 30);
-
+         FancyScreenUtil.drawTooltip(matrixStack, this.width, this.height);
          if (this.workingScreen.getStage() != null && this.workingScreen.getProgress() != 0) {
 
             FancyScreenUtil.renderLoadingBar(matrixStack, this.font, this.workingScreen.getStage(), this.width, this.height, this.workingScreen.getProgress());

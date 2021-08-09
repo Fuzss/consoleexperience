@@ -31,7 +31,7 @@ issueTrackerURL="${modIssueUrl}"
 [[dependencies.${modId}]]
     modId="puzzleslib"
     mandatory=true
-    versionRange="[${puzzlesVersion},)"
+    versionRange="[${minPuzzlesVersion},${nextPuzzlesVersion})"
     ordering="NONE"
     side="BOTH"
 

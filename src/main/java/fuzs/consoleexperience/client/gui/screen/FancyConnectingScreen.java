@@ -31,7 +31,7 @@ public class FancyConnectingScreen {
             NarratorChatListener.INSTANCE.sayNow((new TranslationTextComponent("narrator.joining")).getString());
         }
 
-        FancyScreenUtil.renderPanorama();
+        FancyScreenUtil.renderPanorama(partialTicks);
         FancyScreenUtil.renderMenuElements(minecraft, matrixStack, width, height);
         FancyScreenUtil.drawCenteredString(matrixStack, Minecraft.getInstance().font, ((ConnectingScreenAccessor) connectingScreen).getStatus(), width, height);
 

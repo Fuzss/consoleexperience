@@ -12,13 +12,11 @@ public class GameplayElements {
     private static final Map<ResourceLocation, GameplayElement> ELEMENTS = Maps.newHashMap();
 
     public static final GameplayElement SELECTED_ITEM = register("selected_item", new SelectedItemElement());
-    public static final GameplayElement PAPER_DOLL = register("paper_doll", new PaperDollElement());
     public static final GameplayElement HOVERING_HOTBAR = register("hovering_hotbar", new HoveringHotbarElement());
     public static final GameplayElement SAVE_ICON = register("save_icon", new SaveIconElement());
     public static final GameplayElement SHULKER_TOOLTIP = register("shulker_tooltip", new ShulkerTooltipElement());
     public static final GameplayElement HIDE_HUD = register("hide_hud", new HideHudElement());
     public static final GameplayElement CLOSE_BUTTON = register("close_button", new CloseButtonElement());
-    public static final GameplayElement FANCY_MENUS = register("fancy_menus", new FancyMenusElement());
     public static final GameplayElement TINTED_TOOLTIP = register("tinted_tooltip", new TintedTooltipElement());
 
     private static GameplayElement register(String key, GameplayElement gameplayElement) {

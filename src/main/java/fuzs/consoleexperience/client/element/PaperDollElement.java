@@ -1,9 +1,12 @@
 package fuzs.consoleexperience.client.element;
 
-import fuzs.consoleexperience.ConsoleExperience;
+import com.google.common.collect.Lists;
 import fuzs.consoleexperience.client.gui.PaperDollRenderer;
 import fuzs.consoleexperience.client.gui.PositionPreset;
-import com.google.common.collect.ImmutableSet;
+import fuzs.puzzleslib.config.option.OptionBuilder;
+import fuzs.puzzleslib.element.AbstractElement;
+import fuzs.puzzleslib.element.side.IClientElement;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -11,79 +14,57 @@ import net.minecraft.entity.Pose;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.TickEvent;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-public class PaperDollElement extends GameplayElement implements IHasDisplayTime {
+public class PaperDollElement extends AbstractElement implements IClientElement, IHasDisplayTime {
 
-    private static final Set<DisplayAction> DEFAULT_DOLL_CONDITIONS = ImmutableSet.of(DisplayAction.SPRINTING, DisplayAction.SWIMMING, DisplayAction.CRAWLING, DisplayAction.CROUCHING, DisplayAction.FLYING, DisplayAction.GLIDING);
-    private final PaperDollRenderer dollRenderer = new PaperDollRenderer();
+    private static final List<DisplayAction> DEFAULT_DOLL_CONDITIONS = Lists.newArrayList(DisplayAction.SPRINTING, DisplayAction.SWIMMING, DisplayAction.CRAWLING, DisplayAction.CROUCHING, DisplayAction.FLYING, DisplayAction.GLIDING);
+    
+    private final Minecraft mc = Minecraft.getInstance();
+    private final PaperDollRenderer dollRenderer = new PaperDollRenderer(this);
 
-    private int scale;
-    private int xOffset;
-    private int yOffset;
-    private int displayTime;
+    public int scale;
+    public int xOffset;
+    public int yOffset;
+    public int displayTime;
     public PositionPreset position;
-    private boolean potionShift;
-    private boolean firstPersonOnly;
+    public boolean potionShift;
+    public boolean firstPersonOnly;
     public PaperDollRenderer.HeadMovement headMovement;
-    private Set<DisplayAction> dollConditions;
+    public Set<DisplayAction> dollConditions;
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
 
     @Override
-    public void setup() {
+    public void constructClient() {
 
         this.addListener(this::onClientTick);
         this.addListener(this::onRenderGameOverlayPre);
     }
 
     @Override
-    public boolean getDefaultState() {
+    public String[] getDescription() {
 
-        return true;
+        return new String[]{"Show a small player model while the player is performing certain actions such as sprinting, swimming, crouching, flying and gliding."};
     }
 
     @Override
-    public String getDisplayName() {
-
-        return "Paper Doll";
-    }
-
-    @Override
-    public String getDescription() {
-
-        return "Show a small player model while the player is performing certain actions such as sprinting, swimming, crouching, flying and gliding.";
-    }
-
-    @Override
-    public void setupConfig(ForgeConfigSpec.Builder builder) {
-
-        registerClientEntry(builder.comment("Scale of paper doll. Also influenced by \"GUI Scale\" option in \"Video Settings\".").defineInRange("Scale", 4, 1, 24), v -> this.scale = v);
-        registerClientEntry(builder.comment("Offset on x-axis from original doll position.").defineInRange("X-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.xOffset = v);
-        registerClientEntry(builder.comment("Offset on y-axis from original doll position.").defineInRange("Y-Offset", 0, Integer.MIN_VALUE, Integer.MAX_VALUE), v -> this.yOffset = v);
-        registerClientEntry(builder.comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").defineInRange("Display Time", 12, 0, Integer.MAX_VALUE), v -> this.displayTime = v);
-        registerClientEntry(builder.comment("Define a screen corner to display the paper doll in.").defineEnum("Screen Corner", PositionPreset.TOP_LEFT), v -> this.position = v);
-        registerClientEntry(builder.comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applicable when \"Screen Corner\" is set to \"TOP_RIGHT\".").define("Potion Shift", true), v -> this.potionShift = v);
-        registerClientEntry(builder.comment("Only show paper doll when in first-person mode.").define("First Person Only", true), v -> this.firstPersonOnly = v);
-        registerClientEntry(builder.comment("Set axis the player head can move on.").defineEnum("Head Movement", PaperDollRenderer.HeadMovement.YAW), v -> this.headMovement = v);
-        registerClientEntry(builder.comment("Display paper doll while performing these actions.", "Allowed Values: " + Arrays.stream(DisplayAction.values()).map(Enum::name).collect(Collectors.joining(", "))).define("Display Actions", DEFAULT_DOLL_CONDITIONS.stream().map(Enum::name).collect(Collectors.toList())), v -> {
-
-            try {
-
-                this.dollConditions = v.stream().map(DisplayAction::valueOf).collect(Collectors.toSet());
-            } catch (IllegalArgumentException e) {
-
-                ConsoleExperience.LOGGER.error(e);
-                this.dollConditions = DEFAULT_DOLL_CONDITIONS;
-            }
-        });
+    public void setupClientConfig(OptionBuilder builder) {
+        
+        builder.define("Scale", 4).range(1, 24).comment("Scale of paper doll. Also influenced by \"GUI Scale\" option in \"Video Settings\".").sync(v -> this.scale = v)
+                .define("X-Offset", 0).comment("Offset on x-axis from original doll position.").sync(v -> this.xOffset = v)
+                .define("Y-Offset", 0).comment("Offset on y-axis from original doll position.").sync(v -> this.yOffset = v)
+                .define("Display Time", 12).min(0).comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").sync(v -> this.displayTime = v)
+                .define("Screen Corner", PositionPreset.TOP_LEFT).comment("Define a screen corner to display the paper doll in.").sync(v -> this.position = v)
+                .define("Potion Shift", true).comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applies when \"Screen Corner\" is set to \"TOP_RIGHT\".").sync(v -> this.potionShift = v)
+                .define("First Person Only", true).comment("Only show paper doll when in first-person mode.").sync(v -> this.firstPersonOnly = v)
+                .define("Head Movement", PaperDollRenderer.HeadMovement.YAW).comment("Set axis the player head can move on.").sync(v -> this.headMovement = v)
+                .define("Display Actions", DEFAULT_DOLL_CONDITIONS, DisplayAction.class).comment("Display paper doll while performing these actions.").sync(v -> this.dollConditions = v);
     }
 
     @Override
@@ -190,6 +171,7 @@ public class PaperDollElement extends GameplayElement implements IHasDisplayTime
         }
     }
 
+    @SuppressWarnings("unused")
     private enum DisplayAction {
 
         SPRINTING(ClientPlayerEntity::canSpawnSprintParticle),

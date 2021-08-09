@@ -15,8 +15,15 @@ import net.minecraft.util.math.vector.Vector3f;
 
 public class PaperDollRenderer {
 
+    private final PaperDollElement parent;
     private final float maxRotation = 30.0F;
+
     private float prevRotationYaw;
+
+    public PaperDollRenderer(PaperDollElement parent) {
+
+        this.parent = parent;
+    }
 
     @SuppressWarnings("deprecation")
     public void drawEntityOnScreen(int posX, int posY, int scale, LivingEntity entity, float partialTicks) {
@@ -73,9 +80,9 @@ public class PaperDollRenderer {
 
     private float updateRotation(LivingEntity entity, float partialTicks, float prevRotationYaw, float yHeadRot, float yHeadRotO) {
 
-        HeadMovement headMovement = ((PaperDollElement) GameplayElements.PAPER_DOLL).headMovement;
+        HeadMovement headMovement = this.parent.headMovement;
         // head rotation is used for doll rotation as it updates a lot more precisely than the body rotation
-        float defaultRotationYaw = 180.0F + ((PaperDollElement) GameplayElements.PAPER_DOLL).position.getRotation(this.maxRotation / 2.0F);
+        float defaultRotationYaw = 180.0F + this.parent.position.getRotation(this.maxRotation / 2.0F);
         if (headMovement == HeadMovement.YAW || entity.isFallFlying()) {
 
             entity.xRot = 7.5F;
@@ -128,7 +135,6 @@ public class PaperDollRenderer {
         this.prevRotationYaw = 0;
     }
 
-    @SuppressWarnings("unused")
     public enum HeadMovement {
 
         YAW, PITCH, BOTH

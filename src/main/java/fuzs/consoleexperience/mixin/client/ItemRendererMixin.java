@@ -1,10 +1,12 @@
 package fuzs.consoleexperience.mixin.client;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PotionItem;
 import net.minecraft.potion.EffectInstance;
@@ -24,6 +26,13 @@ import java.util.List;
 @SuppressWarnings({"deprecation", "unused"})
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin implements IResourceManagerReloadListener {
+
+    @Inject(method = "renderGuiItem(Lnet/minecraft/item/ItemStack;IILnet/minecraft/client/renderer/model/IBakedModel;)V", at = @At(value = "NEW", args = "class=com/mojang/blaze3d/matrix/MatrixStack"))
+    protected void renderGuiItem(ItemStack p_191962_1_, int p_191962_2_, int p_191962_3_, IBakedModel p_191962_4_, CallbackInfo callbackInfo) {
+
+        RenderSystem.color4f(1.0F, 1.0F, 0.0F, 0.2F);
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+    }
 
     @Inject(method = "renderGuiItemDecorations(Lnet/minecraft/client/gui/FontRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At("HEAD"))
     public void renderGuiItemDecorations(FontRenderer fr, ItemStack stack, int xPosition, int yPosition, @Nullable String text, CallbackInfo callbackInfo) {
