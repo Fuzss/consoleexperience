@@ -1,0 +1,5 @@
+{
+  "screen.coordinates": "Posizione: %s, %s, %s",
+  "command.reload.config": "File di configurazione ricaricato a %s",
+  "command.reload.tips": "File di suggerimenti ricaricato a %s"
+}
