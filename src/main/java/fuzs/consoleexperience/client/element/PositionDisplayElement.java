@@ -3,10 +3,9 @@ package fuzs.consoleexperience.client.element;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fuzs.consoleexperience.client.gui.PositionPreset;
-import fuzs.puzzleslib.config.option.OptionBuilder;
+import fuzs.puzzleslib.config.option.OptionsBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
-import fuzs.puzzleslib.util.PuzzlesUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.player.PlayerEntity;
@@ -48,7 +47,7 @@ public class PositionDisplayElement extends AbstractElement implements IClientEl
     }
 
     @Override
-    public void setupClientConfig(OptionBuilder builder) {
+    public void setupClientConfig(OptionsBuilder builder) {
 
         builder.push("map_display");
         builder.define("Map Display", true).comment("Draw player position on a held map item.").sync(v -> this.mapDisplay = v);
@@ -120,11 +119,21 @@ public class PositionDisplayElement extends AbstractElement implements IClientEl
             return new TranslationTextComponent(format.translationKey, playerX, playerY, playerZ);
         }
 
-        double playerX = PuzzlesUtil.round(player.getX(), decimalPlaces);
-        double playerY = PuzzlesUtil.round(player.getBoundingBox().minY, decimalPlaces);
-        double playerZ = PuzzlesUtil.round(player.getZ(), decimalPlaces);
+        double playerX = round(player.getX(), decimalPlaces);
+        double playerY = round(player.getBoundingBox().minY, decimalPlaces);
+        double playerZ = round(player.getZ(), decimalPlaces);
 
         return new TranslationTextComponent(format.translationKey, playerX, playerY, playerZ);
+    }
+
+    /**
+     * @param toRound number to round
+     * @param decimalPlaces amount of decimal places
+     * @return rounded number
+     */
+    public static double round(double toRound, int decimalPlaces) {
+        final double power = Math.pow(10, decimalPlaces);
+        return  Math.round(toRound * power) / power;
     }
 
     public enum PositionFormat {

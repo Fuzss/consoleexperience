@@ -1,0 +1,6 @@
+{
+    "pack": {
+        "description": "6",
+        "pack_format": ${packFormat}
+    }
+}

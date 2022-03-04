@@ -1,7 +1,7 @@
 package fuzs.consoleexperience.client.element;
 
 import fuzs.consoleexperience.mixin.client.accessor.FirstPersonRendererAccessor;
-import fuzs.puzzleslib.config.option.OptionBuilder;
+import fuzs.puzzleslib.config.option.OptionsBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
 import net.minecraft.client.Minecraft;
@@ -48,12 +48,12 @@ public class PlayerAnimationsElement extends AbstractElement implements IClientE
     }
 
     @Override
-    public void setupClientConfig(OptionBuilder builder) {
+    public void setupClientConfig(OptionsBuilder builder) {
         
         builder.push("elytra_gliding");
         builder.define("Elytra Camera Tilt", true).comment("Tilt camera depending on elytra flight angle.").sync(v -> this.elytraTilt = v);
-        builder.define("Tilt Amount", 0.5F).range(0.1F, 1.0F).comment("Multiplier for camera tilt amount when gliding.").sync(v -> this.tiltAmount = v);
-        builder.define("Tilt Speed", 0.4F).range(0.1F, 1.0F).comment("Multiplier for camera tilt speed when gliding.").sync(v -> this.tiltSpeed = v);
+        builder.define("Tilt Amount", 0.5).range(0.1, 1.0).comment("Multiplier for camera tilt amount when gliding.").sync(v -> this.tiltAmount = v.floatValue());
+        builder.define("Tilt Speed", 0.4).range(0.1, 1.0).comment("Multiplier for camera tilt speed when gliding.").sync(v -> this.tiltSpeed = v.floatValue());
         builder.define("Third-Person Gliding", true).comment("Auto-switch to third-person mode while elytra gliding.").sync(v -> this.thirdPersonGliding = v);
         builder.define("Superman Pose", true).comment("Superman pose when crouching and elytra gliding at the same time.").sync(v -> this.supermanGliding = v);
         builder.pop();

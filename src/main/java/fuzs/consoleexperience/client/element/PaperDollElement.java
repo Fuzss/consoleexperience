@@ -1,9 +1,10 @@
 package fuzs.consoleexperience.client.element;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import fuzs.consoleexperience.client.gui.PaperDollRenderer;
 import fuzs.consoleexperience.client.gui.PositionPreset;
-import fuzs.puzzleslib.config.option.OptionBuilder;
+import fuzs.puzzleslib.config.option.OptionsBuilder;
 import fuzs.puzzleslib.element.AbstractElement;
 import fuzs.puzzleslib.element.side.IClientElement;
 import net.minecraft.client.Minecraft;
@@ -35,7 +36,7 @@ public class PaperDollElement extends AbstractElement implements IClientElement,
     public boolean potionShift;
     public boolean firstPersonOnly;
     public PaperDollRenderer.HeadMovement headMovement;
-    public Set<DisplayAction> dollConditions;
+    public Set<DisplayAction> dollConditions = Sets.newHashSet(DEFAULT_DOLL_CONDITIONS);
 
     private int remainingDisplayTicks;
     private int remainingRidingTicks;
@@ -54,17 +55,18 @@ public class PaperDollElement extends AbstractElement implements IClientElement,
     }
 
     @Override
-    public void setupClientConfig(OptionBuilder builder) {
+    public void setupClientConfig(OptionsBuilder builder) {
         
-        builder.define("Scale", 4).range(1, 24).comment("Scale of paper doll. Also influenced by \"GUI Scale\" option in \"Video Settings\".").sync(v -> this.scale = v)
-                .define("X-Offset", 0).comment("Offset on x-axis from original doll position.").sync(v -> this.xOffset = v)
-                .define("Y-Offset", 0).comment("Offset on y-axis from original doll position.").sync(v -> this.yOffset = v)
-                .define("Display Time", 12).min(0).comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").sync(v -> this.displayTime = v)
-                .define("Screen Corner", PositionPreset.TOP_LEFT).comment("Define a screen corner to display the paper doll in.").sync(v -> this.position = v)
-                .define("Potion Shift", true).comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applies when \"Screen Corner\" is set to \"TOP_RIGHT\".").sync(v -> this.potionShift = v)
-                .define("First Person Only", true).comment("Only show paper doll when in first-person mode.").sync(v -> this.firstPersonOnly = v)
-                .define("Head Movement", PaperDollRenderer.HeadMovement.YAW).comment("Set axis the player head can move on.").sync(v -> this.headMovement = v)
-                .define("Display Actions", DEFAULT_DOLL_CONDITIONS, DisplayAction.class).comment("Display paper doll while performing these actions.").sync(v -> this.dollConditions = v);
+        builder.define("Scale", 4).range(1, 24).comment("Scale of paper doll. Also influenced by \"GUI Scale\" option in \"Video Settings\".").sync(v -> this.scale = v);
+        builder.define("X-Offset", 0).comment("Offset on x-axis from original doll position.").sync(v -> this.xOffset = v);
+        builder.define("Y-Offset", 0).comment("Offset on y-axis from original doll position.").sync(v -> this.yOffset = v);
+        builder.define("Display Time", 12).min(0).comment("Amount of ticks the paper doll will be kept on screen after its display conditions are no longer met. Set to 0 to always display the doll.").sync(v -> this.displayTime = v);
+        builder.define("Screen Corner", PositionPreset.TOP_LEFT).comment("Define a screen corner to display the paper doll in.").sync(v -> this.position = v);
+        builder.define("Potion Shift", true).comment("Shift paper doll downwards when it would otherwise overlap with potion icons. Only applies when \"Screen Corner\" is set to \"TOP_RIGHT\".").sync(v -> this.potionShift = v);
+        builder.define("First Person Only", true).comment("Only show paper doll when in first-person mode.").sync(v -> this.firstPersonOnly = v);
+        builder.define("Head Movement", PaperDollRenderer.HeadMovement.YAW).comment("Set axis the player head can move on.").sync(v -> this.headMovement = v);
+        // TODO implement something for enum lists
+//        builder.define("Display Actions", DEFAULT_DOLL_CONDITIONS, DisplayAction.class).comment("Display paper doll while performing these actions.").sync(v -> this.dollConditions = v);
     }
 
     @Override

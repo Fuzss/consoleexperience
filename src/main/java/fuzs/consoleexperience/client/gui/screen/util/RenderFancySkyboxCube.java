@@ -1,6 +1,7 @@
 package fuzs.consoleexperience.client.gui.screen.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import fuzs.consoleexperience.ConsoleExperience;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderSkyboxCube;
@@ -27,7 +28,8 @@ public class RenderFancySkyboxCube extends RenderSkyboxCube {
         super(texture);
         for(int i = 0; i < 6; ++i) {
 
-            this.locations[i] = new ResourceLocation(texture.getNamespace(), texture.getPath() + '_' + i + ".png");
+//            this.locations[i] = new ResourceLocation(texture.getNamespace(), texture.getPath() + '_' + i + ".png");
+            this.locations[i] = new ResourceLocation(ConsoleExperience.MODID, "textures/gui/title/background/tu46/panorama_s.png");
         }
     }
 
